@@ -1,0 +1,179 @@
+{%extends "studLayout.html"%} {% block title %}Home{% endblock %} {% block
+content %}
+<div class="d-flex flex-row justify-content-center align-items-center">
+  <div class="col-8 mb-4">
+    <div class="fs-2 fw-bold text-center mb-2">Company Registration Form</div>
+    <div class="text-center mb-4">
+      Fill up the form to own an account to place internship offers
+    </div>
+    <form
+      class="row g-3"
+      action="/application/apply"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <div class="col-6">
+        <label for="name" class="form-label">Name (as in MyKad)</label>
+        <input
+          type="text"
+          class="form-control border-3"
+          id="name"
+          name="name"
+          required
+        />
+      </div>
+      <div class="col-6">
+        <label for="ic" class="form-label">MyKad No.</label>
+        <input
+          type="text"
+          class="form-control border-3"
+          id="ic"
+          name="ic"
+          required
+        />
+      </div>
+      <div class="col-6">
+        <label for="gender" class="form-label">Gender</label>
+        <input
+          type="radio"
+          class="form-control border-3"
+          id="gender"
+          name="gender"
+          value="Male"
+        />
+        <input
+          type="radio"
+          class="form-control border-3"
+          id="gender"
+          name="gender"
+          value="Female"
+        />
+      </div>
+      <div class="col-6">
+        <label for="address" class="form-label">Address</label>
+        <textarea
+          class="form-control border-3"
+          id="address"
+          name="address"
+          row="3"
+        ></textarea>
+      </div>
+      <div class="col-12">
+        <label for="postcode" class="form-label">Postcode</label>
+        <input
+          type="text"
+          class="form-control border-3"
+          id="postcode"
+          name="postcode"
+        />
+      </div>
+      <div class="col-12">
+        <label for="state" class="form-label">State and City</label>
+        <input
+          type="text"
+          class="form-control border-3"
+          id="state"
+          name="state"
+        />
+        <input
+          type="text"
+          class="form-control border-3"
+          id="city"
+          name="city"
+        />
+      </div>
+      <div class="col-12">
+        <label for="phone" class="form-label">Handphone Number</label>
+        <input
+          class="form-control border-3"
+          id="phone"
+          name="phone"
+        />
+      </div>
+      <div class="col-12">
+        <label for="guardName" class="form-label"
+          >Parent/Guardian Name</label
+        >
+        <input
+          type="text"
+          class="form-control border-3"
+          id="guardName"
+          name="guardName"
+        />
+      </div>
+      <div class="col-12">
+        <label for="guardNo" class="form-label"
+          >Parent/Guardian Contact Number</label
+        >
+        <input
+          class="form-control border-3"
+          type="text"
+          id="guardNo"
+          name="guardNo"
+        />
+      </div>
+      <div class="col-12">
+        <label for="email" class="form-label">Email Address</label>
+        <input
+          class="form-control border-3"
+          type="email"
+          id="email"
+          name="email"
+        />
+      </div>
+      <div class="col-12">
+        <label for="selectHealth" class="form-label"
+          >Illness or Physical/Mental Disability</label
+        >
+        <select
+          class="form-select"
+          id="selectHealth"
+          name="selectHealth"
+          onchange="EnableDisableTextBox(this)"
+        >
+          <option selected value="No Physical Disability / Illness">
+            NO PHYSICAL DISABILITY / ILLNESS
+          </option>
+          <option value="Asthma">ASTHMA</option>
+          <option value="Blind">BLIND</option>
+          <option value="Colour Blind">COLOUR BLIND</option>
+          <option value="Deaf">DEAF</option>
+          <option value="Deaf (With Hearing Aid)">
+            DEAF (WITH HEARING-AID)
+          </option>
+          <option value="Feet Deformity">FEET DEFORMITY</option>
+          <option value="G6PD">G6PD</option>
+          <option value="Hand Deformity">HAND DEFORMITY</option>
+          <option value="Mute">MUTE</option>
+          <option value="Paralysis">PARALYSIS</option>
+          <option value="Speech Impairment">SPEECH IMPAIRMENT</option>
+          <option value="Others">OTHERS</option>
+        </select>
+      </div>
+
+      <div class="col-12">
+        <label for="others" class="form-label"
+          >If Others, Please Specify</label
+        >
+        <input
+          class="form-control border-3"
+          type="text"
+          id="others"
+          name="others"
+        />
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  function EnableDisableTextBox(healthIssue) {
+    var selectedValue = healthIssue.options[healthIssue.selectedIndex].value;
+    var txtOther = document.getElementById("others");
+    txtOther.disabled = selectedValue == "Others" ? false : true;
+    if (!txtOther.disabled) {
+      txtOther.focus();
+    }
+  }
+</script>
+{%endblock%}
