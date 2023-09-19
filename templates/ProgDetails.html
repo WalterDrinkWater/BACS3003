@@ -1,0 +1,99 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Programme Details{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    .prog {
+    width: 100%;
+  max-width: 300px;
+  height: 330px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.apply{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.compare{
+  position: absolute;
+  bottom: 50px;
+}
+
+@media(min-width:768px) {
+    .prog-container{
+      justify-content: start!important;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h3>{{prog[0][1]}}</h3> 
+    <ul class="nav nav-pills " id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" style="padding-left: 25px!important; padding-right: 25px!important;" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;" id="req-tab" data-bs-toggle="tab" data-bs-target="#req" type="button" role="tab" aria-controls="req" aria-selected="false">Requirements</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;" id="course-tab" data-bs-toggle="tab" data-bs-target="#course" type="button" role="tab" aria-controls="course" aria-selected="false">Courses</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+
+      </div>
+      <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
+        {%for group_key, rows in req.items():%}
+        <h5><b>{{group_key}}</b></h5>
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th style="background-color: rgb(194, 194, 194); ">Required Subject</th>
+              <th style="background-color: rgb(194, 194, 194); ">Grade</th>              
+            </tr>
+          </thead>
+          <tbody>
+            {%for row in rows:%}
+            <tr>
+              <td>{{row[1]}} </td>
+              <td>{{row[2]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>  
+        {%endfor%}       
+
+      </div>
+      <div class="tab-pane fade" id="course" role="tabpanel" aria-labelledby="course-tab">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th style="background-color: rgb(194, 194, 194); ">Course name</th>
+              <th style="background-color: rgb(194, 194, 194); ">Desription</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in course%}
+            <tr>
+              <td>{{c[1]}}</td>
+              <td>{{c[2]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>        
+      </div>
+    </div>
+</div>
+{%endblock%}
