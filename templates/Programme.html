@@ -23,18 +23,12 @@
 <div class="container">
     <h3>Undergraduate Programme</h3> 
     <div class="d-flex flex-wrap justify-content-center prog-container">
-        {%set i = 0%}
-        {%set k = 0%}
-        {%set j = total[0][k]%}
-        {%for p in prog%}
+        {%for p in courses.keys()%}
         <div class="prog">
-          <h4><b>{{p[1]}}</b></h4>
-          {%for c in range(i,j)%}
-          <p>{{course[c][0]}}</p>
+          <h4><b>{{p}}</b></h4>
+          {%for c in courses[p]%}
+          <p>{{c}}</p>
           {%endfor%}
-          {%set i = j+1%}
-          {%set k = k+1%}
-          {%set j = total[0][k]%}
           </div> 
         {%endfor%}
  

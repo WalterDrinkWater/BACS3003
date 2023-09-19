@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta charset="utf-8" />
+	<title>TAR UMT - Online Application Login</title>
+
+	<meta name="description" content="User login page" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+	<!-- bootstrap & fontawesome -->
+	<link rel="stylesheet" href="/static/css/bootstrapcss.css" />
+	<link rel="stylesheet" href="/static/icon/fontawesome/css/all.css" />
+
+	<!-- text fonts -->
+	<link rel="stylesheet" href="/static/css/ace-fonts.css" />
+
+	<!-- ace styles -->
+	<link rel="stylesheet" href="/static/css/ace.css" />
+
+	<link rel="stylesheet" href="/static/css/ace-rtl.css" />
+</head>
+
+
+<body class="login-layout light-login">
+	<div class="page-overlay">
+		<div><span class="fa fa-spinner fa-spin fa-3x orange2"></span></div>
+	</div>
+	<div class="main-container">
+		<div class="main-content">
+			<div class="row d-flex flex-row justify-content-center">
+				<div class="col-sm-10 ">
+					<div class="login-container">
+						<div class="space-8"></div>
+						<div class="center">
+							<a href="https://www.tarc.edu.my"><img src="/static/media/tarumt-logo.png"
+									width="190px"></a>
+							<h2 style="margin-top:10px">
+								<span class="blue" id="page-title">Online Application Login </span>
+							</h2>
+						</div>
+
+						<div class="space-6"></div>
+
+
+
+						<div class="position-relative">
+							<div id="login-box" class="login-box visible widget-box no-border">
+								<div class="widget-body">
+									<div class="widget-main">
+										<h4 class="header blue lighter bigger">
+											<i class="ace-icon fa fa-coffee green"></i>
+											User Login
+										</h4>
+										<div id="loginError" class="alert alert-danger" style="display:none">
+											<span class="msg"></span>
+											<br />
+										</div>
+										<div class="space-6"></div>
+
+										<form>
+											<fieldset>
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="login_email" type="text" class="form-control"
+															placeholder="Email" autofocus
+															onkeyup="this.value = this.value.toLowerCase();"
+															maxlength="50" autocomplete="off" />
+														<i class="ace-icon fa fa-user"></i>
+													</span>
+												</label>
+
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="login_password" type="password" class="form-control"
+															placeholder="Password" />
+														<i class="ace-icon fa fa-lock"></i>
+													</span>
+												</label>
+
+												<div class="space"></div>
+
+												<div class="clearfix">
+													<button type="button"
+														class="width-35 pull-right btn btn-sm btn-primary"
+														onClick="login()">
+														<i class="ace-icon fa fa-key"></i>
+														<span class="bigger-110">Login</span>
+													</button>
+
+												</div>
+												<div style="float:right;padding-top:4px;font-size:12px;">
+													<a href="https://www.tarc.edu.my/account_help.jsp" target="_blank">
+														Need Help? </a>
+												</div>
+												<div class="space-4"></div>
+											</fieldset>
+										</form>
+									</div><!-- /.widget-main -->
+
+									<div class="toolbar clearfix">
+										<div>
+											<a href="#" data-target="#forgot-box" class="forgot-password-link">
+												<i class="ace-icon fa fa-arrow-left"></i>
+												Forgot password
+											</a>
+										</div>
+
+										<div>
+											<a href="#" data-target="#signup-box" class="user-signup-link">
+												New user? Sign up
+												<i class="ace-icon fa fa-arrow-right"></i>
+											</a>
+										</div>
+									</div>
+								</div><!-- /.widget-body -->
+							</div><!-- /.login-box -->
+
+							<div id="forgot-box" class="forgot-box widget-box no-border">
+								<div class="widget-body">
+									<div class="widget-main">
+										<h4 class="header red lighter bigger">
+											<i class="ace-icon fa fa-key"></i>
+											Retrieve Password
+										</h4>
+										<div id="forgotSuccess" class="alert alert-success" style="display:none">
+											<span class="msg"></span>
+											<br />
+										</div>
+										<div id="forgotError" class="alert alert-danger" style="display:none">
+											<span class="msg"></span>
+											<br />
+										</div>
+										<div class="space-6"></div>
+										<p>
+											Enter your email and to receive instructions
+										</p>
+
+										<form>
+											<fieldset>
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="forgot_email" type="email" class="form-control"
+															placeholder="Email"
+															onkeyup="this.value = this.value.toLowerCase();"
+															maxlength="50" />
+														<i class="ace-icon fa fa-envelope"></i>
+													</span>
+												</label>
+
+												<div class="clearfix">
+													<button type="button" class="pull-right btn btn-sm btn-danger"
+														onClick="resetPassword()">
+														<i class="ace-icon fa fa-lightbulb-o"></i>
+														<span class="bigger-110">Send Me!</span>
+													</button>
+												</div>
+											</fieldset>
+										</form>
+									</div><!-- /.widget-main -->
+
+									<div class="toolbar center">
+										<a href="#" data-target="#login-box" class="back-to-login-link">
+											Back to login
+											<i class="ace-icon fa fa-arrow-right"></i>
+										</a>
+									</div>
+								</div><!-- /.widget-body -->
+							</div><!-- /.forgot-box -->
+
+							<div id="signup-box" class="signup-box widget-box no-border">
+								<div class="widget-body">
+									<div class="widget-main">
+										<h4 class="header green lighter bigger">
+											<i class="ace-icon fa fa-users blue"></i>
+											Sign up for new account
+										</h4>
+										<div id="registerError" class="alert alert-danger" style="display:none">
+											<span class="msg"></span>
+											<br />
+										</div>
+
+										<div class="space-6"></div>
+										<p> Enter your details to begin: </p>
+
+										<form>
+											<fieldset>
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="new_email" type="email" class="form-control"
+															placeholder="Email"
+															onkeyup="this.value = this.value.toLowerCase();"
+															maxlength="50" />
+														<i class="ace-icon fa fa-user"></i>
+													</span>
+												</label>
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="new_password" type="password" class="form-control"
+															placeholder="Password"
+															onKeyUp="StrengthPassword('new_password','pws_color','btn_register')" />
+														<i class="ace-icon fa fa-lock"></i>
+													</span>
+													<div style="font-size:10px;line-height:15px;padding-top:4px;">
+														Use 8 or more characters with a mix of letters, numbers &
+														symbols
+													</div>
+												</label>
+												<label class="block clearfix">
+													<span class="block input-icon input-icon-right">
+														<input id="new_repeat_password" type="password"
+															class="form-control" placeholder="Repeat password" />
+														<i class="ace-icon fa fa-retweet"></i>
+													</span>
+												</label>
+
+												<div style="float:right;padding:2px ;">
+													<div id="pws_color"
+														style=" background-color:#FFC000; border:1px solid #c5c5c5; width:200px; padding:1px; height:25px; text-align:center"
+														valign="center">
+														Password Strength Level
+													</div>
+												</div>
+												<div class="clearfix"></div>
+												<div class="space-4"></div>
+												<div style="font-size:10px;line-height:15px;padding-top:4px;">
+													By clicking Sign Up, you agree to our <a
+														href="https://www.tarc.edu.my/privacy-policy.jsp"
+														target="_blank"> Disclaimer</a>
+													and <a href="https://www.tarc.edu.my/privacy-policy.jsp"
+														target="_blank"> Privacy Policy</a>
+												</div>
+
+												<div class="space-12"></div>
+
+												<div class="clearfix">
+
+													<button id="btn_register" type="button"
+														class="width-65 pull-right btn btn-sm btn-success"
+														onClick="register()">
+														<span class="bigger-110">Sign Up</span>
+														<i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+													</button>
+												</div>
+											</fieldset>
+										</form>
+									</div>
+
+									<div class="toolbar center">
+										<a href="#" data-target="#login-box" class="back-to-login-link">
+											<i class="ace-icon fa fa-arrow-left"></i>
+											Back to login
+										</a>
+									</div>
+								</div><!-- /.widget-body -->
+							</div><!-- /.signup-box -->
+
+						</div><!-- /.position-relative -->
+
+
+
+					</div>
+				</div><!-- /.col -->
+			</div><!-- /.row -->
+			<div class="row">
+				<div class="col-sm-10 col-sm-offset-1">
+					<div class="login-container">
+						<div id="pending-box" class="pending-box widget-box no-border">
+							<div class="widget-body">
+								<div class="widget-main">
+									<h4 class="header red lighter bigger">
+										<i class="ace-icon fa fa-key"></i>
+										Pending Email Verification
+									</h4>
+									<div id="pendingSuccess" class="alert alert-success" style="display:none">
+										<span class="msg"></span>
+										<br />
+									</div>
+									<div id="pendingError" class="alert alert-danger" style="display:none">
+										<span class="msg"></span>
+										<br />
+									</div>
+									<div class="space-6"></div>
+									<p style="font-size:14px;">
+										Please click the verification link in the email which had been sent to
+										you upon sign up to activate your account.<br /><br />
+										If you have not received the email, please check your spam folder or
+										click on 'Resend' to resend verification email.
+									</p>
+
+									<form>
+										<fieldset>
+											<div class="clearfix">
+												<button type="button" class="pull-right btn btn-sm btn-danger"
+													onClick="resendVerification()">
+													<i class="ace-icon fa fa-lightbulb-o"></i>
+													<span class="bigger-110">Resend!</span>
+												</button>
+											</div>
+										</fieldset>
+									</form>
+								</div><!-- /.widget-main -->
+
+								<div class="toolbar center">
+									<a href="#" data-target="#login-box" class="back-to-login-link">
+										<i class="ace-icon fa fa-arrow-left"></i>
+										Back to login
+
+									</a>
+								</div>
+							</div><!-- /.widget-body -->
+						</div><!-- /.pending-box -->
+					</div>
+				</div>
+			</div>
+
+
+			<div id="modal-form-select" class="modal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div id="modal-wizard-container">
+							<div class="modal-header">
+								<h2 class="page-header text-primary">Welcome</h2>
+								<h4 class="text-success"><small>Please select an application below</small></h4>
+								<div class="list-group">
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+
+		</div><!-- /.main-content -->
+	</div><!-- /.main-container -->
+	<form name="frmVerify" method="post" action="verification.jsp">
+		<input type="hidden" id="verify_email" name="verify_email" value="">
+		<input type="hidden" id="fappcode" name="fappcode" value="online-app">
+	</form>
+
+
+	<!-- basic scripts -->
+
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/bootstrap.bundle.js"></script>
+
+	<script type="text/javascript">
+		if ('ontouchstart' in document.documentElement) document.write("<script src='/static/js/jquery.mobile.custom.js'>" + "<" + "/script>");
+	</script>
+
+	<link rel="stylesheet" href="/static/css/main.css" />
+
+	<div class="space-6"></div>
+	<div class="login-container" style="font-size:1rem;">
+		<div class="row">
+			<div class="col-xs-6 col-sm-6 col-md-6">TAR UMT &copy; 2023 All Rights Reserved</div>
+			<div class="col-xs-6 col-sm-6 col-md-6 text-right">
+				<a href="https://www.tarc.edu.my/disclaimer.jsp" target="_blank">Disclaimer</a> |
+				<a href="https://www.tarc.edu.my/privacy-policy.jsp" target="_blank">Privacy Policy</a>
+			</div>
+		</div>
+	</div>
+	<div class="space-6"></div>
+	<style>
+		.light-login .widget-box.pending-box {
+			background-color: #D2C5C5 !important;
+			background-color: rgba(120, 110, 100, 0.4);
+		}
+
+		.pending-box .toolbar {
+			background: #C16050;
+			border-top: 2px solid #976559;
+			padding: 9px 18px;
+		}
+
+		.pending-box .back-to-login-link,
+		.signup-box .back-to-login-link {
+			color: #FE9;
+			font-size: 14px;
+			font-weight: bold;
+			text-shadow: 1px 0px 1px rgba(0, 0, 0, 0.25);
+		}
+
+		/*thamch*/
+		BODY.light-login {
+			background: url(static/media/background03.jpg) #97ae25 no-repeat !important;
+			background-size: 100% auto !important;
+		}
+	</style>
+	<!-- inline scripts related to this page -->
+	<script type="text/javascript">
+		jQuery(function ($) {
+			$(document).on('click', '.toolbar a[data-target]', function (e) {
+				clearDisplayMsg();
+				e.preventDefault();
+				var target = $(this).data('target');
+				$('.widget-box.visible').removeClass('visible');//hide others
+				$(target).addClass('visible');//show target
+
+				if ("#login-box" == target) {
+					$('#login_email').focus();
+				} else if ("#forgot-box" == target) {
+					$('#forgot_email').focus();
+				} else if ("#signup-box" == target) {
+					$('#new_email').focus();
+				}
+
+			});
+
+			$('#login_password').keypress(function (e) {
+				if (e.which == 13) {
+					login();
+					return false;
+				}
+			});
+
+			$('#forgot_email').keypress(function (e) {
+				if (e.which == 13) {
+					resetPassword();
+					return false;
+				}
+			});
+		});
+
+		function showPendingBox() {
+			clearDisplayMsg();
+			$('.widget-box.visible').removeClass('visible');//hide others
+			$('#pending-box').addClass('visible');//show target
+		}
+
+		function login() {
+			clearDisplayMsg();
+			if (validateLoginInput()) {
+				$(".page-overlay").show();
+				$.ajax({
+					type: "POST",
+					url: "AJAXLogin.jsp",
+					data: {
+						"act": "login",
+						"fappcode": "online-app",
+						"femail": $("#login_email").val(),
+						"fpassword": $("#login_password").val()
+					},
+					success: function (data) {
+						$(".page-overlay").hide();
+						if (data.msg == 'success') {
+
+							if (data.action == 'login-success') {
+
+								window.location.href = data.nexturl + "?ftoken=" + data.ftoken + "&fredirect=";
+
+							} else if (data.action == 'pending-verification') {
+								$("#pending_email").html(data.femail);
+								showPendingBox();
+							}
+						} else if (data.msg == 'failed') {
+							$("#loginError").show();
+							$("#loginError .msg").html(data.msgdesc);
+
+						}
+
+					}, error: function (textStatus, errorThrown) {
+						$(".page-overlay").hide();
+						alert(errorThrown);
+					}
+				});
+			}
+		}
+
+		function validateRegisterInput() {
+			$("#registerError .msg").html("");
+
+			if ($("#new_email").val() == '') {
+				$("#registerError").show();
+				$("#registerError .msg").html("Please enter an email");
+				return false;
+			}
+
+			if ($("#new_password").val() == '') {
+				$("#registerError").show();
+				$("#registerError .msg").html("Please enter a password");
+				return false;
+			}
+
+			if ($("#new_password").val() != $("#new_repeat_password").val()) {
+				$("#registerError").show();
+				$("#registerError .msg").html("Password and Repeat Password does not match");
+				return false;
+			}
+
+			return true;
+		}
+
+		function validateLoginInput() {
+			$("#loginError .msg").html("");
+
+			if ($("#login_email").val() == '') {
+				$("#loginError").show();
+				$("#loginError .msg").html("Please enter an email");
+				return false;
+			}
+
+			if ($("#login_password").val() == '') {
+				$("#loginError").show();
+				$("#loginError .msg").html("Please enter a password");
+				return false;
+			}
+			return true;
+		}
+
+		function register() {
+			clearDisplayMsg();
+			if (validateRegisterInput()) {
+				$(".page-overlay").show();
+				$.ajax({
+					type: "POST",
+					url: "AJAXLogin.jsp",
+					data: {
+						"act": "create",
+						"fappcode": "online-app",
+						"femail": $("#new_email").val(),
+						"fpassword": $("#new_password").val()
+					},
+					success: function (data) {
+						$(".page-overlay").hide();
+						if (data.msg == 'success') {
+							frmVerify.verify_email.value = $("#new_email").val();
+							frmVerify.submit();
+						} else if (data.msg == 'failed') {
+							$("#registerError").show();
+							$("#registerError .msg").html(data.msgdesc);
+						}
+
+					}, error: function (textStatus, errorThrown) {
+						$(".page-overlay").hide();
+						alert(errorThrown);
+					}
+				});
+			}
+		}
+
+		function resendVerification() {
+			clearDisplayMsg();
+			$(".page-overlay").show();
+			$.ajax({
+				type: "POST",
+				url: "AJAXLogin.jsp",
+				data: {
+					"act": "resend",
+					"fappcode": "online-app"
+				},
+				success: function (data) {
+					$(".page-overlay").hide();
+					if (data.msg == 'success') {
+						$("#pendingSuccess").show();
+						$("#pendingSuccess .msg").html(data.msgdesc);
+					} else if (data.msg == 'failed') {
+						$("#pendingError").show();
+						$("#pendingError .msg").html(data.msgdesc);
+					}
+
+				}, error: function (textStatus, errorThrown) {
+					$(".page-overlay").hide();
+					alert(errorThrown);
+				}
+			});
+		}
+
+		function resetPassword() {
+			clearDisplayMsg();
+			$(".page-overlay").show();
+			$.ajax({
+				type: "POST",
+				url: "AJAXLogin.jsp",
+				data: {
+					"act": "request-reset",
+					"fappcode": "online-app",
+					"femail": $("#forgot_email").val()
+				},
+				success: function (data) {
+					$(".page-overlay").hide();
+					if (data.msg == 'success') {
+						$("#forgotSuccess").show();
+						$("#forgotSuccess .msg").html(data.msgdesc);
+						$("#forgot_email").val("");
+					} else if (data.msg == 'failed') {
+						$("#forgotError").show();
+						$("#forgotError .msg").html(data.msgdesc);
+					}
+
+				}, error: function (textStatus, errorThrown) {
+					$(".page-overlay").hide();
+					alert(errorThrown);
+				}
+			});
+		}
+
+		function clearDisplayMsg() {
+			$("#pendingSuccess").hide();
+			$("#pendingSuccess .msg").html("");
+			$("#pendingError").hide();
+			$("#pendingError .msg").html("");
+
+			$("#registerError").hide();
+			$("#registerError .msg").html("");
+
+			$("#loginError").hide();
+			$("#loginError .msg").html("");
+
+			$("#forgotSuccess").hide();
+			$("#forgotSuccess .msg").html("");
+			$("#forgotError").hide();
+			$("#forgotError .msg").html("");
+
+		}
+
+		function StrengthPassword(input_id, target_id, proceed_btn_id) {
+			var passInput = document.getElementById(input_id);
+			var pwsObj = document.getElementById(target_id);
+			var btnObj = document.getElementById(proceed_btn_id);
+			var passwd = passInput.value;
+			var intScore = 0
+			var strVerdict = "weak"
+
+			var BadPassword = new Array("asdfg1234", "2222222222222222", "8888888888888888", "aaaaa11111", "asdf1234", "abcd1111", "abcd2222", "1111111111111111", "11111111111111111", "111111111111111111", "1111111111111111111", "11111111111111111111", "1111111111111111111111111", "aaaa1111", "1111aaaa", "abc12345", "abc12346", "abcd1234", "abcd12345", "abcd123456", "abcde123", "abcde1234", "abcdef12", "abcde12345", "abcdef123456", "12345abc", "1234abcd", "123abcde", "123abcdef", "1234abcde", "12345abcdef");
+			var DisableSubmit = true;
+
+			// PASSWORD LENGTH
+			if (passwd.length < 8) {                       // length 4 or less
+				intScore = 0
+			} else if (passwd.length > 7 && passwd.length < 16) { // length between 8 and 15
+				intScore = (intScore + 12)
+			} else if (passwd.length > 15) {                   // length 16 or more
+				intScore = (intScore + 12)
+			}
+
+
+			// LETTERS (Not exactly implemented as dictacted above because of my limited understanding of Regex)
+			if (passwd.match(/[a-z]/)) {        // [verified] at least one lower case letter
+				intScore = (intScore + 1)
+			}
+
+			if (passwd.match(/[A-Z]/)) {        // [verified] at least one upper case letter
+				intScore = (intScore + 1)
+			}
+
+			// NUMBERS
+			if (passwd.match(/\d+/)) {          // [verified] at least one number
+				intScore = (intScore + 5)
+			}
+			/*
+			if (passwd.match(/(.*[0-9].*[0-9].*[0-9])/)){        // [verified] at least three numbers
+				intScore = (intScore+5)
+			}*/
+
+			// SPECIAL CHAR
+			if (passwd.match(/.[~`!@#$%^&*()_\-+={\[}\]\\|;:'",<.>\/?]/)) {           // [verified] at least one special character
+				intScore = (intScore + 5)
+			}
+
+			// [verified] at least two special characters
+			if (passwd.match(/(.*[~`!@#$%^&*()_\-+={\[}\]\\|;:'",<.>\/?].*[~`!@#$%^&*()_\-+={\[}\]\\|;:'",<.>\/?])/)) {
+				intScore = (intScore + 5)
+			}
+
+			// COMBOS
+			if (passwd.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {        // [verified] both upper and lower case
+				intScore = (intScore + 2)
+			}
+
+			if (passwd.match(/([a-zA-Z])/) && passwd.match(/([0-9])/)) { // [verified] both letters and numbers
+				intScore = (intScore + 2)
+			}
+
+			// [verified] letters, numbers, and special characters
+			if (passwd.match(/([a-zA-Z0-9].*[~`!@#$%^&*()_\-+={\[}\]\\|;:'",<.>\/?])|([~`!@#$%^&*()_\-+={\[}\]\\|;:'",<.>\/?].*[a-zA-Z0-9])/)) {
+				intScore = (intScore + 2);
+			}
+
+
+			if (intScore < 16) {
+				pwsObj.style.backgroundColor = "#FFC000";
+				strVerdict = "Very weak";
+
+			} else if (intScore > 15 && intScore < 25) {
+				strVerdict = "Weak";
+				pwsObj.style.backgroundColor = "#FFDE00";
+
+			} else if (intScore > 24 && intScore < 35) {
+				strVerdict = "Mediocre";
+				pwsObj.style.backgroundColor = "#D8FF00";
+
+			} else if (intScore > 34 && intScore < 45) {
+				strVerdict = "Strong";
+				pwsObj.style.backgroundColor = "#4EFF00";
+			} else {
+				strVerdict = "Stronger";
+				pwsObj.style.backgroundColor = "#00FFD8";
+
+			}
+
+			if (intScore > 24 && passwd.length > 7) {
+				DisableSubmit = false;
+			}
+
+			for (i = 0; i < BadPassword.length; i++) {
+				if (BadPassword[i] == passInput.value.toLowerCase()) {
+					strVerdict = "Weak";
+					pwsObj.style.backgroundColor = "#FFDE00";
+					DisableSubmit = true;
+				}
+			}
+
+			/*if(repeatInput.value!=passInput.value){		 
+				strVerdict = "Same password detected!";
+				pwsObj.style.backgroundColor ="#FFDE00";	
+				DisableSubmit=true;						
+			}*/
+
+			btnObj.disabled = DisableSubmit;
+			pwsObj.innerHTML = strVerdict;
+		}
+
+	</script>
+
+</body>
+
+</html>
