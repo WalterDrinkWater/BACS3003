@@ -1,0 +1,43 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Programme{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    .prog {
+    width: 100%;
+  max-width: 300px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+@media(min-width:768px) {
+    .prog-container{
+      justify-content: start!important;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h3>Undergraduate Programme</h3> 
+    <div class="d-flex flex-wrap justify-content-center prog-container">
+        {%set i = 0%}
+        {%set k = 0%}
+        {%set j = total[0][k]%}
+        {%for p in prog%}
+        <div class="prog">
+          <h4><b>{{p[1]}}</b></h4>
+          {%for c in range(i,j)%}
+          <p>{{course[c][0]}}</p>
+          {%endfor%}
+          {%set i = j+1%}
+          {%set k = k+1%}
+          {%set j = total[0][k]%}
+          </div> 
+        {%endfor%}
+ 
+      </div>
+</div>
+{%endblock%}
