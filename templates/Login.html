@@ -91,7 +91,7 @@
 
 												</div>
 												<div style="float:right;padding-top:4px;font-size:12px;">
-													<a href="https://www.tarc.edu.my/account_help.jsp" target="_blank">
+													<a href="https://www.tarc.edu.my/account_help.jsp" target="_blank"  style="text-decoration: none;">
 														Need Help? </a>
 												</div>
 												<div class="space-4"></div>
@@ -101,14 +101,14 @@
 
 									<div class="toolbar clearfix">
 										<div>
-											<a href="#" data-target="#forgot-box" class="forgot-password-link">
+											<a href="#" data-target="#forgot-box" class="forgot-password-link"  style="text-decoration: none;">
 												<i class="ace-icon fa fa-arrow-left"></i>
 												Forgot password
 											</a>
 										</div>
 
 										<div>
-											<a href="#" data-target="#signup-box" class="user-signup-link">
+											<a href="#" data-target="#signup-box" class="user-signup-link"  style="text-decoration: none;">
 												New user? Sign up
 												<i class="ace-icon fa fa-arrow-right"></i>
 											</a>
@@ -161,7 +161,7 @@
 									</div><!-- /.widget-main -->
 
 									<div class="toolbar center">
-										<a href="#" data-target="#login-box" class="back-to-login-link">
+										<a href="#" data-target="#login-box" class="back-to-login-link" style="text-decoration:none;">
 											Back to login
 											<i class="ace-icon fa fa-arrow-right"></i>
 										</a>
@@ -248,7 +248,7 @@
 									</div>
 
 									<div class="toolbar center">
-										<a href="#" data-target="#login-box" class="back-to-login-link">
+										<a href="#" data-target="#login-box" class="back-to-login-link" style="text-decoration:none;">
 											<i class="ace-icon fa fa-arrow-left"></i>
 											Back to login
 										</a>
@@ -274,11 +274,11 @@
 										Pending Email Verification
 									</h4>
 									<div id="pendingSuccess" class="alert alert-success" style="display:none">
-										<span class="msg"></span>
+										<span class="msg">{{msgdesc}} {{email}}</span>
 										<br />
 									</div>
 									<div id="pendingError" class="alert alert-danger" style="display:none">
-										<span class="msg"></span>
+										<span class="msg">{{msgdesc}} {{email}}</span>
 										<br />
 									</div>
 									<div class="space-6"></div>
@@ -303,7 +303,7 @@
 								</div><!-- /.widget-main -->
 
 								<div class="toolbar center">
-									<a href="#" data-target="#login-box" class="back-to-login-link">
+									<a href="#" data-target="#login-box" class="back-to-login-link" style="text-decoration:none;">
 										<i class="ace-icon fa fa-arrow-left"></i>
 										Back to login
 
@@ -356,11 +356,11 @@
 
 	<div class="space-6"></div>
 	<div class="login-container" style="font-size:1rem;">
-		<div class="row">
-			<div class="col-xs-6 col-sm-6 col-md-6">TAR UMT &copy; 2023 All Rights Reserved</div>
-			<div class="col-xs-6 col-sm-6 col-md-6 text-right">
-				<a href="https://www.tarc.edu.my/disclaimer.jsp" target="_blank">Disclaimer</a> |
-				<a href="https://www.tarc.edu.my/privacy-policy.jsp" target="_blank">Privacy Policy</a>
+		<div class="row"  style="font-size: 10px">
+			<div class="col-sm-6 col-md-6">TAR UMT &copy; 2023 All Rights Reserved</div>
+			<div class="col-sm-6 col-md-6 text-end">
+				<a href="https://www.tarc.edu.my/disclaimer.jsp" style="text-decoration: none;" target="_blank">Disclaimer</a> |
+				<a href="https://www.tarc.edu.my/privacy-policy.jsp" style="text-decoration: none;" target="_blank">Privacy Policy</a>
 			</div>
 		</div>
 	</div>
@@ -387,7 +387,7 @@
 
 		/*thamch*/
 		BODY.light-login {
-			background: url(static/media/background03.jpg) #97ae25 no-repeat !important;
+			background: url(/static/media/background03.jpg) #97ae25 no-repeat !important;
 			background-size: 100% auto !important;
 		}
 	</style>
@@ -451,7 +451,7 @@
 
 							if (data.action == 'login-success') {
 
-								window.location.href = data.nexturl + "?ftoken=" + data.ftoken + "&fredirect=";
+								window.location.href = data.nexturl;
 
 							} else if (data.action == 'pending-verification') {
 								$("#pending_email").html(data.femail);
