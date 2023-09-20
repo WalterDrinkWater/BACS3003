@@ -39,16 +39,14 @@
 {% block content %}
 <div class="container">
     <h3>Undergraduate Programme</h3> 
-    <div class="d-flex flex-wrap justify-content-center prog-container ">
-        {%for p in prog%}
+    <div class="d-flex flex-wrap justify-content-center prog-container">
+        {%for p in courses.keys()%}
         <div class="prog">
-          <h4><b>{{p[1]}}</b></h4>
-          <p>{{p[2]}}</p>
-          <p class="duration text-muted">Duration: {{p[3]}} years<p>
-            <div class="d-flex align-items-end justify-content-end my-auto">
-              <button name="apply" value="apply" type="submit" class="btn btn-primary apply">Details</button>
-            </div>
-          </div>   
+          <h4><b>{{p}}</b></h4>
+          {%for c in courses[p]%}
+          <p>{{c}}</p>
+          {%endfor%}
+          </div> 
         {%endfor%}
     </div>
 </div>
