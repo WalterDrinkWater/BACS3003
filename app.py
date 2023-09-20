@@ -19,6 +19,8 @@ import re
 from flask_mail import Mail, Message
 import datetime
 import pytz
+import cv2
+import pytesseract
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
