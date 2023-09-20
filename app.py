@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, session,  jsonify, json
 from pymysql import connections, cursors
-import pymysql
 import os
 from config import *
 from io import BytesIO
@@ -8,6 +7,7 @@ from datetime import datetime
 import numpy as np
 import cv2
 import pytesseract
+from imutils.perspective import four_point_transform
 from collections import defaultdict
 
 app = Flask(__name__)
@@ -31,7 +31,7 @@ def home():
 @app.route("/studhome")
 def studhome():
     try:
-        cursor = db_conn.cursor(pymysql.cursors.DictCursor)
+        cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute("SELECT * FROM Applications WHERE accountID=%s", ("1"))
         application = cursor.fetchall()
 
@@ -47,43 +47,108 @@ def studhome():
 def application():
     id = request.args.get("id")
     if(id != None):
-        cursor = db_conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (id))
-        application = cursor.fetchall()
+        try:
+            cursor = db_conn.cursor(cursors.DictCursor)
+            cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (id))
+            application = cursor.fetchone()
+
+        except Exception as e:
+            return str(e)
+
+        finally:
+            cursor.close()
+    else:
+        application = ""
     
     return render_template('Application.html', application=application)
 
-@app.route("/application/apply", methods=['POST'])
-def apply():
-    
-    cursor = db_conn.cursor()
+@app.route("/application/apply/<status>", methods=['POST'])
+def apply(status):
+    if(status == 'insertinfo'):
+        cursor = db_conn.cursor()
 
-    studName = request.form["name"]
-    studIc = request.form["ic"]
-    studGender = request.form["gender"]
-    studAddress = request.form["address"]
-    studPostcode = request.form["postcode"]
-    studState = request.form["state"]
-    studCity = request.form["city"]
-    studPhone = request.form["phone"]
-    guardianName = request.form["guardName"]
-    guardianNo = request.form["guardNo"]
-    studEmail = request.form["email"]
-    studHealth = request.form["selectHealth"]
-    datetimeApplied = datetime.now()
+        studName = request.form["name"]
+        studIc = request.form["ic"]
+        studGender = request.form["gender"]
+        studAddress = request.form["address"]
+        studPhone = request.form["phone"]
+        guardianName = request.form["guardName"]
+        guardianNo = request.form["guardNo"]
+        studEmail = request.form["email"]
+        studHealth = request.form["selectHealth"]
+        datetimeApplied = datetime.now()
+        # accId = session["userid"]
 
-    if(studHealth == 'Other'):
-        studHealth = request.form["others"]
+        if(studHealth == 'Other'):
+            studHealth = request.form["others"]
 
-    fulladdress = studAddress + ", " + studPostcode + \
-        ", " + studState + ", " + studCity
+        cursor = db_conn.cursor()
+
+        try:
+            cursor.execute("INSERT INTO Applications VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        ("APP3", studName, studIc,
+                            studGender, studAddress, studEmail, datetimeApplied, "Pending", studPhone, guardianName, guardianNo,
+                            studHealth, "", "", "ProgC00001", "1"))
+            db_conn.commit()
+
+        except Exception as e:
+            return str(e)
+
+        finally:
+            cursor.close()
+    else: 
+        studName = request.form["name"]
+        studIc = request.form["ic"]
+        studGender = request.form["gender"]
+        studAddress = request.form["address"]
+        studPhone = request.form["phone"]
+        guardianName = request.form["guardName"]
+        guardianNo = request.form["guardNo"]
+        studEmail = request.form["email"]
+        studHealth = request.form["selectHealth"]
+        datetimeApplied = datetime.now()
+
+        if(studHealth == 'Other'):
+            studHealth = request.form["others"]
+
+        cursor = db_conn.cursor()
+
+        try:
+            cursor.execute("UPDATE applications SET studentName = %s, identification = %s, gender = %s, fullAddress = %s,"
+                           + "email = %s, datetimeApplied = %s, handphoneNumber = %s, guardianName = %s," +
+                            "guardianNumber = %s, healthIssue = %s, programmeCampusID = %s)",
+                        (studName, studIc, studGender, studAddress, studEmail, datetimeApplied, studPhone, guardianName, 
+                         guardianNo,studHealth, "ProgC00001"))
+            db_conn.commit()
+
+        except Exception as e:
+            return str(e)
+
+        finally:
+            cursor.close()
+
+    print("INSERT COMPLETE...")
+    return redirect(url_for('application', id="APP3"))
+
+@app.route('/application/uploadic', methods=['POST'])
+def uploadic():
+    id = request.args.get("id")
+    icf = request.files["frontIc"]
+    icb = request.files["backIc"]
+
     cursor = db_conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO Applications VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                       ("APP2", studName, studIc,
-                        studGender, fulladdress, studEmail, datetimeApplied, "Pending", studPhone, guardianName, guardianNo,
-                        studHealth, "ab", "v", "ProgC00001", "1"))
+        if(icf != None):
+            path = os.path.join("static/media/" + id + "_front_" + icf.filename)
+            icf.save(path)
+            cursor.execute("UPDATE Applications SET identificationFrontPath = %s WHERE applicationID=%s",(path, id))
+
+        if(icf != None):
+            path = os.path.join("static/media/" + id + "_back" + icb.filename)
+            icf.save(path)
+            cursor.execute("UPDATE Applications SET identificationBackPath = %s WHERE applicationID=%s",(path, id))
+
         db_conn.commit()
 
     except Exception as e:
@@ -92,7 +157,6 @@ def apply():
     finally:
         cursor.close()
 
-    print("INSERT COMPLETE...")
     return redirect(url_for('application'))
 
 
@@ -147,83 +211,45 @@ def Get_Programme_Details(progID):
 
         return render_template('ProgDetails.html', prog=prog, course=course, req=grouped_data)
 
-# @app.route("/test")
-# def scan_img():
-#     # Mention the installed location of Tesseract-OCR in your system
-#     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
-
-#     # Load image, convert to HSV, color threshold to get mask
-#     image = cv2.imread('1.png')
-#     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-#     lower = np.array([0, 0, 0])
-#     upper = np.array([100, 175, 110])
-#     mask = cv2.inRange(hsv, lower, upper)
-
-#     # Morph close to connect individual text into a single contour
-#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-#     close = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=3)
-
-#     # Find rotated bounding box then perspective transform
-#     cnts = cv2.findContours(close, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-#     rect = cv2.minAreaRect(cnts[0])
-#     box = cv2.boxPoints(rect)
-#     box = np.int0(box)
-#     cv2.drawContours(image,[box],0,(36,255,12),2)
-#     # warped = four_point_transform(255 - mask, box.reshape(4, 2))
-
-#     # OCR
-#     data = pytesseract.image_to_string(warped, lang='eng', config='--psm 6')
-#     print(data)
-
-#     cv2.imshow('mask', mask)
-#     cv2.imshow('close', close)
-#     cv2.imshow('warped', warped)
-#     cv2.imshow('image', image)
-#     cv2.waitKey()  
-
-#     return data
-
-# @app.route("/test")
-# def scan_img():
-#     # Mention the installed location of Tesseract-OCR in your system
-#     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
+@app.route("/test")
+def scan_img():
+    # Mention the installed location of Tesseract-OCR in your system
+    pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
     
-#     # Read image from which text needs to be extracted
-#     img = cv2.imread("static/media/test2.jpg")
-    
-#     # Convert the image to gray scale
-#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    # Load image, grayscale, Otsu's threshold
+    image = cv2.imread('static/media/SPM Result.jpg')
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
-#     # Morph open to remove noise
-#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
-#     opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+    # Morph open to remove noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
 
-#     # Find contours and remove small noise
-#     cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-#     for c in cnts:
-#         area = cv2.contourArea(c)
-#         if area < 50:
-#             cv2.drawContours(opening, [c], -1, 0, -1)
+    # Find contours and remove small noise
+    cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        area = cv2.contourArea(c)
+        if area < 50:
+            cv2.drawContours(opening, [c], -1, 0, -1)
 
-#     # Invert and apply slight Gaussian blur
-#     result = 255 - opening
-#     result = cv2.GaussianBlur(result, (3,3), 0)
-    
-#     # Perform OCR
-#     data = pytesseract.image_to_string(result, lang='eng', config='--psm 6')
+    # Invert and apply slight Gaussian blur
+    result = 255 - opening
+    result = cv2.GaussianBlur(result, (3,3), 0)
 
-#     cv2.namedWindow('a', cv2.WINDOW_NORMAL)
-#     cv2.namedWindow('o', cv2.WINDOW_NORMAL)
-#     cv2.namedWindow('r', cv2.WINDOW_NORMAL)
-#     cv2.imshow('a', thresh)
-#     cv2.imshow('o', opening)
-#     cv2.imshow('r', result)
-#     cv2.waitKey()    
+    # Perform OCR
+    data = pytesseract.image_to_string(result, lang='eng', config='--psm 6')
+    print(data)
 
-#     return data
+    cv2.namedWindow("thresh", cv2.WINDOW_NORMAL)
+    cv2.namedWindow("opening", cv2.WINDOW_NORMAL)
+    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+    cv2.imshow('thresh', thresh)
+    cv2.imshow('opening', opening)
+    cv2.imshow('result', result)
+    cv2.waitKey()     
+
+    return data
 
 
 

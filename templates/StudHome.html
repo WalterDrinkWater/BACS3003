@@ -15,17 +15,17 @@
         </tr>
     </thead>
     <tbody class="stud-list">
-        {% for app in applications if applications | length != 0 %}
+        {% for app in application if application | length != 0 %}
         <tr>
-            <th scope="row">{{app["applicationID"]}}</th>
+            <th scope="row">{{app.applicationID}}</th>
             <td>Oct/Nov 2023</td>
             <td>Programme</td>
             <td>Upload Documents</td>
-            <td>{{app["applicationStatus"]}}</td>
-            <td><a href="{{url_for('application', id='app["applicationID"]')}}">Edit</a></td>
+            <td>{{app.applicationStatus}}</td>
+            <td><a href="{{url_for('application', id=app.applicationID)}}">Edit</a></td>
         </tr>
         {% else %}
-        <td colspan="8" class="text-center">Haven't <a href="{{url_for('application', id='None')}}">Apply</a> Yet</td>
+        <td colspan="8" class="text-center">Havent <a href="{{url_for('application', id=None)}}">Apply</a> Yet</td>
         {% endfor %}
     </tbody>
 </table>
