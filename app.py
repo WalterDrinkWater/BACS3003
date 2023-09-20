@@ -12,7 +12,6 @@ from flask import (
 from collections import defaultdict
 from pymysql import connections, cursors
 import os
-import boto3
 from config import *
 from io import BytesIO
 import re
@@ -345,9 +344,6 @@ def UpdateProfile():
     return render_template("TempPage.html")
 
 
-@app.route("/TempPage", methods=["GET", "POST"])
-def TempPage():
-    return render_template("TempPage.html")
 
 
 @app.route("/programme", methods=["GET", "POST"])
@@ -544,6 +540,11 @@ def Compare_Programme(progID):
 def FirstLogin():
     return render_template("FirstLogin.html")
     
+
+@app.route("/TempPage", methods=["GET", "POST"])
+def TempPage():
+    return render_template("TempPage.html")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)
