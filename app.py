@@ -19,8 +19,6 @@ import re
 from flask_mail import Mail, Message
 import datetime
 import pytz
-import cv2
-import pytesseract
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
@@ -543,7 +541,7 @@ def Compare_Programme(progID):
 
 
 @app.route("/admission/firstlogin", methods=["GET", "POST"])
-def firstlogin():
+def FirstLogin():
     return render_template("FirstLogin.html")
     
 
