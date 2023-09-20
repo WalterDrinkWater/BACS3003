@@ -18,7 +18,7 @@
   position: relative;
 }
 
-.apply{
+.details{
   position: absolute;
   bottom: 10px;
   right: 10px;
@@ -46,7 +46,7 @@
           <p>{{p[2]}}</p>
           <p class="duration text-muted">Duration: {{p[3]}} years<p>
             <div class="d-flex align-items-end justify-content-end my-auto">
-              <button name="apply" value="apply" type="submit" class="btn btn-primary apply">Details</button>
+              <button type="button" class="btn btn-primary details" onclick="window.location.href = '/progDetails/{{p[0]}}';">Details</button>
             </div>
           </div>   
         {%endfor%}
