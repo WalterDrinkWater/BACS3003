@@ -1,0 +1,125 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Programme Details{% endblock %}
+{% block head %}
+{{super()}}
+<link href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css' rel='stylesheet'
+    type='text/css'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<style>
+  .title{
+    height: 80px;
+  }
+
+
+  .custom-div {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .nav .nav-item:last-child {
+    margin-left: auto;
+  }
+
+  /* @media(min-width:768px) {
+
+} */
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="d-flex align-items-center title">
+  <a class="bi bi-chevron-left" style="font-size: 30px; text-decoration: none; color:black"
+    href="/programme"></a>
+  <h3 style="margin-left:20px;">{{prog[0][1]}}</h3>
+  </div>
+  <ul class="nav nav-pills w-100" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" style="padding-left: 25px!important; padding-right: 25px!important;"
+        id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab"
+        aria-controls="overview" aria-selected="true">Overview</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;" id="req-tab"
+        data-bs-toggle="tab" data-bs-target="#req" type="button" role="tab" aria-controls="req"
+        aria-selected="false">Requirements</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;" id="course-tab"
+        data-bs-toggle="tab" data-bs-target="#course" type="button" role="tab" aria-controls="course"
+        aria-selected="false">Courses</button>
+    </li>
+    <li class="nav-item">
+
+    </li>
+    <li class="nav-item">
+      <button name="apply" value="apply" type="submit" class="btn btn-secondary">Compare</button>
+      <button name="apply" value="apply" type="submit" class="btn btn-primary">Apply</button>
+    </li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+      <h4><b>Programme Description :</b></h4>
+      <p class="fs-6">{{prog[0][2]}}</p>
+      <div class="d-flex flex-wrap justify-content-between">
+        <div class="d-flex flex-column custom-div">
+          <label><b>Intake (Years/Month)</b></label>
+          <a class="text-end text-decoration-none" style="color: black;">{{ov[0][0]}}/{{ov[0][1]}}</a>
+        </div>
+        <div class="d-flex flex-column custom-div">
+          <label><b>Duration:</b></label>
+          <a class="text-end text-decoration-none" style="color: black;">{{ov[0][2]}} years</a>
+        </div>
+        <div class="d-flex flex-column custom-div">
+          <label><b>Campus:</b></label>
+          {%for campus in ov:%}
+          <a class="text-decoration-none" style="color: black;">{{campus[3]}}</a>
+          {%endfor%}
+        </div>
+        <img src="../../static/media/overview.png" style="width: 100%; height: 100%;" />
+      </div>
+
+    </div>
+    <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
+      {%for group_key, rows in req.items():%}
+      <h5><b>{{group_key}}</b></h5>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th style="background-color: rgb(194, 194, 194); ">Required Subject</th>
+            <th style="background-color: rgb(194, 194, 194); ">Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%for row in rows:%}
+          <tr>
+            <td>{{row[1]}} </td>
+            <td>{{row[2]}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {%endfor%}
+    </div>
+    <div class="tab-pane fade" id="course" role="tabpanel" aria-labelledby="course-tab">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th style="background-color: rgb(194, 194, 194); ">Course name</th>
+            <th style="background-color: rgb(194, 194, 194); ">Desription</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in course%}
+          <tr>
+            <td>{{c[1]}}</td>
+            <td>{{c[2]}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{%endblock%}

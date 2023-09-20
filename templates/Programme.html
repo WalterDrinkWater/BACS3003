@@ -1,0 +1,55 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Programme{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    .prog {
+    width: 100%;
+  max-width: 300px;
+  height: 330px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.details{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.duration{
+  position: absolute;
+  bottom: 50px;
+}
+
+@media(min-width:768px) {
+    .prog-container{
+      justify-content: start!important;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h3>Undergraduate Programme</h3> 
+    <div class="d-flex flex-wrap justify-content-center prog-container ">
+        {%for p in prog%}
+        <div class="prog">
+          <h4><b>{{p[1]}}</b></h4>
+          <p>{{p[2]}}</p>
+          <p class="duration text-muted">Duration: {{p[3]}} years<p>
+            <div class="d-flex align-items-end justify-content-end my-auto">
+              <button type="button" class="btn btn-primary details" onclick="window.location.href = '/progDetails/{{p[0]}}';">Details</button>
+            </div>
+          </div>   
+        {%endfor%}
+    </div>
+</div>
+{%endblock%}
