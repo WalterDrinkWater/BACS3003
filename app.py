@@ -7,7 +7,7 @@ from flask import (
     send_file,
     session,
     jsonify,
-    json,
+    flash
 )
 from pymysql import connections, cursors
 import os
@@ -97,7 +97,7 @@ def send_confirmation_email(email):
     if user is not None:
         confirmation_link = url_for("confirm_email", email=email, _external=True)
         msg = Message(
-            "TAR UMT Online Application Login",
+            "TAR UMT Online Application Login - Verify Your Email Address",
             sender="noreply@example.com",
             recipients=[email],
         )
@@ -116,7 +116,7 @@ def send_reset_email(email):
     if user is not None:
         confirmation_link = url_for("ResetPassword", email=email, _external=True)
         msg = Message(
-            "TAR UMT Reset Password",
+            "TAR UMT Online Application Login - Reset password",
             sender="noreply@example.com",
             recipients=[email],
         )
@@ -162,6 +162,7 @@ def AJAXLogin():
                             
                         session["loggedin"] = True
                         session["userid"] = user["accountID"]
+                        session["useremail"] = user["accEmail"]
                         session["username"] = user["fullName"]
                         session_sql = "INSERT INTO LoginSession (ipAddress, loginTime, accountID)VALUES (%s, %s, %s)"
                         malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
@@ -318,30 +319,59 @@ def AJAXResetPassword():
     return jsonify(response)
 
 
+@app.route("/UpdateProfile", methods=["GET", "POST"])
+def UpdateProfile():
+    name = request.form.get("inputName")
+    ic = request.form.get("inputIC")
+    gender = request.form.get("inputGender")
+    address = request.form.get("inputAddress")
+    handphone = request.form.get("inputHandphoneNumber")
+    email = request.form.get("inputEmail")
+
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute(
+            "UPDATE Account SET fullName=%s AND identification=%s AND gender=%s AND fullAddress=%s AND handphoneNumber=%s WHERE accEmail=%s;",
+            (name, ic, gender, address, handphone, email),
+        )
+        db_conn.commit()
+        flash("Saved", category="success")
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+
+    return render_template("TempPage.html")
+
+
 @app.route("/programme", methods=["GET", "POST"])
 def Get_Programme():
-    if request.method == "GET":
-        cursor = db_conn.cursor(cursors.DictCursor)
-        query = "SELECT programmeName, courseName FROM Programme p, ProgrammeCourse d, Course c WHERE p.programmeID=d.programmeID AND d.courseCode=c.courseCode ORDER BY p.programmeID ASC, c.courseCode ASC"
-        cursor.execute(query)
-        courses = cursor.fetchall()
-       
-        data = {}
-        for row in courses:
-            key = row["programmeName"]
-            if key not in data:
-                data[key] = []
-            value = row["courseName"]
+    cursor = db_conn.cursor(cursors.DictCursor)
+    query = "SELECT programmeName, courseName FROM Programme p, ProgrammeCourse d, Course c WHERE p.programmeID=d.programmeID AND d.courseCode=c.courseCode ORDER BY p.programmeID ASC, c.courseCode ASC"
+    cursor.execute(query)
+    courses = cursor.fetchall()
+    
+    data = {}
+    for row in courses:
+        key = row["programmeName"]
+        if key not in data:
+            data[key] = []
+        value = row["courseName"]
 
-            # Convert to a list if it is not already.
-            if not isinstance(value, list):
-                value = [value]
+        # Convert to a list if it is not already.
+        if not isinstance(value, list):
+            value = [value]
 
-            data[key].extend(value)
+        data[key].extend(value)
 
-        cursor.close()
-        return render_template("Programme.html", courses=data)
+    cursor.close()
+    return render_template("Programme.html", courses=data)
 
+
+@app.route("/admission/firstlogin", methods=["GET", "POST"])
+def firstlogin():
+    return render_template("FirstLogin.html")
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)

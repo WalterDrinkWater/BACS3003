@@ -1,4 +1,5 @@
 Flask>=2.3.3
 Flask-Mail>=0.9
 PyMySQL>=1.0
+pytz>=2023.0
 Werkzeug>=2.3
