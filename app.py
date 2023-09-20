@@ -137,6 +137,19 @@ def Compare_Programme(progID):
     cursor.close()
     return render_template("ProgCompare.html",mName = mProg,progList=progList, sDict = sortedDict,prog_data=prog_data)
 
+@app.route("/about", methods=['GET', 'POST'])
+def About_Us():
+
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT campusName, campusLocation, campusURL FROM Campus")
+        campuses = cursor.fetchall()
+
+    except Exception as e:
+            return str(e)
+    
+    return render_template('About.html', campuses=campuses)
+
 # @app.route("/test")
 # def scan_img():
 #     # Mention the installed location of Tesseract-OCR in your system
