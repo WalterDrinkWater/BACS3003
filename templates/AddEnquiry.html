@@ -1,0 +1,95 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Enquiry{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-6 {
+        flex-basis: 50%;
+    }
+
+    @media (max-width: 768px) {
+        .col-6 {
+            flex-basis: 100%;
+        }
+    }
+
+    @media(min-width:768px) {
+        .prog-container {
+            justify-content: start !important;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %} {% if category ==
+    'success' %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% else %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %}
+<div class="d-flex flex-row justify-content-center align-items-center">
+    <div class="col-8 mb-4">
+        <div class="fs-2 fw-bold text-center mb-2">Enquiry Form</div>
+        <div class="text-center mb-4">Fill up the form to enquire</div>
+        <form class="row g-3" method="POST" action="/AddEnquiry" enctype="multipart/form-data">
+            <div class="col-12">
+                <label for="inputName" class="form-label">Name</label>
+                <input type="text" class="form-control border-3" id="inputName" name="inputName" value="{{name}}" disabled>
+                <input type="hidden" id="inputName" name="inputName" value="{{name}}">
+            </div>
+            <div class="col-6">
+                <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
+                <input type="text" class="form-control border-3" id="inputHandphoneNumber" name="inputHandphoneNumber"
+                    placeholder="e.g. 601110944598" value="{{phone}}" disabled>
+                <input type="hidden" id="inputHandphoneNumber" name="inputHandphoneNumber" value="{{phone}}">
+            </div>
+            <div class="col-6">
+                <label for="inputEmail" class="form-label">Email Address</label>
+                <input type="text" class="form-control border-3" value="{{email}}" disabled>
+                <input type="hidden" id="inputEmail" name="inputEmail" value="{{email}}">
+            </div>
+            <div class="col-12">
+                <label for="inputTopic" class="form-label">Enquiry Topic</label>
+                <select class="form-select" aria-label="Default select example" id="inputTopic"
+                    name="inputTopic">
+                    <option value="Programme" SELECTED>Programme</option>
+                    <option value="Campus" >Campus</option>
+                    <option value="Fee" >Fee</option>
+                    <option value="Application" >Application</option>
+                    <option value="Accomodation&Transportation" >Accomodation&Transportation</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label for="inputTitle" class="form-label">Enquiry Title</label>
+                <input type="text" class="form-control border-3" id="inputTitle" name="inputTitle">
+            </div>
+            <div class="col-12">
+                <label for="inputQuestion" class="form-label">Enquiry Question</label>
+                <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion" rows="5"></textarea>
+            </div>
+            <div class="col-6">
+                <label for="inputFile" class="form-label">Attached File</label>
+                <input class="form-control border-3" type="file" id="inputFile" name="inputFile"
+                    accept=".jpg, .png, .jpeg, .pdf">
+            </div>
+            <div class="col-12 d-flex flex-row justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#staticBackdrop">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{%endblock%}

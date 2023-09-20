@@ -1,0 +1,85 @@
+{%extends "studLayout.html" %}
+
+{% block title %}Setup Profile{% endblock %}
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/static/css/bootstrapcss.css" />
+<link rel="stylesheet" href="/static/icon/fontawesome/css/all.css" />
+
+<!-- text fonts -->
+<link rel="stylesheet" href="/static/css/ace-fonts.css" />
+
+<!-- ace styles -->
+<link rel="stylesheet" href="/static/css/ace.css" />
+
+<link rel="stylesheet" href="/static/css/ace-rtl.css" />
+{% endblock %}
+
+{% block content %}
+<div>
+    <select class="form-select" aria-label="Default select example" id="inputCampus" name="inputCampus">
+        <option value="" selected>Open this select menu</option>
+    </select>
+    <select class="form-select" aria-label="Default select example" id="inputProgramme" name="inputProgramme">
+        <option value="" selected>Open this select menu</option>
+    </select>
+    <select class="form-select" aria-label="Default select example" id="inputIntake" name="inputIntake">
+        <option value="" selected>Open this select menu</option>
+    </select>
+</div>
+
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.bundle.js"></script>
+<script type="text/javascript">
+    if ('ontouchstart' in document.documentElement) document.write("<script src='/static/js/jquery.mobile.custom.js'>" + "<" + "/script>");
+</script>
+<script type="text/javascript">
+
+    console.log($("#inputCampus").val())
+    $('#inputCampus').on('click', function () {
+        $.ajax({
+            type: "POST",
+            url: "/AJAXprogramme",
+            data: {
+                "campus": $("#inputCampus").val(),
+                "programme": $("#inputProgramme").val(),
+                "intake": $("#inputIntake").val(),
+            },
+            success: function (data) {
+
+                var selectbox = $('#inputCampus');
+                selectbox.empty();
+                var list = '';
+                for (var j = 0; j < i.length; j++) {
+                    list += "<option value='" + campusID[j] + "'>" + campusName[j] + "</option>";
+                }
+                selectbox.html(list);
+
+                var selectbox = $('#inputProgramme');
+                selectbox.empty();
+                var list = '';
+                for (var j = 0; j < i.length; j++) {
+                    list += "<option value='" + programmeID[j] + "'>" + programmeName[j] + "</option>";
+                }
+                selectbox.html(list);
+
+                var selectbox = $('#inputIntake');
+                selectbox.empty();
+                var list = '';
+                for (var j = 0; j < i.length; j++) {
+                    list += "<option value='" + intakeID[j] + "'>" + intakeName[j] + "</option>";
+                }
+                selectbox.html(list);
+
+                $("#inputCampus").val($("#inputCampus").val()).change()
+                $("#inputProgramme").val($("#inputProgramme").val()).change()
+                $("#inputIntake").val($("#inputIntake").val()).change()
+
+            }, error: function (textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        });
+    })
+</script>
+
+{% endblock %}

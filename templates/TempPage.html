@@ -1,54 +1,19 @@
 {%extends "studLayout.html" %}
 
 {% block title %}Setup Profile{% endblock %}
-{% block head %}
-{{super()}}
-<style>
-    .prog {
-        width: 100%;
-        max-width: 300px;
-        margin: 0 10px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-
-    @media(min-width:768px) {
-        .prog-container {
-            justify-content: start !important;
-        }
-    }
-</style>
-{% endblock %}
 {% block content %}
-<div class="d-flex flex-row justify-content-center align-items-center">
 
+{% with messages = get_flashed_messages(with_categories=true) %} {% if
+messages %} {% for category, message in messages %} {% if category ==
+'success' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-<!-- Start of Async Drift Code -->
-<script>
-    "use strict";
-    !function () {
-        var t = window.driftt = window.drift = window.driftt || [];
-        if (!t.init) {
-            if (t.invoked) return void (window.console && console.error && console.error("Drift snippet included twice."));
-            t.invoked = !0, t.methods = ["identify", "config", "track", "reset", "debug", "show", "ping", "page", "hide", "off", "on"],
-                t.factory = function (e) {
-                    return function () {
-                        var n = Array.prototype.slice.call(arguments);
-                        return n.unshift(e), t.push(n), t;
-                    };
-                }, t.methods.forEach(function (e) {
-                    t[e] = t.factory(e);
-                }), t.load = function (t) {
-                    var e = 3e5, n = Math.ceil(new Date() / e) * e, o = document.createElement("script");
-                    o.type = "text/javascript", o.async = !0, o.crossorigin = "anonymous", o.src = "https://js.driftt.com/include/" + n + "/" + t + ".js";
-                    var i = document.getElementsByTagName("script")[0];
-                    i.parentNode.insertBefore(o, i);
-                };
-        }
-    }();
-    drift.SNIPPET_VERSION = '0.3.1';
-    drift.load('ak4kxf3d4evb');
-</script>
-<!-- End of Async Drift Code -->
+{% else %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %} {% endfor %} {% endif %} {% endwith %}
 {%endblock%}

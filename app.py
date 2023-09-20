@@ -30,7 +30,6 @@ app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
 mail = Mail(app)
 
-
 db_conn = connections.Connection(
     host=customhost,
     port=3306,
@@ -331,7 +330,7 @@ def UpdateProfile():
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute(
-            "UPDATE Account SET fullName=%s AND identification=%s AND gender=%s AND fullAddress=%s AND handphoneNumber=%s WHERE accEmail=%s;",
+            "UPDATE Account SET fullName=%s, identification=%s, gender=%s, fullAddress=%s, handphoneNumber=%s WHERE accEmail=%s;",
             (name, ic, gender, address, handphone, email),
         )
         db_conn.commit()
@@ -341,7 +340,7 @@ def UpdateProfile():
     finally:
         cursor.close()
 
-    return render_template("TempPage.html")
+    return redirect(url_for("TempPage"))
 
 
 
@@ -539,11 +538,197 @@ def Compare_Programme(progID):
 @app.route("/admission/firstlogin", methods=["GET", "POST"])
 def FirstLogin():
     return render_template("FirstLogin.html")
-    
+
 
 @app.route("/TempPage", methods=["GET", "POST"])
 def TempPage():
     return render_template("TempPage.html")
+
+
+# @app.route("/TempApp", methods=["GET", "POST"])
+# def TempApp():
+#     return render_template("TempApp.html")
+
+
+# @app.route("/AJAXprogramme", methods=["GET", "POST"])
+# def AJAXprogramme():
+#     campus = request.form.get('campus')
+#     programme = request.form.get('programme')
+#     intake = request.form.get('intake')
+
+#     select_sql = "SELECT c.campusID, c.campusName, p.programmeID, p.programmeName, i.intakeID, i.intakeName FROM ProgrammeCampus a, Programme p, Campus c, Intake i WHERE p.programmeID=a.programmeID AND c.campusID=a.campusID AND i.intakeID=a.intakeID"
+
+#     parameters=[]
+#     if campus is not None:
+#         select_sql += " AND a.campusID=%s"
+#         parameters.append(campus)
+
+#     if programme is not None:
+#         select_sql += " AND a.programmeID=%s"
+#         parameters.append(programme)
+
+#     if intake is not None:
+#         select_sql += " AND a.intakeID=%s"
+#         parameters.append(intake)
+
+#     cursor = db_conn.cursor(cursors.DictCursor)
+#     cursor.execute(select_sql, parameters)
+#     records = cursor.fetchall()
+
+#     campusID = set()
+#     campusName = set()
+#     programmeID = set()
+#     programmeName = set()
+#     intakeID = set()
+#     intakeName = set()
+
+#     for record in records:
+#         campusID.add(record['campusID'])
+#         campusName.add(record['campusName'])
+#         programmeID.add(record['programmeID'])
+#         programmeName.add(record['programmeName'])
+#         intakeID.add(record['intakeID'])
+#         intakeName.add(record['intakeName'])
+
+#     response = {
+#         "campusID":list(campusID),
+#         "campusName":list(campusName),
+#         "programmeID":list(programmeID),
+#         "programmeName":list(programmeName),
+#         "intakeID":list(intakeID),
+#         "intakeName":list(intakeName),
+#     }
+#     return jsonify(response)
+
+
+@app.route("/admission/addenquiry", methods=["GET", "POST"])
+def AddEnquiry():
+    id = session['userid']
+    user_sql = "SELECT * FROM Account WHERE accountID=%s"
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute(user_sql, id)
+        user = cursor.fetchone()
+        return render_template("AddEnquiry.html", name=user['fullName'], phone=user['handphoneNumber'], email=user['accEmail'])
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+
+
+@app.route("/AddEnquiry", methods=["GET", "POST"])
+def addEnquiry():
+    id = session['userid']
+    topic = request.form.get('inputTopic')
+    title = request.form.get('inputTitle')
+    question = request.form.get('inputQuestion')
+    file = request.files['inputFile']
+      
+    try:
+        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("INSERT INTO Enquiry (enquiryTopic, enquiryTitle, question, datetimeEnquire, enquiryStatus, enquiryAccountID)VALUES (%s, %s, %s, %s, %s, %s)",(topic, title, question, malaysia_time, 'Pending Reply', id))
+        db_conn.commit()
+        enquiryID = cursor.lastrowid
+        path = "static/media/" + str(enquiryID)  + "_" + file.filename
+        file.save(os.path.join(path))
+        cursor.execute("UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",  (path, enquiryID))
+        db_conn.commit()
+        flash("Enquiry form has been submitted. Takes up to 3 working days to receive reply.", category='success')
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    
+    return redirect(url_for("AddEnquiry"))
+
+
+@app.route("/admission/enquiry", methods=["GET", "POST"])
+def enquiry():
+    return render_template("EnquiryList.html")
+
+
+@app.route("/AJAXenquirylist", methods=["GET", "POST"])
+def AJAXenquirylist():
+    enquiryID = session['userid']
+    draw = request.form["draw"]
+    row = int(request.form["start"])
+    rowperpage = int(request.form["length"])
+    searchValue = request.form["search[value]"]
+    
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+
+        ## Total number of records without filtering
+        cursor.execute(
+            "SELECT count(*) as allcount FROM Enquiry WHERE enquiryAccountID=%s", enquiryID
+        )
+        rsallcount = cursor.fetchone()
+        totalRecords = rsallcount["allcount"]
+
+        ## Total number of records with filtering
+        likeString = "%" + searchValue + "%"
+        cursor.execute(
+            "SELECT count(*) as allcount FROM Enquiry WHERE (enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s) AND enquiryAccountID=%s",
+            (
+                likeString,
+                likeString,
+                likeString,
+                likeString,
+                enquiryID,
+            ),
+        )
+        rsallcount = cursor.fetchone()
+        totalRecordwithFilter = rsallcount["allcount"]
+
+        ## Fetch records
+        if searchValue == "":
+            cursor.execute(
+                "SELECT * FROM Enquiry WHERE enquiryAccountID=%s ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                (enquiryID, row, rowperpage),
+            )
+            records = cursor.fetchall()
+        else:
+            cursor.execute(
+                "SELECT * FROM Enquiry WHERE (enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s) AND enquiryAccountID=%s ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                (
+                    likeString,
+                    likeString,
+                    likeString,
+                    likeString,
+                    enquiryID,
+                    row,
+                    rowperpage,
+                ),
+            )
+            records = cursor.fetchall()
+
+        data = []
+        for row in records:
+            data.append(
+                {
+                    "enquiryID": row["enquiryID"],
+                    "datetimeEnquire": row["datetimeEnquire"].strftime(
+                        "%d-%m-%Y %I:%M:%S %p"
+                    ),
+                    "enquiryTopic": row["enquiryTopic"],
+                    "enquiryTitle": row["enquiryTitle"],
+                    "enquiryStatus": row["enquiryStatus"],
+                }
+            )
+        response = {
+            "draw": draw,
+            "iTotalRecords": totalRecords,
+            "iTotalDisplayRecords": totalRecordwithFilter,
+            "aaData": data,
+        }
+        return jsonify(response)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    
 
 
 if __name__ == "__main__":

@@ -53,10 +53,10 @@
             <div class="col-6">
                 <label for="inputGender" class="form-label col-6">Gender</label>
                 <div class="btn-group col-6" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradio1">Male</label>
+                    <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off" value="Male">
+                    <label class="btn btn-outline-primary" for="btnradio1" >Male</label>
 
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off">
+                    <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off" value="Female">
                     <label class="btn btn-outline-primary" for="btnradio2">Female</label>
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="col-12">
                 <label for="inputEmail" class="form-label">Email Address</label>
                 <input type="text" class="form-control border-3" value="{{session['useremail']}}" disabled>
-                <input type="hidden" id="inputEmail" name="inputEmail">
+                <input type="hidden" id="inputEmail" name="inputEmail" value="{{session['useremail']}}">
             </div>
             <div class="col-12 d-flex flex-row justify-content-end mt-4">
                 <button type="submit" class="btn btn-primary btn-lg" data-bs-toggle="modal"
