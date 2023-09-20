@@ -16,7 +16,7 @@ from config import *
 from io import BytesIO
 import re
 from flask_mail import Mail, Message
-from datetime import datetime
+import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
@@ -163,8 +163,8 @@ def AJAXLogin():
                         session["userid"] = user["accountID"]
                         session["username"] = user["fullName"]
                         session_sql = "INSERT INTO LoginSession (ipAddress, loginTime, accountID)VALUES (%s, %s, %s)"
-                        print(datetime.now(datetime.timezone.utc).astimezone().tzname())
-                        cursor.execute(session_sql, (request.remote_addr, datetime.now(), user["accountID"]))
+                        print(datetime.datetime.now(datetime.timezone.utc).astimezone().tzname())
+                        cursor.execute(session_sql, (request.remote_addr, datetime.datetime.now(), user["accountID"]))
                         db_conn.commit()
                     else:
                         msgdesc = "Invalid email or password"
