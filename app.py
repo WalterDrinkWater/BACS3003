@@ -347,6 +347,11 @@ def UpdateProfile():
     return render_template("TempPage.html")
 
 
+@app.route("/TempPage", methods=["GET", "POST"])
+def TempPage():
+    return render_template("TempPage.html")
+
+
 @app.route("/programme", methods=["GET", "POST"])
 def Get_Programme():
     if request.method == 'GET':
@@ -528,13 +533,13 @@ def Compare_Programme(progID):
 
 
         # Convert to a list if it is not already.
-        if not isinstance(value, list):
-            value = [value]
+    #     if not isinstance(value, list):
+    #         value = [value]
 
-        data[key].extend(value)
+    #     data[key].extend(value)
 
-    cursor.close()
-    return render_template("Programme.html", courses=data)
+    # cursor.close()
+    # return render_template("Programme.html", courses=data)
 
 
 @app.route("/admission/firstlogin", methods=["GET", "POST"])
