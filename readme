@@ -3,10 +3,10 @@
 
 #!/bin/bash
 dnf install git -y
-git clone https://github.com/Amos-tha/CloudAss.git
-cd CloudAss
+git clone --single-branch --branch kw https://github.com/WalterDrinkWater/BACS3003.git
+cd BACS3003
 dnf install python-pip -y
-pip3 install flask pymysql boto3
+pip3 install flask pymysql
 python3 app.py
 
 
