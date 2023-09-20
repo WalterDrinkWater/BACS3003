@@ -17,6 +17,7 @@ from io import BytesIO
 import re
 from flask_mail import Mail, Message
 import datetime
+import pytz
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
@@ -163,8 +164,9 @@ def AJAXLogin():
                         session["userid"] = user["accountID"]
                         session["username"] = user["fullName"]
                         session_sql = "INSERT INTO LoginSession (ipAddress, loginTime, accountID)VALUES (%s, %s, %s)"
-                        print(datetime.datetime.now(datetime.timezone.utc).astimezone().tzname())
-                        cursor.execute(session_sql, (request.remote_addr, datetime.datetime.now(), user["accountID"]))
+                        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+                        malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
+                        cursor.execute(session_sql, (request.remote_addr, malaysia_time, user["accountID"]))
                         db_conn.commit()
                     else:
                         msgdesc = "Invalid email or password"
