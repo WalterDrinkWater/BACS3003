@@ -1,47 +1,27 @@
-{%extends "studLayout.html"%} {% block title %}Home{% endblock %} {% block
+{%extends "studLayout.html"%} {% block title %}Application Form{% endblock %} {% block
 content %}
 <div class="fs-2 fw-bold text-center mb-2">Application Form</div>
-<div class="container d-flex flex-row mb-2">
-  <ul class="nav nav-pills col-3 flex-column ms-3" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active px-3" id="intake-tab" data-bs-toggle="tab" data-bs-target="#intake" type="button"
-        role="tab" aria-controls="intake" aria-selected="true">
-        Intake & Programme
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link px-3" id="personal-info-tab" data-bs-toggle="tab" data-bs-target="#personal-info"
-        type="button" role="tab" aria-controls="personal-info" aria-selected="false">
-        Personal Information
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link px-3" id="qualification-tab" data-bs-toggle="tab" data-bs-target="#qualification"
-        type="button" role="tab" aria-controls="qualification" aria-selected="false">
-        Qualification
-      </button>
-    </li>
-  </ul>
-
+<div class="container mb-2 d-flex flex-row">
+  {% include 'includes/appnav.html' %}
   <!-- tab contents -->
-  <div class="tab-content col-9 ms-1" id="myTabContent">
-    <div class="tab-pane fade show active" id="intake" role="tabpanel" aria-labelledby="intake-tab">
-      <!-- nested tab -->
-      <ul class="nav nav-pills mb-3" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active px-3" id="pi-tab" data-bs-toggle="tab" data-bs-target="#pi" type="button"
-            role="tab" aria-controls="pi" aria-selected="true">
-            Personal Information
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link px-3" id="ic-tab" data-bs-toggle="tab" data-bs-target="#ic" type="button" role="tab"
-            aria-controls="ic" aria-selected="false">
-            Upload MyKad
-          </button>
-        </li>
-      </ul>
+  <!-- nested tab -->
+  <div class="col-9">
+    <ul class="nav nav-pills mb-3" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active px-3" id="pi-tab" data-bs-toggle="tab" data-bs-target="#pi" type="button"
+          role="tab" aria-controls="pi" aria-selected="true">
+          Personal Information
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-3" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab"
+          aria-controls="upload" aria-selected="false">
+          Upload MyKad
+        </button>
+      </li>
+    </ul>
 
+    <div class="tab-content" id="myTabContent">
       <!-- nested tab content -->
       <div class="tab-pane fade show active" id="pi" role="tabpanel" aria-labelledby="pi-tab">
         <form class="row g-3" action="/application/apply" method="POST" enctype="multipart/form-data">
@@ -53,21 +33,17 @@ content %}
             <label for="ic" class="form-label">MyKad No.</label>
             <input type="text" class="form-control border-3" id="ic" name="ic" required />
           </div>
-          <div class="col-2 flex">
-            <label for="gender" class="form-label">Gender</label>
-            <div class="form-check">
-              <input type="radio" class="form-check-input border-3" name="gender" value="Male" />
-              <label class="form-check-label" for="flexRadioDefault1">
-                Male
-              </label>
-            </div>
-            <div class="form-check">
-              <input type="radio" class="form-check-input border-3" name="gender" value="Female" />
-              <label class="form-check-label" for="flexRadioDefault2">
-                Female
-              </label>
+
+          <div class="col-2">
+            <label for="gender" class="form-label col-2">Gender</label>
+            <div class="btn-group col-12" role="group">
+              <input type="radio" class="btn-check" name="gender" id="gender1" autocomplete="off" checked>
+              <label class="btn btn-outline-primary" for="gender1">Male</label>
+              <input type="radio" class="btn-check" name="gender" id="gender2" autocomplete="off">
+              <label class="btn btn-outline-primary" for="gender2">Female</label>
             </div>
           </div>
+
           <div class="col-10">
             <label for="address" class="form-label">Address</label>
             <textarea class="form-control border-3" id="address" name="address" row="3"></textarea>
@@ -126,12 +102,12 @@ content %}
             <label for="others" class="form-label">If Others, Please Specify</label>
             <input class="form-control border-3" type="text" id="others" name="others" disabled />
           </div>
-          <button type="submit">Submit</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
 
       <!-- ic tab -->
-      <div class="tab-pane fade" id="ic" role="tabpanel" aria-labelledby="ic-tab">
+      <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
         <div class="col-6 mb-3">
           <label for="frontIc" class="form-label">MyKad (Front)</label>
           <input class="form-control border-3" type="file" id="frontIc" name="frontIc" accept=".jpg, .png, .jpeg"

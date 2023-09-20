@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, session,  jsonify, json
 from pymysql import connections, cursors
+import pymysql
 import os
 from config import *
 from io import BytesIO
 from datetime import datetime
+import numpy as np
 import cv2
 import pytesseract
 from collections import defaultdict
@@ -26,13 +28,36 @@ output = {}
 def home():
     return render_template('Index.html')
 
+@app.route("/studhome")
+def studhome():
+    try:
+        cursor = db_conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM Applications WHERE accountID=%s", ("1"))
+        application = cursor.fetchall()
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    
+    return render_template('StudHome.html', application=application)
+
 @app.route("/application")
 def application():
-    return render_template('Application.html')
-
+    id = request.args.get("id")
+    if(id != None):
+        cursor = db_conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (id))
+        application = cursor.fetchall()
+    
+    return render_template('Application.html', application=application)
 
 @app.route("/application/apply", methods=['POST'])
 def apply():
+    
+    cursor = db_conn.cursor()
+
     studName = request.form["name"]
     studIc = request.form["ic"]
     studGender = request.form["gender"]
@@ -56,9 +81,9 @@ def apply():
 
     try:
         cursor.execute("INSERT INTO Applications VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                       ("APP1", studName, studIc,
+                       ("APP2", studName, studIc,
                         studGender, fulladdress, studEmail, datetimeApplied, "Pending", studPhone, guardianName, guardianNo,
-                        studHealth, "ab", "v", "ProgC00001", "15"))
+                        studHealth, "ab", "v", "ProgC00001", "1"))
         db_conn.commit()
 
     except Exception as e:
@@ -126,68 +151,79 @@ def Get_Programme_Details(progID):
 def scan_img():
     # Mention the installed location of Tesseract-OCR in your system
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
+
+    # Load image, convert to HSV, color threshold to get mask
+    image = cv2.imread('1.png')
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower = np.array([0, 0, 0])
+    upper = np.array([100, 175, 110])
+    mask = cv2.inRange(hsv, lower, upper)
+
+    # Morph close to connect individual text into a single contour
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+    close = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=3)
+
+    # Find rotated bounding box then perspective transform
+    cnts = cv2.findContours(close, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    rect = cv2.minAreaRect(cnts[0])
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+    cv2.drawContours(image,[box],0,(36,255,12),2)
+    warped = four_point_transform(255 - mask, box.reshape(4, 2))
+
+    # OCR
+    data = pytesseract.image_to_string(warped, lang='eng', config='--psm 6')
+    print(data)
+
+    cv2.imshow('mask', mask)
+    cv2.imshow('close', close)
+    cv2.imshow('warped', warped)
+    cv2.imshow('image', image)
+    cv2.waitKey()  
+
+    return data
+
+# @app.route("/test")
+# def scan_img():
+#     # Mention the installed location of Tesseract-OCR in your system
+#     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
     
-    # Read image from which text needs to be extracted
-    img = cv2.imread("static/media/test2.jpg")
+#     # Read image from which text needs to be extracted
+#     img = cv2.imread("static/media/test2.jpg")
     
-    # Preprocessing the image starts
+#     # Convert the image to gray scale
+#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+#     # Morph open to remove noise
+#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+#     opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+
+#     # Find contours and remove small noise
+#     cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+#     for c in cnts:
+#         area = cv2.contourArea(c)
+#         if area < 50:
+#             cv2.drawContours(opening, [c], -1, 0, -1)
+
+#     # Invert and apply slight Gaussian blur
+#     result = 255 - opening
+#     result = cv2.GaussianBlur(result, (3,3), 0)
     
-    # Convert the image to gray scale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    # Performing OTSU threshold
-    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    
-    # Specify structure shape and kernel size.
-    # Kernel size increases or decreases the area
-    # of the rectangle to be detected.
-    # A smaller value like (10, 10) will detect
-    # each word instead of a sentence.
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
-    
-    # Applying dilation on the threshold image
-    dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
-    
-    # Finding contours
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
-                                                    cv2.CHAIN_APPROX_NONE)
-    
-    # Creating a copy of image
-    im2 = img.copy()
-    
-    # A text file is created and flushed
-    file = open("recognized.txt", "w+")
-    file.write("")
-    file.close()
-    
-    # Looping through the identified contours
-    # Then rectangular part is cropped and passed on
-    # to pytesseract for extracting text from it
-    # Extracted text is then written into the text file
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        
-        # Drawing a rectangle on copied image
-        rect = cv2.rectangle(im2, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        
-        # Cropping the text block for giving input to OCR
-        cropped = im2[y:y + h, x:x + w]
-        
-        # Open the file in append mode
-        file = open("recognized.txt", "a")
-        
-        # Apply OCR on the cropped image
-        text = pytesseract.image_to_string(cropped)
-        
-        # Appending the text into file
-        file.write(text)
-        file.write("\n")
-        
-        # Close the file
-        file.close
-        # cv2.imshow("Lena Soderberg”, img)
-        cv2.waitKey(0)
-    return "abc"
+#     # Perform OCR
+#     data = pytesseract.image_to_string(result, lang='eng', config='--psm 6')
+
+#     cv2.namedWindow('a', cv2.WINDOW_NORMAL)
+#     cv2.namedWindow('o', cv2.WINDOW_NORMAL)
+#     cv2.namedWindow('r', cv2.WINDOW_NORMAL)
+#     cv2.imshow('a', thresh)
+#     cv2.imshow('o', opening)
+#     cv2.imshow('r', result)
+#     cv2.waitKey()    
+
+#     return data
 
 
 

@@ -1,0 +1,33 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<table class="table table-hover table-bordered" style="margin: 10px; width: 98%">
+    <thead class="table-light">
+        <tr>
+            <th scope="col">Application No.</th>
+            <th scope="col">Intake Session</th>
+            <th scope="col">Programme Applied (1st Choice)</th>
+            <th scope="col">Document Submission</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody class="stud-list">
+        {% for app in applications if applications | length != 0 %}
+        <tr>
+            <th scope="row">{{app["applicationID"]}}</th>
+            <td>Oct/Nov 2023</td>
+            <td>Programme</td>
+            <td>Upload Documents</td>
+            <td>{{app["applicationStatus"]}}</td>
+            <td><a href="{{url_for('application', id='app["applicationID"]')}}">Edit</a></td>
+        </tr>
+        {% else %}
+        <td colspan="8" class="text-center">Haven't <a href="{{url_for('application', id='None')}}">Apply</a> Yet</td>
+        {% endfor %}
+    </tbody>
+</table>
+
+{%endblock%}
