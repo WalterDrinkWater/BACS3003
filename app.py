@@ -163,6 +163,7 @@ def AJAXLogin():
                         session["userid"] = user["accountID"]
                         session["username"] = user["fullName"]
                         session_sql = "INSERT INTO LoginSession (ipAddress, loginTime, accountID)VALUES (%s, %s, %s)"
+                        print(datetime.datetime.now(datetime.timezone.utc).astimezone().tzname())
                         cursor.execute(session_sql, (request.remote_addr, datetime.now(), user["accountID"]))
                         db_conn.commit()
                     else:
