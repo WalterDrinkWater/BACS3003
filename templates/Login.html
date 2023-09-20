@@ -81,9 +81,9 @@
 
 												<div class="space"></div>
 
-												<div class="clearfix">
+												<div class="clearfix d-flex flex-row justify-content-end">
 													<button type="button"
-														class="width-35 pull-right btn btn-sm btn-primary"
+														class="width-35 float-right btn btn-sm btn-primary"
 														onClick="login()">
 														<i class="ace-icon fa fa-key"></i>
 														<span class="bigger-110">Login</span>
@@ -149,7 +149,7 @@
 													</span>
 												</label>
 
-												<div class="clearfix">
+												<div class="clearfix  d-flex flex-row justify-content-end">
 													<button type="button" class="pull-right btn btn-sm btn-danger"
 														onClick="resetPassword()">
 														<i class="ace-icon fa fa-lightbulb-o"></i>
@@ -227,14 +227,14 @@
 												<div style="font-size:10px;line-height:15px;padding-top:4px;">
 													By clicking Sign Up, you agree to our <a
 														href="https://www.tarc.edu.my/privacy-policy.jsp"
-														target="_blank"> Disclaimer</a>
+														target="_blank" style="text-decoration:none;"> Disclaimer</a>
 													and <a href="https://www.tarc.edu.my/privacy-policy.jsp"
-														target="_blank"> Privacy Policy</a>
+														target="_blank" style="text-decoration:none;"> Privacy Policy</a>
 												</div>
 
 												<div class="space-12"></div>
 
-												<div class="clearfix">
+												<div class="clearfix  d-flex flex-row justify-content-end">
 
 													<button id="btn_register" type="button"
 														class="width-65 pull-right btn btn-sm btn-success"
@@ -263,7 +263,7 @@
 					</div>
 				</div><!-- /.col -->
 			</div><!-- /.row -->
-			<div class="row">
+			<div class="row d-flex flex-row justify-content-center">
 				<div class="col-sm-10 col-sm-offset-1">
 					<div class="login-container">
 						<div id="pending-box" class="pending-box widget-box no-border">
@@ -291,8 +291,8 @@
 
 									<form>
 										<fieldset>
-											<div class="clearfix">
-												<button type="button" class="pull-right btn btn-sm btn-danger"
+											<div class="clearfix d-flex flex-row justify-content-end">
+												<button type="button" class="float-right btn btn-sm btn-danger"
 													onClick="resendVerification()">
 													<i class="ace-icon fa fa-lightbulb-o"></i>
 													<span class="bigger-110">Resend!</span>
@@ -337,10 +337,12 @@
 
 		</div><!-- /.main-content -->
 	</div><!-- /.main-container -->
-	<form name="frmVerify" method="post" action="verification.jsp">
+	<form name="frmVerify" method="post" action="/account/verification">
 		<input type="hidden" id="verify_email" name="verify_email" value="">
 		<input type="hidden" id="fappcode" name="fappcode" value="online-app">
 	</form>
+
+	<input type="hidden" id="pending_email" name="pending_email" value="">
 
 
 	<!-- basic scripts -->
@@ -438,7 +440,7 @@
 				$(".page-overlay").show();
 				$.ajax({
 					type: "POST",
-					url: "AJAXLogin.jsp",
+					url: "/AJAXLogin",
 					data: {
 						"act": "login",
 						"fappcode": "online-app",
@@ -454,7 +456,7 @@
 								window.location.href = data.nexturl;
 
 							} else if (data.action == 'pending-verification') {
-								$("#pending_email").html(data.femail);
+								$("#pending_email").val(data.femail);
 								showPendingBox();
 							}
 						} else if (data.msg == 'failed') {
@@ -518,7 +520,7 @@
 				$(".page-overlay").show();
 				$.ajax({
 					type: "POST",
-					url: "AJAXLogin.jsp",
+					url: "/AJAXLogin",
 					data: {
 						"act": "create",
 						"fappcode": "online-app",
@@ -548,9 +550,10 @@
 			$(".page-overlay").show();
 			$.ajax({
 				type: "POST",
-				url: "AJAXLogin.jsp",
+				url: "/AJAXLogin",
 				data: {
 					"act": "resend",
+					"femail": $("#pending_email").val(),
 					"fappcode": "online-app"
 				},
 				success: function (data) {
@@ -575,7 +578,7 @@
 			$(".page-overlay").show();
 			$.ajax({
 				type: "POST",
-				url: "AJAXLogin.jsp",
+				url: "/AJAXLogin",
 				data: {
 					"act": "request-reset",
 					"fappcode": "online-app",
