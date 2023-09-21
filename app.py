@@ -644,6 +644,23 @@ def addEnquiry():
     return redirect(url_for("AddEnquiry"))
 
 
+@app.route("/admission/enquirydetails", methods=["GET", "POST"])
+def enquiryDetails():
+    enquiryID = request.args.get('id')
+    enquiry_sql = "SELECT Enquiry.*, Account1.fullName AS enquiryAccountFullName, Account1.handphoneNumber AS enquiryAccountHandphoneNumber, Account1.accEmail AS enquiryAccountEmail, Account2.fullName AS responseAccountFullName, Account2.handphoneNumber AS responseAccountHandphoneNumber, Account2.accEmail AS responseAccountEmail FROM Enquiry LEFT JOIN Account AS Account1 ON Enquiry.enquiryAccountID = Account1.accountID LEFT JOIN Account AS Account2 ON Enquiry.responseAccountID = Account2.accountID WHERE enquiryID=%s;"
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute(enquiry_sql, enquiryID)
+        enquiry = cursor.fetchone()
+
+        return render_template("EnquiryDetails.html", enquiry=enquiry)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    return render_template("EnquiryDetails.html", enquiry=enquiry)
+
+
 @app.route("/admission/enquiry", methods=["GET", "POST"])
 def enquiry():
     return render_template("EnquiryList.html")
@@ -728,7 +745,170 @@ def AJAXenquirylist():
         print(e)
     finally:
         cursor.close()
+
+
+@app.route("/admin/enquiry", methods=["GET", "POST"])
+def adminEnquiry():
+    return render_template("AdminEnquiryList.html")
+
+
+@app.route("/admin/addresponse", methods=["GET", "POST"])
+def AddResponse():
+    id = session['userid']
+    user_sql = "SELECT * FROM Account WHERE accountID=%s"
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute(user_sql, id)
+        user = cursor.fetchone()
+        return render_template("AdminAddResponse.html", name=user['fullName'], phone=user['handphoneNumber'], email=user['accEmail'])
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+
+
+@app.route("/AddResponse", methods=["GET", "POST"])
+def addResponse():
+    adminid = session['userid']
+
+    feeedback = request.form.get('inputFeedback')
+    file = request.files['inputFile']
+      
+    try:
+        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("UPDATE Enquiry SET responseAccountID=%s, response=%s, datetimeResponse=%s, enquiryState=%s WHERE enquiryID=%s")
+        db_conn.commit()
+        enquiryID = cursor.lastrowid
+        path = "static/media/" + str(enquiryID)  + "_" + file.filename
+        file.save(os.path.join(path))
+        cursor.execute("UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",  (path, enquiryID))
+        db_conn.commit()
+        flash("Enquiry form has been submitted. Takes up to 3 working days to receive reply.", category='success')
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
     
+    return redirect(url_for("AddEnquiry"))
+
+
+@app.route("/admin/enquirydetails", methods=["GET", "POST"])
+def adminEnquiryDetails():
+    enquiryID = request.args.get('id')
+    enquiry_sql = "SELECT Enquiry.*, Account1.fullName AS enquiryAccountFullName, Account1.handphoneNumber AS enquiryAccountHandphoneNumber, Account1.accEmail AS enquiryAccountEmail, Account2.fullName AS responseAccountFullName, Account2.handphoneNumber AS responseAccountHandphoneNumber, Account2.accEmail AS responseAccountEmail FROM Enquiry LEFT JOIN Account AS Account1 ON Enquiry.enquiryAccountID = Account1.accountID LEFT JOIN Account AS Account2 ON Enquiry.responseAccountID = Account2.accountID WHERE enquiryID=%s;"
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute(enquiry_sql, enquiryID)
+        enquiry = cursor.fetchone()
+
+        return render_template("AdminEnquiryDetails.html", enquiry=enquiry)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    return render_template("AdminEnquiryDetails.html", enquiry=enquiry)
+
+
+@app.route("/AJAXadminenquirylist", methods=["GET", "POST"])
+def AJAXadminenquirylist():
+    draw = request.form["draw"]
+    row = int(request.form["start"])
+    rowperpage = int(request.form["length"])
+    searchValue = request.form["search[value]"]
+    
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+
+        ## Total number of records without filtering
+        cursor.execute(
+            "SELECT count(*) as allcount FROM Enquiry"
+        )
+        rsallcount = cursor.fetchone()
+        totalRecords = rsallcount["allcount"]
+
+        ## Total number of records with filtering
+        likeString = "%" + searchValue + "%"
+        cursor.execute(
+            "SELECT count(*) as allcount FROM Enquiry WHERE enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s",
+            (
+                likeString,
+                likeString,
+                likeString,
+                likeString,
+            ),
+        )
+        rsallcount = cursor.fetchone()
+        totalRecordwithFilter = rsallcount["allcount"]
+
+        ## Fetch records
+        if searchValue == "":
+            cursor.execute(
+                "SELECT * FROM Enquiry ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                (row, rowperpage),
+            )
+            records = cursor.fetchall()
+        else:
+            cursor.execute(
+                "SELECT * FROM Enquiry WHERE enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                (
+                    likeString,
+                    likeString,
+                    likeString,
+                    likeString,
+                    row,
+                    rowperpage,
+                ),
+            )
+            records = cursor.fetchall()
+
+        data = []
+        for row in records:
+            data.append(
+                {
+                    "enquiryID": row["enquiryID"],
+                    "datetimeEnquire": row["datetimeEnquire"].strftime(
+                        "%d-%m-%Y %I:%M:%S %p"
+                    ),
+                    "enquiryTopic": row["enquiryTopic"],
+                    "enquiryTitle": row["enquiryTitle"],
+                    "enquiryStatus": row["enquiryStatus"],
+                }
+            )
+        response = {
+            "draw": draw,
+            "iTotalRecords": totalRecords,
+            "iTotalDisplayRecords": totalRecordwithFilter,
+            "aaData": data,
+        }
+        return jsonify(response)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    id = session['userid']
+    logout_sql = "UPDATE LoginSession SET logoutTime=%s WHERE accountID=%s"
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
+        cursor.execute(logout_sql, (malaysia_time,id))
+        db_conn.commit()
+        session['loggedin'] = False
+        session.pop('userid', None)
+        session.pop('username', None)
+
+        return redirect(url_for("home"))
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
