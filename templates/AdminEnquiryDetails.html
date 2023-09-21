@@ -3,6 +3,7 @@
 {% block title %}Enquiry{% endblock %}
 {% block head %}
 {{super()}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
     .row {
         display: flex;
@@ -41,141 +42,149 @@ messages %} {% for category, message in messages %} {% if category ==
 </div>
 {% endif %} {% endfor %} {% endif %} {% endwith %}
 <div class="d-flex flex-row justify-content-center align-items-center">
-    <div class="col-11 mb-4 d-flex flex-wrap flex-row justify-content-center">
-        <div class="card col-6 mt-5">
-            <div class="card-body">
-                <h4 class="card-title mb-3"><strong>Enquiry</strong>
-                    <div class="text-end">
-                        {% if enquiry['enquiryStatus']=='Pending Reply' %}
-                        <span style="color:grey">{{enquiry['enquiryStatus']}}</span>
-                        {% elif enquiry['enquiryStatus']=='Completed' %}
-                        <span style="color: green">{{enquiry['enquiryStatus']}}</span>
-                        {% endif %}
-                    </div>
-                </h4>
-                <div class="col-12 mb-3">
-                    <label for="inputDate" class="form-label">Date</label>
-                    <input type="text" class="form-control border-3" id="inputDate" name="inputDate"
-                        value="{{enquiry['datetimeEnquire']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputName" class="form-label">Name</label>
-                    <input type="text" class="form-control border-3" id="inputName" name="inputName"
-                        value="{{enquiry['enquiryAccountFullName']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control border-3" id="inputHandphoneNumber"
-                        name="inputHandphoneNumber" placeholder="e.g. 601110944598"
-                        value="{{enquiry['enquiryAccountHandphoneNumber']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputEmail" class="form-label">Email Address</label>
-                    <input type="text" class="form-control border-3" value="{{enquiry['enquiryAccountEmail']}}"
-                        disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputTopic" class="form-label">Enquiry Topic</label>
-                    <select class="form-select" aria-label="Default select example" id="inputTopic" name="inputTopic"
-                        disabled>
-                        <option value="Programme" SELECTED>{{enquiry['enquiryTopic']}}</option>
-                    </select>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputTitle" class="form-label">Enquiry Title</label>
-                    <input type="text" class="form-control border-3" id="inputTitle" name="inputTitle"
-                        value="{{enquiry['enquiryTitle']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputQuestion" class="form-label">Enquiry Question</label>
-                    <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion" rows="5"
-                        disabled> {{enquiry['question']}}</textarea>
-                </div>
-                {% if enquiry['enquiryImagePath'] != None %}
-                <div class="col-12 mb-3">
-                    <label for="inputFile" class="form-label">Attached File</label>
-                    <a href="/{{enquiry['enquiryImagePath']}}" style="text-decoration: none;"
-                        target="_blank">{{enquiry['enquiryImagePath'].split("/")[2]}}</a>
-                </div>
-                {% endif %}
-
-            </div>
+    <div class="col-11 mb-4 ">
+        <div class="">
+            <a class="bi bi-chevron-left"
+                style="font-size: 50px; position: absolute; text-decoration: none; color:black"
+                href="/admin/enquiry"></a>
         </div>
-        {% if enquiry['responseAccountID'] != None %}
-        <div class="card col-6 mt-5">
-            <div class="card-body">
-                <h4 class="card-title mb-3"><strong>Reply</strong>
-                    <div class="text-end">
-                        {% if enquiry['enquiryStatus']=='Pending Reply' %}
-                        <span style="color:grey; visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
-                        {% elif enquiry['enquiryStatus']=='Completed' %}
-                        <span style="color: green;  visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
-                        {% endif %}
-                    </div>
-                </h4>
-                <div class="col-12 mb-3">
-                    <label for="inputDate" class="form-label">Date</label>
-                    <input type="text" class="form-control border-3" id="inputDate" name="inputDate"
-                        value="{{enquiry['datetimeResponse']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputName" class="form-label">Name</label>
-                    <input type="text" class="form-control border-3" id="inputName" name="inputName"
-                        value="{{enquiry['responseAccountFullName']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control border-3" id="inputHandphoneNumber"
-                        name="inputHandphoneNumber" placeholder="e.g. 601110944598"
-                        value="{{enquiry['responseAccountHandphoneNumber']}}" disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputEmail" class="form-label">Email Address</label>
-                    <input type="text" class="form-control border-3" value="{{enquiry['responseAccountEmail']}}"
-                        disabled>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="inputQuestion" class="form-label">Response</label>
-                    <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion" rows="5"
-                        disabled> {{enquiry['response']}}</textarea>
-                </div>
-                {% if enquiry['responseImagePath'] != None %}
-                <div class="col-12 mb-3">
-                    <label for="inputFile" class="form-label">Attached File</label>
-                    <a href="/{{enquiry['responseImagePath']}}" style="text-decoration: none;"
-                        target="_blank">{{enquiry['responseImagePath'].split("/")[2]}}</a>
-                </div>
-                {% endif %}
-
-            </div>
-        </div>
-        {% else %}
-        <form class="col-6 mt-5" method="POST" action="/AddResponse" enctype="multipart/form-data">
-            <div class="card ">
-
+        <div class="mt-5 d-flex flex-wrap flex-row justify-content-center">
+            <div class="card col-6 mt-5">
                 <div class="card-body">
-                    <h4 class="card-title mb-3"><strong>Reply</strong>
+                    <h4 class="card-title mb-3"><strong>Enquiry</strong>
                         <div class="text-end">
-                            <span style="color: green;  visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
+                            {% if enquiry['enquiryStatus']=='Pending Reply' %}
+                            <span style="color:grey">{{enquiry['enquiryStatus']}}</span>
+                            {% elif enquiry['enquiryStatus']=='Completed' %}
+                            <span style="color: green">{{enquiry['enquiryStatus']}}</span>
+                            {% endif %}
                         </div>
                     </h4>
                     <div class="col-12 mb-3">
-                        <label for="inputQuestion" class="form-label">Response</label>
-                        <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion"
-                            rows="5"></textarea>
+                        <label for="inputDate" class="form-label">Date</label>
+                        <input type="text" class="form-control border-3" id="inputDate" name="inputDate"
+                            value="{{enquiry['datetimeEnquire']}}" disabled>
                     </div>
                     <div class="col-12 mb-3">
+                        <label for="inputName" class="form-label">Name</label>
+                        <input type="text" class="form-control border-3" id="inputName" name="inputName"
+                            value="{{enquiry['enquiryAccountFullName']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control border-3" id="inputHandphoneNumber"
+                            name="inputHandphoneNumber" placeholder="e.g. 601110944598"
+                            value="{{enquiry['enquiryAccountHandphoneNumber']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputEmail" class="form-label">Email Address</label>
+                        <input type="text" class="form-control border-3" value="{{enquiry['enquiryAccountEmail']}}"
+                            disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputTopic" class="form-label">Enquiry Topic</label>
+                        <select class="form-select" aria-label="Default select example" id="inputTopic"
+                            name="inputTopic" disabled>
+                            <option value="Programme" SELECTED>{{enquiry['enquiryTopic']}}</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputTitle" class="form-label">Enquiry Title</label>
+                        <input type="text" class="form-control border-3" id="inputTitle" name="inputTitle"
+                            value="{{enquiry['enquiryTitle']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputQuestion" class="form-label">Enquiry Question</label>
+                        <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion" rows="5"
+                            disabled> {{enquiry['question']}}</textarea>
+                    </div>
+                    {% if enquiry['enquiryImagePath'] != None %}
+                    <div class="col-12 mb-3">
                         <label for="inputFile" class="form-label">Attached File</label>
-                        <input class="form-control border-3" type="file" id="inputFile" name="inputFile"
-                            accept=".jpg, .png, .jpeg, .pdf">
+                        <a href="/{{enquiry['enquiryImagePath']}}" style="text-decoration: none;"
+                            target="_blank">{{enquiry['enquiryImagePath'].split("/")[2]}}</a>
                     </div>
-                    <div class="col-12 d-flex flex-row justify-content-end mt-4">
-                        <button type="submit" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#staticBackdrop">Save</button>
-                    </div>
+                    {% endif %}
+
                 </div>
             </div>
-        </form>
-        {% endif %}
+            {% if enquiry['responseAccountID'] != None %}
+            <div class="card col-6 mt-5">
+                <div class="card-body">
+                    <h4 class="card-title mb-3"><strong>Reply</strong>
+                        <div class="text-end">
+                            {% if enquiry['enquiryStatus']=='Pending Reply' %}
+                            <span style="color:grey; visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
+                            {% elif enquiry['enquiryStatus']=='Completed' %}
+                            <span style="color: green;  visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
+                            {% endif %}
+                        </div>
+                    </h4>
+                    <div class="col-12 mb-3">
+                        <label for="inputDate" class="form-label">Date</label>
+                        <input type="text" class="form-control border-3" id="inputDate" name="inputDate"
+                            value="{{enquiry['datetimeResponse']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputName" class="form-label">Name</label>
+                        <input type="text" class="form-control border-3" id="inputName" name="inputName"
+                            value="{{enquiry['responseAccountFullName']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control border-3" id="inputHandphoneNumber"
+                            name="inputHandphoneNumber" placeholder="e.g. 601110944598"
+                            value="{{enquiry['responseAccountHandphoneNumber']}}" disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputEmail" class="form-label">Email Address</label>
+                        <input type="text" class="form-control border-3" value="{{enquiry['responseAccountEmail']}}"
+                            disabled>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="inputQuestion" class="form-label">Response</label>
+                        <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion" rows="5"
+                            disabled> {{enquiry['response']}}</textarea>
+                    </div>
+                    {% if enquiry['responseImagePath'] != None %}
+                    <div class="col-12 mb-3">
+                        <label for="inputFile" class="form-label">Attached File</label>
+                        <a href="/{{enquiry['responseImagePath']}}" style="text-decoration: none;"
+                            target="_blank">{{enquiry['responseImagePath'].split("/")[2]}}</a>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+            {% else %}
+            <form class="col-6 mt-5" method="POST" action="/AddResponse" enctype="multipart/form-data">
+                <input class="form-control border-3" type="hidden" id="inputEnquiryID" name="inputEnquiryID"
+                    value="{{enquiry['enquiryID']}}">
+                <div class="card ">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3"><strong>Reply</strong>
+                            <div class="text-end">
+                                <span style="color: green;  visibility: hidden;">{{enquiry['enquiryStatus']}}</span>
+                            </div>
+                        </h4>
+                        <div class="col-12 mb-3">
+                            <label for="inputQuestion" class="form-label">Response</label>
+                            <textarea class="form-control border-3" id="inputQuestion" name="inputQuestion"
+                                rows="5"></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="inputFile" class="form-label">Attached File</label>
+                            <input class="form-control border-3" type="file" id="inputFile" name="inputFile"
+                                accept=".jpg, .png, .jpeg, .pdf">
+                        </div>
+                        <div class="col-12 d-flex flex-row justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#staticBackdrop">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            {% endif %}
+        </div>
     </div>
     {%endblock%}

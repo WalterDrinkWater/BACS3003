@@ -752,46 +752,32 @@ def adminEnquiry():
     return render_template("AdminEnquiryList.html")
 
 
-@app.route("/admin/addresponse", methods=["GET", "POST"])
-def AddResponse():
-    id = session['userid']
-    user_sql = "SELECT * FROM Account WHERE accountID=%s"
-    try:
-        cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute(user_sql, id)
-        user = cursor.fetchone()
-        return render_template("AdminAddResponse.html", name=user['fullName'], phone=user['handphoneNumber'], email=user['accEmail'])
-    except Exception as e:
-        print(e)
-    finally:
-        cursor.close()
-
-
 @app.route("/AddResponse", methods=["GET", "POST"])
 def addResponse():
-    adminid = session['userid']
 
-    feeedback = request.form.get('inputFeedback')
+    adminid = session['userid']
+    enquiryid = request.form.get('inputEnquiryID')
+    feedback = request.form.get('inputQuestion')
     file = request.files['inputFile']
-      
+    
     try:
         malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
         malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute("UPDATE Enquiry SET responseAccountID=%s, response=%s, datetimeResponse=%s, enquiryState=%s WHERE enquiryID=%s")
+        cursor.execute("UPDATE Enquiry SET responseAccountID=%s, response=%s, datetimeResponse=%s, enquiryStatus=%s WHERE enquiryID=%s", (adminid, feedback, malaysia_time, 'Completed', enquiryid))
         db_conn.commit()
-        enquiryID = cursor.lastrowid
-        path = "static/media/" + str(enquiryID)  + "_" + file.filename
-        file.save(os.path.join(path))
-        cursor.execute("UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",  (path, enquiryID))
-        db_conn.commit()
-        flash("Enquiry form has been submitted. Takes up to 3 working days to receive reply.", category='success')
+        if file.filename != '':
+            path = "static/media/" + str(enquiryid)  + "_" + file.filename
+            file.save(os.path.join(path))
+            cursor.execute("UPDATE Enquiry SET responseImagePath=%s WHERE enquiryID=%s",  (path, enquiryid))
+            db_conn.commit()
+        flash("A response has been submitted.", category='success')
     except Exception as e:
         print(e)
     finally:
         cursor.close()
     
-    return redirect(url_for("AddEnquiry"))
+    return redirect(url_for("adminEnquiryDetails", id=enquiryid))
 
 
 @app.route("/admin/enquirydetails", methods=["GET", "POST"])
