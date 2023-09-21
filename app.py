@@ -144,11 +144,31 @@ def About_Us():
         cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute("SELECT campusName, campusLocation, campusURL FROM Campus")
         campuses = cursor.fetchall()
+        cursor.execute("SELECT academicianID, academicianName, academicianTitle, academicianEmail, designation, department, educationBackground, publication, researchArea, organizationMembership, academicianURL FROM Academician")
+        academicians = cursor.fetchall()
 
     except Exception as e:
             return str(e)
     
-    return render_template('About.html', campuses=campuses)
+    return render_template('About.html', campuses=campuses, academicians=academicians)
+
+@app.route("/academicianDetails", methods=['GET','POST'])
+def View_Aca_Details():
+    if request.method == "GET":
+        selectedAcaID = request.args.get("selectedAca")
+
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT academicianID, academicianName, academicianTitle, academicianEmail, designation, department, educationBackground, publication, researchArea, organizationMembership, academicianURL FROM Academician WHERE academicianID = %s", (selectedAcaID))
+        acaDetails = cursor.fetchone()
+
+    except Exception as e: 
+            return str(e)
+
+    finally:
+        cursor.close()
+
+    return render_template('AcademicianDetails.html', acaDetails=acaDetails)
 
 # @app.route("/test")
 # def scan_img():

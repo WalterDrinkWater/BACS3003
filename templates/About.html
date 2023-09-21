@@ -5,19 +5,25 @@
 {% block content %}
 <div class="d-flex flex-row justify-content-center align-items-center mt-5">
     <div class="col-8">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">About Us</a>
+        <ul class="nav nav-tabs w-100" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="aboutUs-tab" data-bs-toggle="tab" data-bs-target="#aboutUs" type="button" role="tab"
+                    aria-controls="aboutUs" aria-selected="true">About Us</button>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Campuses</a>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="campuses-tab" data-bs-toggle="tab" data-bs-target="#campuses" type="button" role="tab"
+                    aria-controls="campuses" aria-selected="true">Campuses</button>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">FOCS Academicians</a>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="academicians-tab" data-bs-toggle="tab" data-bs-target="#academicians" type="button" role="tab"
+                    aria-controls="academicians" aria-selected="true">FOCS Academicians</button>
             </li>
         </ul>
-        <section>
-            <div id="AboutUsDiv" class="tabcontent">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade show active" id="aboutUs" role="tabpanel" aria-labelledby="aboutUs-tab">
                 <div class="fs-2 fw-bold text-center mb-2">About Us</div>
                 <div class="card mb-4" style="width:100%">
                     <div class="card-header">
@@ -30,9 +36,9 @@
                         <div class="col" style="display: flex; align-items: center; justify-content: center;">
                             <div>
                                 <h1>Ts. Lim Shen Huoy<h1></h1>
-                                <p class="card-text">
-                                    DipIT (PTPL), BSc (Hons) (Staffs), ExecDipMgt, MCompSc (Mal), P.Tech.
-                                </p>
+                                    <p class="card-text">
+                                        DipIT (PTPL), BSc (Hons) (Staffs), ExecDipMgt, MCompSc (Mal), P.Tech.
+                                    </p>
                             </div>
                         </div>
                     </div>
@@ -93,42 +99,47 @@
                     </div>
                 </div>
             </div>
-            <div id="CampusDiv" class="tabcontent">
-                <div class="fs-2 fw-bold text-center mb-2">About Us</div>
-                {% for campus in campuses %}
-                <div class="col-sm-6 col-md-4 mb-3">
-                    <div class="card">
-                        <div class="card-header">
-                            {{campus['campusName[loop.index]']}}
-                        </div>
-                        <img src="{{campus[campusURL]}}" class="card-img-top"
-                            alt="{{campus[campusURL]}}">
-                        <div class="card-body">
-                            <h5 class="card-title">Location: <br>{{campus['campusLocation']}}</h5>
+            <div class="tab-pane fade" id="campuses" role="tabpanel" aria-labelledby="campuses-tab">
+                <div class="fs-2 fw-bold text-center mb-2">Campuses</div>
+                <div class="row">
+                    {% for campus in campuses %}
+                    <div class="col-sm-6 col-md-4 mb-3 col">
+                        <div class="card">
+                            <div class="card-header">
+                                {{campus['campusName']}}
+                            </div>
+                            <img src="{{campus['campusURL']}}" class="card-img-top" alt="{{campus['campusURL']}}">
+                            <div class="card-body">
+                                <h5 class="card-title">Location: <br>{{campus['campusLocation']}}</h5>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </section>
+            <div class="tab-pane fade" id="academicians" role="tabpanel" aria-labelledby="academicians-tab">
+                <div class="fs-2 fw-bold text-center mb-4">Our Academicians</div>
+                <form class="row g-3 align-items-center" action="/academicianDetails" method="GET"
+                    enctype="multipart/form-data">
+                    <div class="row">
+                        {% for academician in academicians %}
+                        <div class="col-sm-6 col-md-4 mb-3 col">
+                            <div class="card">
+                                <img src="{{academician['academicianURL']}}" class="card-img-top"
+                                    alt="{{academician['academicianURL']}}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{academician['academicianTitle']}}
+                                        {{academician['academicianName']}}</h5>
+                                    <h5 class="card-title">{{academician['designation']}}</h5>
+                                    <button type="Submit" class="btn btn-primary" name="selectedAca"
+                                        value="{{academician['academicianID']}}">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-<script>
-    function openTabs(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" tab-active", "");
-        }
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " tab-active";
-
-        return false;
-    }
-    document.getElementById("<%=AboutUs.ClientID%>").click();
-</script>
 {%endblock%}
