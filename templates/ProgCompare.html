@@ -6,6 +6,11 @@
 <link href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css' rel='stylesheet'
     type='text/css'>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<script>
+    function submitForm() {
+        document.forms[0].submit();
+    }
+</script>
 <style>
     .title {
         height: 80px;
@@ -19,13 +24,16 @@
 
     .dropdown-list {
         cursor: pointer;
-        width: 100%;
-        height: 35px;
+        width: 75%;
+        height: 40px;
         font-size: 1rem;
         font-weight: 500;
         margin-left: 10px;
     }
 
+    .nav-tabs .nav-item:last-child {
+        margin-left: auto;
+    }
 
     /* @media(min-width:768px) {
 
@@ -35,37 +43,41 @@
 {% block content %}
 <div class="container">
     <div class="d-flex align-items-center title">
-        <a class="bi bi-chevron-left" style="font-size: 30px; text-decoration: none; color:black" href="/programme"></a>
-        <h3 style="margin-left:20px;"> {{mName[0][0]}} / </h3>
-        <form>
-            <select name="cProg" class="dropdown-list" method="POST" action="/">
-                <option value="{{progList[0][1]}}" class="dropdown-list-item" selected>{{progList[0][0]}}</option>
-                {% for p in progList[1:] %}
-                <option value="{{p[1]}}" class="dropdown-list-item">{{p[0]}}</option>
-                {% endfor %}
-            </select>
-        </form>
+        <a class="bi bi-chevron-left" style="font-size: 30px; text-decoration: none; color:black" href="/progDetails/{{progID}}"></a>
+        <h3 style="margin-left:20px;"> {{mName[0][1]}} / {{cName[0][0]}}</h3>
     </div>
-    <ul class="nav nav-pills w-100" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" style="padding-left: 25px!important; padding-right: 25px!important;"
-                id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab"
-                aria-controls="overview" aria-selected="true">Overview</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;" id="req-tab"
-                data-bs-toggle="tab" data-bs-target="#req" type="button" role="tab" aria-controls="req"
-                aria-selected="false">Requirements</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;"
-                id="course-tab" data-bs-toggle="tab" data-bs-target="#course" type="button" role="tab"
-                aria-controls="course" aria-selected="false">Courses</button>
-        </li>
-        <li class="nav-item">
-
-        </li>
-    </ul>
+    <form method="POST" action="/progCompare/{{progID}}">
+        <ul class="nav nav-tabs w-100" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab"
+                    aria-controls="overview" aria-selected="true">Overview</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="req-tab" data-bs-toggle="tab" data-bs-target="#req" type="button" role="tab" aria-controls="req"
+                    aria-selected="false">Requirements</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" style="padding-left: 25px!important; padding-right: 25px!important;"
+                    id="course-tab" data-bs-toggle="tab" data-bs-target="#course" type="button" role="tab"
+                    aria-controls="course" aria-selected="false">Courses</button>
+            </li>
+            <li class="nav-item">
+                <div class="d-flex justify-content-end">
+                    <select name="cProg" class="dropdown-list">
+                        <option value="{{progList[0][1]}}" class="dropdown-list-item" selected>{{progList[0][0]}}
+                        </option>
+                        {% for p in progList[1:] %}
+                        <option value="{{p[1]}}" class="dropdown-list-item">{{p[0]}}</option>
+                        {% endfor %}
+                    </select>
+                    <button name="compare" value="compare" type="submit" class="btn btn-primary"
+                        style="margin-left: 10px;">Compare</button>
+                </div>
+            </li>
+        </ul>
+    </form>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
             <table class="table table-bordered">
@@ -101,32 +113,61 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="background-color: rgb(194, 194, 194)">Program</th>
+                        <th style="background-color: rgb(194, 194, 194)">Level</th>
+                        <th style="background-color: rgb(194, 194, 194)">Subject</th>
+                        <th style="background-color: rgb(194, 194, 194)">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in prog_data %}
+                    <tr>
+                        <td>{{ row.Program }}</td>
+                        <td>{{ row.Level }}</td>
+                        <td>{{ row.Subject }}</td>
+                        <td>{{ row.Grade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="course" role="tabpanel" aria-labelledby="course-tab">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="background-color: rgb(194, 194, 194)"></th>
+                        <th style="background-color: rgb(194, 194, 194)">{{mName[0][0]}}</th>
+                        <th style="background-color: rgb(194, 194, 194)">{{cName[0][0]}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {%for course in allCourses%}
+
+                    <tr>
+                        <td>{{course[0]}}</td>
+                        {% if course in courses1%}
+                        <td style="text-align: center;"><span class="tick">&#10004;</span></td>
+                        {% else %}
+                        <td style="text-align: center;"><span>&#10060;</span></td>
+                        {%endif%}
+                        {% if course in courses2%}
+                        <td style="text-align: center;"><span class="tick">&#10004;</span></td>
+                        {% else %}
+                        <td style="text-align: center;"><span>&#10060;</span></td>
+                        {%endif%}
+                    </tr>
+                    {%endfor%}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th style="background-color: rgb(194, 194, 194)">Program</th>
-                    <th style="background-color: rgb(194, 194, 194)">Subject</th>
-                    <th style="background-color: rgb(194, 194, 194)">Grade</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in prog_data %}
-                <tr>
-                    <td>{{ row.Program }}</td>
-                    <td>{{ row.Subject }}</td>
-                    <td>{{ row.Grade }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="tab-pane fade" id="course" role="tabpanel" aria-labelledby="course-tab">
-
-    </div>
 </div>
 </div>
 {%endblock%}

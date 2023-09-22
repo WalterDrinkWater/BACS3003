@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% block head %}
+    <link rel="stylesheet" href="/static/bootstrapcss.css">
+    <script src="../static/bootstrap.bundle.js"></script>
+    <script src="../static/popper.js"></script>
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+    <style>
+        .nav-link{
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        .fs-custom{
+          font-size: 1.1rem!important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light fs-custom">
+        <div class="container-fluid" >
+          <a class="navbar-brand fs-4" href="#">FOCS (Student Information Center)</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Enquiries</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
