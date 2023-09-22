@@ -219,6 +219,7 @@ def scan_img():
     # Load image, grayscale, Otsu's threshold
     image = cv2.imread('static/media/SPM Result.jpg')
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.GaussianBlur(image, (5, 5), 0)
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
     # Morph open to remove noise
