@@ -170,6 +170,8 @@ def View_Aca_Details():
 
     return render_template('AcademicianDetails.html', acaDetails=acaDetails)
 
+
+
 # @app.route("/test")
 # def scan_img():
 #     # Mention the installed location of Tesseract-OCR in your system

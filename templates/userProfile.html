@@ -5,79 +5,79 @@
 {{super()}}
 <style>
     .prog {
-    width: 100%;
-  max-width: 300px;
-  height: 330px;
-  margin: 0 10px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-}
-
-.details{
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-}
-
-.duration{
-  position: absolute;
-  bottom: 50px;
-}
-
-@media(min-width:768px) {
-    .prog-container{
-      justify-content: start!important;
+        width: 100%;
+        max-width: 300px;
+        height: 330px;
+        margin: 0 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
     }
-}
+
+    .details {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .duration {
+        position: absolute;
+        bottom: 50px;
+    }
+
+    @media(min-width:768px) {
+        .prog-container {
+            justify-content: start !important;
+        }
+    }
 </style>
 {% endblock %}
 {% block content %}
 <div class="d-flex flex-row justify-content-center align-items-center">
     <div class="col-8 mb-4">
-        <div class="fs-2 fw-bold text-center mb-2">First Login Setup Profile</div>
-        <div class="text-center mb-4">Fill up the form to setup the profile before programme application</div>
-        <form class="row g-3" method="POST" action="/UpdateProfile" enctype="multipart/form-data">
-            <div class="col-12">
-                <label for="inputName" class="form-label">Name (as in MyKad)</label>
-                <input type="text" class="form-control border-3" id="inputName" name="inputName" required>
-            </div>
-            <div class="col-6">
-                <label for="inputIC" class="form-label">MyKad No.</label>
-                <input type="text" class="form-control border-3" id="inputIC" name="inputIC" placeholder="e.g. 999999-99-9999" >
-            </div>
-            <div class="col-6">
-                <label for="inputGender" class="form-label col-6">Gender</label>
-                <div class="btn-group col-6" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off" value="Male">
-                    <label class="btn btn-outline-primary" for="btnradio1" >Male</label>
+        <div class="fs-2 fw-bold text-center mb-2">User Profile</div>
+        <div class="col-12">
+            <label for="inputName" class="form-label">Name (as in MyKad)</label>
+            <input type="text" class="form-control border-3" id="inputName" name="inputName" required>
+        </div>
+        <div class="col-6">
+            <label for="inputIC" class="form-label">MyKad No.</label>
+            <input type="text" class="form-control border-3" id="inputIC" name="inputIC"
+                placeholder="e.g. 999999-99-9999">
+        </div>
+        <div class="col-6">
+            <label for="inputGender" class="form-label col-6">Gender</label>
+            <div class="btn-group col-6" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off" value="Male">
+                <label class="btn btn-outline-primary" for="btnradio1">Male</label>
 
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off" value="Female">
-                    <label class="btn btn-outline-primary" for="btnradio2">Female</label>
-                </div>
+                <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off"
+                    value="Female">
+                <label class="btn btn-outline-primary" for="btnradio2">Female</label>
             </div>
-            <div class="col-12">
-                <label for="inputAddress" class="form-label">Address</label>
-                <textarea class="form-control border-3" id="inputAddress" name="inputAddress" rows="3"></textarea>
-            </div>
-            <div class="col-12">
-                <label for="inputHandphoneNumber" class="form-label">Handphone Number</label>
-                <input type="text" class="form-control border-3" id="inputHandphoneNumber" name="inputHandphoneNumber"  placeholder="e.g. 601110944598">
-            </div>
-            <div class="col-12">
-                <label for="inputEmail" class="form-label">Email Address</label>
-                <input type="text" class="form-control border-3" value="{{session['useremail']}}" disabled>
-                <input type="hidden" id="inputEmail" name="inputEmail" value="{{session['useremail']}}">
-            </div>
-            <div class="col-12 d-flex flex-row justify-content-end mt-4">
-                <button type="submit" class="btn btn-primary btn-lg" data-bs-toggle="modal"
-                    data-bs-target="#staticBackdrop">Save</button>
-            </div>
-        </form>
+        </div>
+        <div class="col-12">
+            <label for="inputAddress" class="form-label">Address</label>
+            <textarea class="form-control border-3" id="inputAddress" name="inputAddress" rows="3"></textarea>
+        </div>
+        <div class="col-12">
+            <label for="inputHandphoneNumber" class="form-label">Handphone Number</label>
+            <input type="text" class="form-control border-3" id="inputHandphoneNumber" name="inputHandphoneNumber"
+                placeholder="e.g. 601110944598">
+        </div>
+        <div class="col-12">
+            <label for="inputEmail" class="form-label">Email Address</label>
+            <input type="text" class="form-control border-3" value="{{session['useremail']}}" disabled>
+            <input type="hidden" id="inputEmail" name="inputEmail" value="{{session['useremail']}}">
+        </div>
+        <div class="col-12 d-flex flex-row justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg" data-bs-toggle="modal"
+                data-bs-target="#staticBackdrop">Save</button>
+        </div>
     </div>
 </div>
 {%endblock%}
