@@ -1,0 +1,50 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Qualification{% endblock %}
+
+{% block content %}
+{% include 'includes/appnav.html' %}
+<h2>ACADEMIC QUALIFICATION</h2>
+<p>SPM/O LEVEL/EQUIVALENT:</p>
+<p>Ex-TARCians and applicants from other institution of higher learning with SPM/O Level/equivalent results are also
+    required to complete this section.</p>
+
+<form class="row g-3" action="/application/assess" method="POST" enctype="multipart/form-data">
+    <div class="col-6 mb-3">
+        <label for="qualification" class="form-label">Qualification</label>
+        <select id='mySelect' class="form-control nav-tabs-selector">
+            <option value="SPM">SPM</option>
+            <option value="IGCSE/GCSE/O Level">IGCSE/GCSE/O Level</option>
+        </select>
+    </div>
+
+    <input class="form-control border-3" type="file" id="qualification" name="qualification" accept=".jpg, .png, .jpeg"
+        onchange="loadFile(event, 'qualificationPreview')" />
+    <img id="qualificationPreview" class="mt-3" width="300" height="300" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save & Next</button>
+</form>
+
+<script type="text/javascript">
+    function EnableDisableTextBox(healthIssue) {
+        var selectedValue = healthIssue.options[healthIssue.selectedIndex].value;
+        var txtOther = document.getElementById("others");
+        txtOther.disabled = selectedValue == "Others" ? false : true;
+        if (!txtOther.disabled) {
+            txtOther.focus();
+        }
+    }
+
+    var loadFile = function (event, frame) {
+        var output = document.getElementById(frame);
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function () {
+            URL.revokeObjectURL(output.src); // free memory
+        };
+    };
+
+    $('.nav-tabs-selector').on('change', function (e) {
+        $(this).closest(".tab-area").find('.nav-tabs li a').eq($(this).val()).tab('show');
+    });
+</script>
+{%endblock%}

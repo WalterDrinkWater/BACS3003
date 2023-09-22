@@ -1,6 +1,6 @@
 <ul class="nav nav-pills col-3 flex-column ms-3" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-        <a href="#">
+        <a href="{{url_for('application')}}">
             <button class="btn nav-link active px-3" id="intake-tab" type="button" aria-controls="intake"
                 aria-selected="true">
                 Intake & Programme
@@ -16,7 +16,7 @@
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a><button class="nav-link px-3" id="qualification-tab" type="button" aria-controls="qualification"
+        <a href="{{url_for('qualification')}}"><button class="nav-link px-3" id="qualification-tab" type="button" aria-controls="qualification"
                 aria-selected="false">
                 Qualification
             </button></a>

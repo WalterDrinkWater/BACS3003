@@ -19,7 +19,9 @@ from flask_mail import Mail, Message
 import datetime
 import pytz
 import cv2
+import numpy as np
 import pytesseract
+import difflib
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
@@ -48,6 +50,8 @@ def home():
 
 @app.route("/studhome")
 def studhome():
+    return render_template("StudHome.html")
+
 
 @app.route("/index", methods=["GET", "POST"])
 def index():
@@ -429,6 +433,85 @@ def uploadic():
 
     return redirect(url_for('application'))
 
+@app.route('/application/qualification')
+def qualification():
+    return render_template("Qualification.html")
+
+@app.route('/application/assess', methods=['POST'])
+def assess_qualification():
+    id = request.args.get("id")
+    fileObj = request.files["qualification"].read()
+
+    cursor = db_conn.cursor(cursors.DictCursor)
+    data = scan_img(fileObj)
+
+    try:
+
+        # Find the most similar words to the word "Sejarah"
+
+        # Print the similar words
+        cursor.execute("SELECT * FROM QualificationSubject")
+        qualifications = cursor.fetchall()
+        for qualification in qualifications:
+            # result = difflib.get_close_matches(qualification['subjectName'].lower(), data.lower(), n=1)
+            test = data.lower().find(qualification["subjectName"].lower())
+            print(data[test:test + len(qualification["subjectName"])])
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+
+    return redirect(url_for('qualification'))
+
+
+def scan_img(fileObj):
+    # Mention the installed location of Tesseract-OCR in your system
+    pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
+    #convert string data to numpy array
+    file_bytes = np.fromstring(fileObj, np.uint8)
+    # convert numpy array to image
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_UNCHANGED)
+    # Reduce noise
+    image = cv2.medianBlur(image, 3)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+    # Find contours and remove small noise
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        area = cv2.contourArea(c)
+        if area < 10:
+            cv2.drawContours(thresh, [c], -1, 0, -1)
+
+    # Invert and apply slight Gaussian blur
+    result = cv2.GaussianBlur(thresh, (3,3), 0)
+
+    # Perform OCR
+    data = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+    weird_symbols_and_words = r"[^A-Za-z0-9\s]"
+    # Find all the matches for the regular expression
+    matches = re.findall(weird_symbols_and_words, data)
+    for match in matches:
+        data = data.replace(match, "")
+
+    print(data)
+
+    # cv2.namedWindow("opening", cv2.WINDOW_NORMAL)
+    # cv2.namedWindow("thresh", cv2.WINDOW_NORMAL)
+    # cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+    # cv2.imshow('opening', image)
+    # cv2.imshow('thresh', thresh)
+    # cv2.imshow('result', result)
+    cv2.waitKey()     
+
+    return data
+
+
+
+
 
 @app.route("/UpdateProfile", methods=["GET", "POST"])
 def UpdateProfile():
@@ -510,48 +593,6 @@ def Get_Programme_Details(progID):
             grouped_data[group_key].append(row)
 
         return render_template('ProgDetails.html', prog=prog, course=course, req=grouped_data)
-
-@app.route("/test")
-def scan_img():
-    # Mention the installed location of Tesseract-OCR in your system
-    pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
-    
-    # Load image, grayscale, Otsu's threshold
-    image = cv2.imread('static/media/SPM Result.jpg')
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.GaussianBlur(image, (5, 5), 0)
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-    # Morph open to remove noise
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
-    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-
-    # Find contours and remove small noise
-    cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    for c in cnts:
-        area = cv2.contourArea(c)
-        if area < 50:
-            cv2.drawContours(opening, [c], -1, 0, -1)
-
-    # Invert and apply slight Gaussian blur
-    result = 255 - opening
-    result = cv2.GaussianBlur(result, (3,3), 0)
-
-    # Perform OCR
-    data = pytesseract.image_to_string(result, lang='eng', config='--psm 6')
-    print(data)
-
-    cv2.namedWindow("thresh", cv2.WINDOW_NORMAL)
-    cv2.namedWindow("opening", cv2.WINDOW_NORMAL)
-    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-    cv2.imshow('thresh', thresh)
-    cv2.imshow('opening', opening)
-    cv2.imshow('result', result)
-    cv2.waitKey()     
-
-    return data
-
 
 @app.route("/progCompare/<progID>", methods=['GET', 'POST'])
 def Compare_Programme(progID):
