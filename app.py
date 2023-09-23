@@ -7,7 +7,7 @@ from flask import (
     send_file,
     session,
     jsonify,
-    flash
+    flash,
 )
 from collections import defaultdict
 from pymysql import connections, cursors
@@ -104,7 +104,7 @@ def send_confirmation_email(email):
             confirmation_link
         )
         mail.send(msg)
-    
+
 
 def send_reset_email(email):
     select_sql = "SELECT * FROM Account WHERE accEmail=%s"
@@ -124,6 +124,7 @@ def send_reset_email(email):
         )
         mail.send(msg)
 
+
 @app.route("/account/login", methods=["GET", "POST"])
 def login():
     return render_template("Login.html")
@@ -132,7 +133,7 @@ def login():
 @app.route("/AJAXLogin", methods=["GET", "POST"])
 def AJAXLogin():
     response = {}
-    if request.method == 'POST':
+    if request.method == "POST":
         action = request.form.get("act")
         femail = request.form.get("femail")
         password = request.form.get("fpassword")
@@ -154,19 +155,31 @@ def AJAXLogin():
                     if user["accStatus"] == "verified":
                         msgdesc = ""
                         action = "login-success"
-                        if user["accType"] == 'user':
-                            nexturl = "/index"
-                        elif user["accType"] == 'admin':
+                        if user["accType"] == "user":
+                            if (
+                                user["fullName"] is None
+                                or user["identification"] is None
+                                or user["handphoneNumber"] is None
+                            ):
+                                nexturl = "/admission/firstlogin"
+                            else:
+                                nexturl = "/stud/home"
+                        elif user["accType"] == "admin":
                             nexturl = "/programme"
-                            
+
                         session["loggedin"] = True
                         session["userid"] = user["accountID"]
                         session["useremail"] = user["accEmail"]
                         session["username"] = user["fullName"]
                         session_sql = "INSERT INTO LoginSession (ipAddress, loginTime, accountID)VALUES (%s, %s, %s)"
-                        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
-                        malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
-                        cursor.execute(session_sql, (request.remote_addr, malaysia_time, user["accountID"]))
+                        malaysia_timezone = pytz.timezone("Asia/Kuala_Lumpur")
+                        malaysia_time = datetime.datetime.now().astimezone(
+                            malaysia_timezone
+                        )
+                        cursor.execute(
+                            session_sql,
+                            (request.remote_addr, malaysia_time, user["accountID"]),
+                        )
                         db_conn.commit()
                     else:
                         msgdesc = "Invalid email or password"
@@ -202,7 +215,7 @@ def AJAXLogin():
 
             try:
                 if not checkEmail(femail):
-                    msg="failed"
+                    msg = "failed"
                     msgdesc = "Invalid email format"
                     response = {"msg": msg, "msgdesc": msgdesc}
                 else:
@@ -212,10 +225,12 @@ def AJAXLogin():
 
                     if exist is None:
                         cursor = db_conn.cursor(cursors.DictCursor)
-                        cursor.execute(register_sql, (femail, password, "user", "unverified"))
+                        cursor.execute(
+                            register_sql, (femail, password, "user", "unverified")
+                        )
                         db_conn.commit()
                         cursor.close()
-                        
+
                         msg = "success"
                         send_confirmation_email(femail)
                         response = {
@@ -238,7 +253,7 @@ def AJAXLogin():
                 cursor.execute(resend_sql, (femail))
                 user = cursor.fetchone()
                 cursor.close()
-                
+
                 if user is not None:
                     msg = "success"
                     femail = user["accEmail"]
@@ -261,7 +276,6 @@ def AJAXLogin():
             }
 
         elif action == "request-reset":
-            
             if not checkEmail(femail):
                 msg = "failed"
                 msgdesc = "Invalid email format"
@@ -269,7 +283,7 @@ def AJAXLogin():
                 msg = "success"
                 send_reset_email(femail)
                 msgdesc = "If we have an account for the email address you provided, we have emailed the instruction to reset your password. (The email might take a few minutes to arrive)"
-                
+
             response = {
                 "msg": msg,
                 "msgdesc": msgdesc,
@@ -311,10 +325,7 @@ def AJAXResetPassword():
         msgdesc = str(e)
 
     cursor.close()
-    response = {
-        "msg": msg,
-        "msgdesc": msgdesc
-    }
+    response = {"msg": msg, "msgdesc": msgdesc}
     return jsonify(response)
 
 
@@ -343,11 +354,9 @@ def UpdateProfile():
     return redirect(url_for("TempPage"))
 
 
-
-
 @app.route("/programme", methods=["GET", "POST"])
 def Get_Programme():
-    if request.method == 'GET':
+    if request.method == "GET":
         # cursor = db_conn.cursor(cursors.DictCursor)
         # query = "SELECT programmeName, courseName FROM Programme p, ProgrammeCourse d, Course c WHERE p.programmeID=d.programmeID AND d.courseCode=c.courseCode ORDER BY p.programmeID ASC, c.courseCode ASC"
         # cursor.execute(query)
@@ -372,152 +381,163 @@ def Get_Programme():
         prog = cursor.fetchall()
         print(prog[0])
         cursor.close()
-        return render_template('Programme.html', prog=prog)
-    
-@app.route("/progDetails/<progID>", methods=['GET', 'POST'])
+        return render_template("Programme.html", prog=prog)
+
+
+@app.route("/progDetails/<progID>", methods=["GET", "POST"])
 def Get_Programme_Details(progID):
-    if request.method == 'GET':        
+    if request.method == "GET":
         cursor = db_conn.cursor()
         progSql = "SELECT * FROM Programme WHERE ProgrammeID=%s"
-        cursor.execute(progSql,(progID))
+        cursor.execute(progSql, (progID))
         prog = cursor.fetchall()
         courseSql = "SELECT Course.* FROM Course,ProgrammeCourse,Programme WHERE Programme.programmeID = ProgrammeCourse.programmeID AND ProgrammeCourse.courseCode = Course.courseCode AND Programme.programmeID=%s ORDER BY CourseName"
-        cursor.execute(courseSql,(progID))
+        cursor.execute(courseSql, (progID))
         course = cursor.fetchall()
         reqSql = "SELECT * FROM QualificationSubject WHERE programmeID=%s ORDER BY qualificationName"
-        cursor.execute(reqSql,(progID))
+        cursor.execute(reqSql, (progID))
         tempReq = cursor.fetchall()
         grouped_data = defaultdict(list)
         progOvSql = "SELECT intakeYear,intakeMonth,programmeDuration,campusName FROM Programme,ProgrammeCampus,Intake,Campus WHERE Programme.programmeID = ProgrammeCampus.programmeID  AND Intake.IntakeID = ProgrammeCampus.intakeID AND Campus.campusID = ProgrammeCampus.campusID AND Programme.programmeID = %s"
-        cursor.execute(progOvSql,(progID))        
+        cursor.execute(progOvSql, (progID))
         ov = cursor.fetchall()
         for row in tempReq:
             group_key = row[3]
             grouped_data[group_key].append(row)
         cursor.close()
-        return render_template('ProgDetails.html', prog=prog ,course=course, req=grouped_data,ov=ov)
+        return render_template(
+            "ProgDetails.html", prog=prog, course=course, req=grouped_data, ov=ov
+        )
 
-@app.route("/progCompare/<progID>", methods=['GET', 'POST'])
+
+@app.route("/progCompare/<progID>", methods=["GET", "POST"])
 def Compare_Programme(progID):
-    cursor = db_conn.cursor()    
-    if request.method == 'GET':
+    cursor = db_conn.cursor()
+    if request.method == "GET":
         mainProg = "Select programmeName from Programme WHERE programmeID = %s"
-        cursor.execute(mainProg,(progID))
+        cursor.execute(mainProg, (progID))
         mProg = cursor.fetchall()
-        progListSql = "Select programmeName,programmeID from Programme WHERE programmeID != %s"
-        cursor.execute(progListSql,(progID))
+        progListSql = (
+            "Select programmeName,programmeID from Programme WHERE programmeID != %s"
+        )
+        cursor.execute(progListSql, (progID))
         progList = cursor.fetchall()
-        #overview1
+        # overview1
         progOvSql = "SELECT programmeName, intakeYear,intakeMonth,programmeDuration,campusName FROM Programme,ProgrammeCampus,Intake,Campus WHERE Programme.programmeID = ProgrammeCampus.programmeID  AND Intake.IntakeID = ProgrammeCampus.intakeID AND Campus.campusID = ProgrammeCampus.campusID AND Programme.programmeID = %s"
-        cursor.execute(progOvSql,(progID))
+        cursor.execute(progOvSql, (progID))
         mOv = cursor.fetchall()
         progDict = {}
         for prog in mOv:
             if prog[0] not in progDict:
-                progDict[prog[0]] = {'intake': [], 'locations': []}
-            progDict[prog[0]]['intake'].append(f"{prog[1]}/{prog[2]}")
+                progDict[prog[0]] = {"intake": [], "locations": []}
+            progDict[prog[0]]["intake"].append(f"{prog[1]}/{prog[2]}")
 
-            progDict[prog[0]]['locations'].append(prog[4])
-            progDict[prog[0]]['duration'] = prog[3]
-        progDict[mOv[0][0]]['intake'] = set(progDict[mOv[0][0]]['intake'])
-        progDict[mOv[0][0]]['locations'] = set(progDict[mOv[0][0]]['locations'])
-        
-        #overview2
+            progDict[prog[0]]["locations"].append(prog[4])
+            progDict[prog[0]]["duration"] = prog[3]
+        progDict[mOv[0][0]]["intake"] = set(progDict[mOv[0][0]]["intake"])
+        progDict[mOv[0][0]]["locations"] = set(progDict[mOv[0][0]]["locations"])
+
+        # overview2
         progOvSql = "SELECT programmeName, intakeYear,intakeMonth,programmeDuration,campusName FROM Programme,ProgrammeCampus,Intake,Campus WHERE Programme.programmeID = ProgrammeCampus.programmeID  AND Intake.IntakeID = ProgrammeCampus.intakeID AND Campus.campusID = ProgrammeCampus.campusID AND Programme.programmeID = %s"
-        cursor.execute(progOvSql,(progList[0][1]))
+        cursor.execute(progOvSql, (progList[0][1]))
         mOv = cursor.fetchall()
         progDict1 = {}
         for prog in mOv:
             if prog[0] not in progDict1:
-                progDict1[prog[0]] = {'intake': [], 'locations': []}
-            progDict1[prog[0]]['intake'].append(f"{prog[1]}/{prog[2]}")
-            progDict1[prog[0]]['locations'].append(prog[4])
-            progDict1[prog[0]]['duration'] = prog[3]
-        progDict1[mOv[0][0]]['intake'] = set(progDict1[mOv[0][0]]['intake'])
-        progDict1[mOv[0][0]]['locations'] = set(progDict1[mOv[0][0]]['locations'])
+                progDict1[prog[0]] = {"intake": [], "locations": []}
+            progDict1[prog[0]]["intake"].append(f"{prog[1]}/{prog[2]}")
+            progDict1[prog[0]]["locations"].append(prog[4])
+            progDict1[prog[0]]["duration"] = prog[3]
+        progDict1[mOv[0][0]]["intake"] = set(progDict1[mOv[0][0]]["intake"])
+        progDict1[mOv[0][0]]["locations"] = set(progDict1[mOv[0][0]]["locations"])
         combinedDict = {}
         combinedDict.update(progDict)
         combinedDict.update(progDict1)
         sortedDict = sorted(combinedDict.items(), key=lambda x: x[0])
 
-        #compare requirement
+        # compare requirement
         reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY qualificationName"
-        cursor.execute(reqSql,(progID,progList[0][1]))
+        cursor.execute(reqSql, (progID, progList[0][1]))
         allReq = cursor.fetchall()
         prog_data = []
 
         # Iterate over the list of tuples and add the data to the list of dictionaries
         for prog_name, alevel_sub, alevel_grade, diploma_grade in allReq:
-            prog_data.append({
-            "Program": prog_name,
-            "Subject": alevel_sub,
-            "Grade": alevel_grade
-            })
+            prog_data.append(
+                {"Program": prog_name, "Subject": alevel_sub, "Grade": alevel_grade}
+            )
         print(allReq)
     cursor.close()
-    return render_template("ProgCompare.html",mName = mProg,progList=progList, sDict = sortedDict,prog_data=prog_data)
+    return render_template(
+        "ProgCompare.html",
+        mName=mProg,
+        progList=progList,
+        sDict=sortedDict,
+        prog_data=prog_data,
+    )
+
 
 # @app.route("/test")
 # def scan_img():
 #     # Mention the installed location of Tesseract-OCR in your system
 #     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
-    
+
 #     # Read image from which text needs to be extracted
 #     img = cv2.imread("static/media/test2.jpg")
-    
+
 #     # Preprocessing the image starts
-    
+
 #     # Convert the image to gray scale
 #     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
+
 #     # Performing OTSU threshold
 #     ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    
+
 #     # Specify structure shape and kernel size.
 #     # Kernel size increases or decreases the area
 #     # of the rectangle to be detected.
 #     # A smaller value like (10, 10) will detect
 #     # each word instead of a sentence.
 #     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
-    
+
 #     # Applying dilation on the threshold image
 #     dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
-    
+
 #     # Finding contours
 #     contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
 #                                                     cv2.CHAIN_APPROX_NONE)
-    
+
 #     # Creating a copy of image
 #     im2 = img.copy()
-    
+
 #     # A text file is created and flushed
 #     file = open("recognized.txt", "w+")
 #     file.write("")
 #     file.close()
-    
+
 #     # Looping through the identified contours
 #     # Then rectangular part is cropped and passed on
 #     # to pytesseract for extracting text from it
 #     # Extracted text is then written into the text file
 #     for cnt in contours:
 #         x, y, w, h = cv2.boundingRect(cnt)
-        
+
 #         # Drawing a rectangle on copied image
 #         rect = cv2.rectangle(im2, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        
+
 #         # Cropping the text block for giving input to OCR
 #         cropped = im2[y:y + h, x:x + w]
-        
+
 #         # Open the file in append mode
 #         file = open("recognized.txt", "a")
-        
+
 #         # Apply OCR on the cropped image
 #         text = pytesseract.image_to_string(cropped)
-        
+
 #         # Appending the text into file
 #         file.write(text)
 #         file.write("\n")
-        
+
 #         # Close the file
 #         file.close
 #         cv2.imshow("Lena Soderberg”, img)
@@ -525,14 +545,14 @@ def Compare_Programme(progID):
 #     return "abc"
 
 
-        # Convert to a list if it is not already.
-    #     if not isinstance(value, list):
-    #         value = [value]
+# Convert to a list if it is not already.
+#     if not isinstance(value, list):
+#         value = [value]
 
-    #     data[key].extend(value)
+#     data[key].extend(value)
 
-    # cursor.close()
-    # return render_template("Programme.html", courses=data)
+# cursor.close()
+# return render_template("Programme.html", courses=data)
 
 
 @app.route("/admission/firstlogin", methods=["GET", "POST"])
@@ -603,13 +623,18 @@ def TempPage():
 
 @app.route("/admission/addenquiry", methods=["GET", "POST"])
 def AddEnquiry():
-    id = session['userid']
+    id = session["userid"]
     user_sql = "SELECT * FROM Account WHERE accountID=%s"
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute(user_sql, id)
         user = cursor.fetchone()
-        return render_template("AddEnquiry.html", name=user['fullName'], phone=user['handphoneNumber'], email=user['accEmail'])
+        return render_template(
+            "AddEnquiry.html",
+            name=user["fullName"],
+            phone=user["handphoneNumber"],
+            email=user["accEmail"],
+        )
     except Exception as e:
         print(e)
     finally:
@@ -618,35 +643,44 @@ def AddEnquiry():
 
 @app.route("/AddEnquiry", methods=["GET", "POST"])
 def addEnquiry():
-    id = session['userid']
-    topic = request.form.get('inputTopic')
-    title = request.form.get('inputTitle')
-    question = request.form.get('inputQuestion')
-    file = request.files['inputFile']
-      
+    id = session["userid"]
+    topic = request.form.get("inputTopic")
+    title = request.form.get("inputTitle")
+    question = request.form.get("inputQuestion")
+    file = request.files["inputFile"]
+
     try:
-        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_timezone = pytz.timezone("Asia/Kuala_Lumpur")
         malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute("INSERT INTO Enquiry (enquiryTopic, enquiryTitle, question, datetimeEnquire, enquiryStatus, enquiryAccountID)VALUES (%s, %s, %s, %s, %s, %s)",(topic, title, question, malaysia_time, 'Pending Reply', id))
+        cursor.execute(
+            "INSERT INTO Enquiry (enquiryTopic, enquiryTitle, question, datetimeEnquire, enquiryStatus, enquiryAccountID)VALUES (%s, %s, %s, %s, %s, %s)",
+            (topic, title, question, malaysia_time, "Pending Reply", id),
+        )
         db_conn.commit()
         enquiryID = cursor.lastrowid
-        path = "static/media/" + str(enquiryID)  + "_" + file.filename
+        path = "static/media/" + str(enquiryID) + "_" + file.filename
         file.save(os.path.join(path))
-        cursor.execute("UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",  (path, enquiryID))
+        cursor.execute(
+            "UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",
+            (path, enquiryID),
+        )
         db_conn.commit()
-        flash("Enquiry form has been submitted. Takes up to 3 working days to receive reply.", category='success')
+        flash(
+            "Enquiry form has been submitted. Takes up to 3 working days to receive reply.",
+            category="success",
+        )
     except Exception as e:
         print(e)
     finally:
         cursor.close()
-    
+
     return redirect(url_for("AddEnquiry"))
 
 
 @app.route("/admission/enquirydetails", methods=["GET", "POST"])
 def enquiryDetails():
-    enquiryID = request.args.get('id')
+    enquiryID = request.args.get("id")
     enquiry_sql = "SELECT Enquiry.*, Account1.fullName AS enquiryAccountFullName, Account1.handphoneNumber AS enquiryAccountHandphoneNumber, Account1.accEmail AS enquiryAccountEmail, Account2.fullName AS responseAccountFullName, Account2.handphoneNumber AS responseAccountHandphoneNumber, Account2.accEmail AS responseAccountEmail FROM Enquiry LEFT JOIN Account AS Account1 ON Enquiry.enquiryAccountID = Account1.accountID LEFT JOIN Account AS Account2 ON Enquiry.responseAccountID = Account2.accountID WHERE enquiryID=%s;"
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
@@ -668,18 +702,19 @@ def enquiry():
 
 @app.route("/AJAXenquirylist", methods=["GET", "POST"])
 def AJAXenquirylist():
-    enquiryID = session['userid']
+    enquiryID = session["userid"]
     draw = request.form["draw"]
     row = int(request.form["start"])
     rowperpage = int(request.form["length"])
     searchValue = request.form["search[value]"]
-    
+
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
 
         ## Total number of records without filtering
         cursor.execute(
-            "SELECT count(*) as allcount FROM Enquiry WHERE enquiryAccountID=%s", enquiryID
+            "SELECT count(*) as allcount FROM Enquiry WHERE enquiryAccountID=%s",
+            enquiryID,
         )
         rsallcount = cursor.fetchone()
         totalRecords = rsallcount["allcount"]
@@ -754,35 +789,40 @@ def adminEnquiry():
 
 @app.route("/AddResponse", methods=["GET", "POST"])
 def addResponse():
+    adminid = session["userid"]
+    enquiryid = request.form.get("inputEnquiryID")
+    feedback = request.form.get("inputQuestion")
+    file = request.files["inputFile"]
 
-    adminid = session['userid']
-    enquiryid = request.form.get('inputEnquiryID')
-    feedback = request.form.get('inputQuestion')
-    file = request.files['inputFile']
-    
     try:
-        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_timezone = pytz.timezone("Asia/Kuala_Lumpur")
         malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute("UPDATE Enquiry SET responseAccountID=%s, response=%s, datetimeResponse=%s, enquiryStatus=%s WHERE enquiryID=%s", (adminid, feedback, malaysia_time, 'Completed', enquiryid))
+        cursor.execute(
+            "UPDATE Enquiry SET responseAccountID=%s, response=%s, datetimeResponse=%s, enquiryStatus=%s WHERE enquiryID=%s",
+            (adminid, feedback, malaysia_time, "Completed", enquiryid),
+        )
         db_conn.commit()
-        if file.filename != '':
-            path = "static/media/" + str(enquiryid)  + "_" + file.filename
+        if file.filename != "":
+            path = "static/media/" + str(enquiryid) + "_" + file.filename
             file.save(os.path.join(path))
-            cursor.execute("UPDATE Enquiry SET responseImagePath=%s WHERE enquiryID=%s",  (path, enquiryid))
+            cursor.execute(
+                "UPDATE Enquiry SET responseImagePath=%s WHERE enquiryID=%s",
+                (path, enquiryid),
+            )
             db_conn.commit()
-        flash("A response has been submitted.", category='success')
+        flash("A response has been submitted.", category="success")
     except Exception as e:
         print(e)
     finally:
         cursor.close()
-    
+
     return redirect(url_for("adminEnquiryDetails", id=enquiryid))
 
 
 @app.route("/admin/enquirydetails", methods=["GET", "POST"])
 def adminEnquiryDetails():
-    enquiryID = request.args.get('id')
+    enquiryID = request.args.get("id")
     enquiry_sql = "SELECT Enquiry.*, Account1.fullName AS enquiryAccountFullName, Account1.handphoneNumber AS enquiryAccountHandphoneNumber, Account1.accEmail AS enquiryAccountEmail, Account2.fullName AS responseAccountFullName, Account2.handphoneNumber AS responseAccountHandphoneNumber, Account2.accEmail AS responseAccountEmail FROM Enquiry LEFT JOIN Account AS Account1 ON Enquiry.enquiryAccountID = Account1.accountID LEFT JOIN Account AS Account2 ON Enquiry.responseAccountID = Account2.accountID WHERE enquiryID=%s;"
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
@@ -803,14 +843,12 @@ def AJAXadminenquirylist():
     row = int(request.form["start"])
     rowperpage = int(request.form["length"])
     searchValue = request.form["search[value]"]
-    
+
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
 
         ## Total number of records without filtering
-        cursor.execute(
-            "SELECT count(*) as allcount FROM Enquiry"
-        )
+        cursor.execute("SELECT count(*) as allcount FROM Enquiry")
         rsallcount = cursor.fetchone()
         totalRecords = rsallcount["allcount"]
 
@@ -873,21 +911,21 @@ def AJAXadminenquirylist():
         print(e)
     finally:
         cursor.close()
-    
+
 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
-    id = session['userid']
+    id = session["userid"]
     logout_sql = "UPDATE LoginSession SET logoutTime=%s WHERE accountID=%s"
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
-        malaysia_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        malaysia_timezone = pytz.timezone("Asia/Kuala_Lumpur")
         malaysia_time = datetime.datetime.now().astimezone(malaysia_timezone)
-        cursor.execute(logout_sql, (malaysia_time,id))
+        cursor.execute(logout_sql, (malaysia_time, id))
         db_conn.commit()
-        session['loggedin'] = False
-        session.pop('userid', None)
-        session.pop('username', None)
+        session["loggedin"] = False
+        session.pop("userid", None)
+        session.pop("username", None)
 
         return redirect(url_for("home"))
     except Exception as e:
