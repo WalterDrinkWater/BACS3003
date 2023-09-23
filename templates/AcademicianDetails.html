@@ -1,0 +1,31 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Academician Details{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-row justify-content-center align-items-center mt-5">
+    <div class="col-8">
+        <div class="fs-2 fw-bold text-center mb-2">Academician Details</div>
+        <div class="card mb-3">
+            <div class="card-body row">
+                <div class="col">
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <img src="{{acaDetails['academicianURL']}}" class="card-img-top"
+                            alt="{{acaDetails['academicianURL']}}" style="width:80%">
+                    </div>
+                </div>
+                <div class="col">
+                    <h1 class="card-title">{{acaDetails['academicianTitle']}} {{acaDetails['academicianName']}}
+                    </h1>
+                    <h2 class="card-title">{{acaDetails['designation']}}</h2>
+                    <h5 class="card-title">Email: {{acaDetails['academicianEmail']}}</h5>
+                    <h5 class="card-title">Department: <br>{{acaDetails['department']}}</h5>
+                    <h5 class="card-title">Education Background: <br>{{acaDetails['educationBackground']}}</h5>
+                    <h5 class="card-title">Publication: {{acaDetails['publication']}}</h5>
+                    <h5 class="card-title">Research Area: <br>{{acaDetails['researchArea']}}</h5>
+                    <h5 class="card-title">Organization Membership: {{acaDetails['organizationMembership']}}
+                    </h5>
+                </div>
+            </div>
+        </div>
+        {%endblock%}
