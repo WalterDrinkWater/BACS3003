@@ -435,7 +435,58 @@ def uploadic():
 
 @app.route('/application/qualification')
 def qualification():
-    return render_template("Qualification.html")
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT DISTINCT i.intakeID, intakeName, campusID, pc.intakeID FROM Intake i, ProgrammeCampus pc WHERE i.intakeID = pc.intakeID")
+        intakes = cursor.fetchall()
+        cursor.execute("SELECT campusID, campusName FROM Campus")
+        campuses = cursor.fetchall()
+        cursor.execute("SELECT DISTINCT programmeType FROM Programme")
+        progTypes = cursor.fetchall()
+        cursor.execute("SELECT pc.programmeID, campusID, programmeName, programmeType FROM ProgrammeCampus pc, Programme p WHERE pc.programmeID = p.programmeID")
+        progCampus = cursor.fetchall()
+        campus_data = {}
+        
+        for intake in intakes:
+            intakeName = intake["intakeName"]
+            if intakeName in campus_data:
+                pass
+            else:
+                campus_data[intakeName] = {}
+            for campus in campuses:
+                if campus["campusID"] == intake["campusID"]:
+                    campus_name = campus["campusName"]
+                    campus_id = campus["campusID"]
+                    campus_data[intakeName][campus_name] = {}
+                    for progType in progTypes:
+                        if(progType["programmeType"] == "xDegree"):
+                            campus_data[intakeName][campus_name]["Diploma"] = {}
+                            campus_data[intakeName][campus_name]["Foundation"] = {}
+                        else:
+                            campus_data[intakeName][campus_name][progType["programmeType"]] = {}
+
+                        for prog in progCampus:
+                            if prog["campusID"] == campus_id and prog["programmeType"] == "Degree" and progType["programmeType"] == "Degree":
+                                campus_data[intakeName][campus_name][progType["programmeType"]][prog["programmeID"]] = prog["programmeName"]
+                            else: 
+                                if("Diploma" in campus_data[intakeName][campus_name] and "Foundation" in campus_data[intakeName][campus_name]):
+                                    if prog["campusID"] == campus_id and prog['programmeName'].startswith("Diploma"):
+                                        campus_data[intakeName][campus_name]["Diploma"][prog["programmeID"]] = prog["programmeName"]
+                                    elif(prog["campusID"] == campus_id and prog['programmeName'].startswith("Foundation")):
+                                        campus_data[intakeName][campus_name]["Foundation"][prog["programmeID"]] = prog["programmeName"]
+
+
+
+        # cursor.execute("SELECT * FROM ProgrammeCampus WHERE campusID = %s", ))
+        # for x in campus:
+        #     program = cursor.fetchall()
+            
+        print(campus_data)
+    except Exception as e:
+        return(str(e))
+    finally:
+            cursor.close()
+    return render_template("Qualification.html", campusdata=campus_data)
 
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
@@ -499,8 +550,10 @@ def assess_qualification():
         else: 
             status = "Rejected"
 
-        if(credits > 5):
+        if(credits >= 5):
             status = "Approved"
+
+        print(status, credits)
 
     except Exception as e:
         return str(e)

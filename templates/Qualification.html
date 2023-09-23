@@ -4,44 +4,63 @@
 
 {% block content %}
 <script>
-    var subjectObject = {
-        "Front-end": {
-            "HTML": ["Links", "Images", "Tables", "Lists"],
-            "CSS": ["Borders", "Margins", "Backgrounds", "Float"],
-            "JavaScript": ["Variables", "Operators", "Functions", "Conditions"]
-        },
-        "Back-end": {
-            "PHP": ["Variables", "Strings", "Arrays"],
-            "SQL": ["SELECT", "UPDATE", "DELETE"]
-        }
-    }
+    var campusData = JSON.parse('{{campusdata | tojson}}');;
+    console.log(campusData)
     window.onload = function () {
-        var subjectSel = document.getElementById("subject");
-        var topicSel = document.getElementById("topic");
-        var chapterSel = document.getElementById("chapter");
-        for (var x in subjectObject) {
-            subjectSel.options[subjectSel.options.length] = new Option(x, x);
-        }
-        subjectSel.onchange = function () {
-            //empty Chapters- and Topics- dropdowns
-            chapterSel.length = 1;
-            topicSel.length = 1;
-            //display correct values
-            for (var y in subjectObject[this.value]) {
-                topicSel.options[topicSel.options.length] = new Option(y, y);
+        var intakeSel = document.getElementById("intake");
+        var campusSel = document.getElementById("campus");
+        var progTypeSel = document.getElementById("progType");
+        var progSel = document.getElementById("programme");
+
+        // Populate the first dropdown with campus names
+        for (var intakeName in campusData) {
+            if (campusData.hasOwnProperty(intakeName)) {
+                intakeSel.options[intakeSel.options.length] = new Option(intakeName, intakeName);
             }
         }
-        topicSel.onchange = function () {
-            //empty Chapters dropdown
-            chapterSel.length = 1;
-            //display correct values
-            var z = subjectObject[subjectSel.value][this.value];
-            for (var i = 0; i < z.length; i++) {
-                chapterSel.options[chapterSel.options.length] = new Option(z[i], z[i]);
+
+        intakeSel.onchange = function () {
+            // Empty programmes- and progTypes- dropdowns
+            campusSel.length = 1;
+            progTypeSel.length = 1;
+            progSel.length = 1;
+
+            // Display correct values in the second dropdown (program types)
+            var intakeName = this.value;
+            for (var campusName in campusData[intakeName]) {
+                campusSel.options[campusSel.options.length] = new Option(campusName, campusName);
+            }
+        }
+
+        campusSel.onchange = function () {
+            // Empty programmes dropdown
+            progTypeSel.length = 1;
+            progSel.length = 1;
+
+            // Display correct values in the third dropdown (program names)
+            var intakeName = intakeSel.value;
+            var campusName = this.value;
+
+            for (var progType in campusData[intakeName][campusName]) {
+                progTypeSel.options[progTypeSel.options.length] = new Option(progType, progType);
+            }
+        }
+
+        progTypeSel.onchange = function () {
+            progSel.length = 1;
+
+            var intakeName = intakeSel.value;
+            var campusName = campusSel.value;
+            var progType = this.value;
+            for (var programName in campusData[intakeName][campusName][progType]) {
+                console.log(campusData[intakeName][campusName][progType][programName])
+                progSel.options[progSel.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
             }
         }
     }
 </script>
+
+
 
 <div class="container mb-2 d-flex flex-row">
     {% include 'includes/appnav.html' %}
@@ -55,20 +74,23 @@
 
 
         <form class="row g-3" action="/application/assess" method="POST" enctype="multipart/form-data">
-            <select name="subject" id="subject">
-                <option value="" selected="selected">Select subject</option>
+            Intake: <select name="intake" id="intake" class="form-control form-select">
+                <option value="" selected="selected">Select intake</option>
+            </select>
+            Campus: <select name="campus" id="campus" class="form-control form-select">
+                <option value="" selected="selected">Select campus</option>
             </select>
             <br><br>
-            Topics: <select name="topic" id="topic">
-                <option value="" selected="selected">Please select subject first</option>
+            Programme Type: <select name="progType" id="progType" class="form-control form-select">
+                <option value="" selected="selected">Please select programme type first</option>
             </select>
             <br><br>
-            Chapters: <select name="chapter" id="chapter">
-                <option value="" selected="selected">Please select topic first</option>
+            Programme: <select name="programme" id="programme" class="form-control form-select">
+                <option value="" selected="selected">Please select programme first</option>
             </select>
             <div class="col-6 mb-3">
                 <label for="qualification" class="form-label">Qualification</label>
-                <select id='mySelect' class="form-control nav-tabs-selector">
+                <select id='mySelect' class="form-control form-select">
                     <option value="SPM">SPM</option>
                     <option value="IGCSE/GCSE/O Level">IGCSE/GCSE/O Level</option>
                 </select>
@@ -100,9 +122,9 @@
         };
     };
 
-    $('.nav-tabs-selector').on('change', function (e) {
+    $('.form-select').on('change', function (e) {
         $(this).closest(".tab-area").find('.nav-tabs li a').eq($(this).val()).tab('show');
     });
-    
+
 </script>
 {%endblock%}
