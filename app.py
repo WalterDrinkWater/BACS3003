@@ -444,18 +444,63 @@ def assess_qualification():
 
     cursor = db_conn.cursor(cursors.DictCursor)
     data = scan_img(fileObj)
+    spm_subjects = [
+    "Bahasa Inggeris",
+    "Mathematics",
+    "Additional Mathematics",
+    "Sains",
+    "Chemistry",
+    "Kimia",
+    "Physics",
+    "Ekonomi",
+    "Prinsip Perakaunan",
+    "Pendidikan Moral",
+    "Sains Komputer",
+    "Bahasa Cina",
+    # Add more subjects here as needed
+]
 
     try:
+        credits = 0
+        status = "Pending"
+        if("bahasa melayu" in data.lower() or "sejarah" in data.lower()):
+            bm = data.lower().find("bahasa melayu")
+            sj = data.lower().find("sejarah")
 
-        # Find the most similar words to the word "Sejarah"
+            if(data[bm:bm + len("bahasa melayu") + 2][-2:] < "G" and data[sj:sj + len("sejarah") + 2][-2:] < "G"):
+                if(data[bm:bm + len("bahasa melayu") + 2][-2:] <= "C"):
+                    credits += 1
+                if(data[sj:sj + len("sejarah") + 2][-2:] <= "C"):
+                    credits += 1
 
-        # Print the similar words
-        cursor.execute("SELECT * FROM QualificationSubject")
-        qualifications = cursor.fetchall()
-        for qualification in qualifications:
-            # result = difflib.get_close_matches(qualification['subjectName'].lower(), data.lower(), n=1)
-            test = data.lower().find(qualification["subjectName"].lower())
-            print(data[test:test + len(qualification["subjectName"])])
+            cursor.execute("SELECT * FROM QualificationSubject")
+            qualifications = cursor.fetchall()
+            for qualification in qualifications:
+                # result = difflib.get_close_matches(qualification['subjectName'].lower(), data.lower(), n=1)
+                found = data.lower().find(qualification["subjectName"].lower())
+                if(found > 0):
+                    if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
+                        credits += 1
+
+                        for subject in spm_subjects:
+                            if(credits < 5):
+                                found = data.lower().find(subject.lower())
+                                if found > 0:
+                                    if(data[found:found + len(subject) + 2][-2:] <= "C"):
+                                        credits += 1
+                            else:
+                                break
+                    else: 
+                        status = "Rejected"
+                        break
+                else:
+                    status = "Rejected"
+                    break
+        else: 
+            status = "Rejected"
+
+        if(credits > 5):
+            status = "Approved"
 
     except Exception as e:
         return str(e)
@@ -475,43 +520,24 @@ def scan_img(fileObj):
     image = cv2.imdecode(file_bytes, cv2.IMREAD_UNCHANGED)
     # Reduce noise
     image = cv2.medianBlur(image, 3)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-    # Find contours and remove small noise
-    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    for c in cnts:
-        area = cv2.contourArea(c)
-        if area < 10:
-            cv2.drawContours(thresh, [c], -1, 0, -1)
-
-    # Invert and apply slight Gaussian blur
-    result = cv2.GaussianBlur(thresh, (3,3), 0)
 
     # Perform OCR
-    data = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
-    weird_symbols_and_words = r"[^A-Za-z0-9\s]"
+    data = pytesseract.image_to_string(image, config='--psm 6')
+    weird_symbols_and_words = r"[^A-Z0-9\s]"
     # Find all the matches for the regular expression
     matches = re.findall(weird_symbols_and_words, data)
     for match in matches:
         data = data.replace(match, "")
+    data = data.split()
+    data = ' '.join(data)
 
     print(data)
 
-    # cv2.namedWindow("opening", cv2.WINDOW_NORMAL)
-    # cv2.namedWindow("thresh", cv2.WINDOW_NORMAL)
-    # cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-    # cv2.imshow('opening', image)
-    # cv2.imshow('thresh', thresh)
-    # cv2.imshow('result', result)
+    # cv2.namedWindow("source", cv2.WINDOW_NORMAL)
+    # cv2.imshow('source', image)
     cv2.waitKey()     
 
     return data
-
-
-
-
 
 @app.route("/UpdateProfile", methods=["GET", "POST"])
 def UpdateProfile():
