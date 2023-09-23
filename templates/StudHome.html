@@ -22,10 +22,10 @@
             <td>Programme</td>
             <td>Upload Documents</td>
             <td>{{app.applicationStatus}}</td>
-            <td><a href="{{url_for('application', id=app.applicationID)}}">Edit</a></td>
+            <td><a href="{{url_for('intake', id=app.applicationID)}}">Edit</a></td>
         </tr>
         {% else %}
-        <td colspan="8" class="text-center">Havent <a href="{{url_for('application', id=None)}}">Apply</a> Yet</td>
+        <td colspan="8" class="text-center">Havent <a href="{{url_for('intake', id=None)}}">Apply</a> Yet</td>
         {% endfor %}
     </tbody>
 </table>

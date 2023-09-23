@@ -1,14 +1,14 @@
 <ul class="nav col-3 flex-column ms-3" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-        <a href="{{url_for('application')}}" >
+        <a href="/application/intake">
             <button class="nav-link active px-3" id="intake-tab" type="button" aria-controls="intake"
                 aria-selected="true">
                 Intake & Programme
             </button>
-        </a>    
+        </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a href="#">
+        <a href="/application/personalinfo">
             <button class="nav-link px-3" id="personal-info-tab" type="button" aria-controls="personal-info"
                 aria-selected="false">
                 Personal Information
@@ -16,8 +16,8 @@
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a href="{{url_for('qualification')}}"><button class="nav-link px-3" id="qualification-tab" type="button" aria-controls="qualification"
-                aria-selected="false">
+        <a href="/application/qualification"><button class="nav-link px-3" id="qualification-tab" type="button"
+                aria-controls="qualification" aria-selected="false">
                 Qualification
             </button></a>
     </li>

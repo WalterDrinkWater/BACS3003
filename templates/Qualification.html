@@ -3,65 +3,6 @@
 {% block title %}Academic Qualification{% endblock %}
 
 {% block content %}
-<script>
-    var campusData = JSON.parse('{{campusdata | tojson}}');;
-    console.log(campusData)
-    window.onload = function () {
-        var intakeSel = document.getElementById("intake");
-        var campusSel = document.getElementById("campus");
-        var progTypeSel = document.getElementById("progType");
-        var progSel = document.getElementById("programme");
-
-        // Populate the first dropdown with campus names
-        for (var intakeName in campusData) {
-            if (campusData.hasOwnProperty(intakeName)) {
-                intakeSel.options[intakeSel.options.length] = new Option(intakeName, intakeName);
-            }
-        }
-
-        intakeSel.onchange = function () {
-            // Empty programmes- and progTypes- dropdowns
-            campusSel.length = 1;
-            progTypeSel.length = 1;
-            progSel.length = 1;
-
-            // Display correct values in the second dropdown (program types)
-            var intakeName = this.value;
-            for (var campusName in campusData[intakeName]) {
-                campusSel.options[campusSel.options.length] = new Option(campusName, campusName);
-            }
-        }
-
-        campusSel.onchange = function () {
-            // Empty programmes dropdown
-            progTypeSel.length = 1;
-            progSel.length = 1;
-
-            // Display correct values in the third dropdown (program names)
-            var intakeName = intakeSel.value;
-            var campusName = this.value;
-
-            for (var progType in campusData[intakeName][campusName]) {
-                progTypeSel.options[progTypeSel.options.length] = new Option(progType, progType);
-            }
-        }
-
-        progTypeSel.onchange = function () {
-            progSel.length = 1;
-
-            var intakeName = intakeSel.value;
-            var campusName = campusSel.value;
-            var progType = this.value;
-            for (var programName in campusData[intakeName][campusName][progType]) {
-                console.log(campusData[intakeName][campusName][progType][programName])
-                progSel.options[progSel.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
-            }
-        }
-    }
-</script>
-
-
-
 <div class="container mb-2 d-flex flex-row">
     {% include 'includes/appnav.html' %}
     <div class="col-9">

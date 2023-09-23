@@ -37,8 +37,14 @@ content %}
               value="{{application.identification if application.identification != None else ' '}}" />
           </div>
 
+          <div class="col-10">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control border-3" id="address" name="address" row="3"
+              value="{{application.fullAddress if application.fullAddress != None else ' '}}"></textarea>
+          </div>
+
           <div class="col-2">
-            <label for="gender" class="form-label col-2">Gender</label>
+            <label for="gender" class="form-label col-2">testing</label>
             <div class="btn-group col-12" role="group">
               <input type="radio" class="btn-check" name="gender" id="gender1" value="Male" autocomplete="off">
               <label class="btn btn-outline-primary" for="gender1">Male</label>
@@ -47,11 +53,6 @@ content %}
             </div>
           </div>
 
-          <div class="col-10">
-            <label for="address" class="form-label">Address</label>
-            <textarea class="form-control border-3" id="address" name="address" row="3"
-              value="{{application.fullAddress if application.fullAddress != None else ' '}}"></textarea>
-          </div>
           <div class="col-6">
             <label for="phone" class="form-label">Handphone Number</label>
             <input class="form-control border-3" id="phone" name="phone"
@@ -175,7 +176,9 @@ content %}
 
       <!-- ic tab -->
       <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
-        <form class="row g-3" action="{{url_for('uploadic', id=application.applicationID, name=application.studentName)}}" method="POST" enctype="multipart/form-data">
+        <form class="row g-3"
+          action="{{url_for('uploadic', id=application.applicationID, name=application.studentName)}}" method="POST"
+          enctype="multipart/form-data">
           <div class="col-6 mb-3">
             <label for="frontIc" class="form-label">MyKad (Front)</label>
             <input class="form-control border-3" type="file" id="frontIc" name="frontIc" accept=".jpg, .png, .jpeg"

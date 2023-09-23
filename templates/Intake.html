@@ -1,0 +1,205 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Intake{% endblock %}
+
+{% block content %}
+<script>
+    var campusData = JSON.parse('{{campusdata | tojson}}');;
+    console.log(campusData)
+    window.onload = function () {
+        var intakeSel = document.getElementById("intake");
+        var campusSel = document.getElementById("campus");
+        var progTypeSel = document.getElementById("progType");
+        var progSel = document.getElementById("programme");
+        var campusSel2 = document.getElementById("campus2");
+        var progTypeSel2 = document.getElementById("progType2");
+        var progSel2 = document.getElementById("programme2");
+        var campusSel3 = document.getElementById("campus3");
+        var progTypeSel3 = document.getElementById("progType3");
+        var progSel3 = document.getElementById("programme3");
+
+        // Populate the first dropdown with campus names
+        for (var intakeName in campusData) {
+            if (campusData.hasOwnProperty(intakeName)) {
+                intakeSel.options[intakeSel.options.length] = new Option(intakeName, intakeName);
+            }
+        }
+
+        intakeSel.onchange = function () {
+            // Empty programmes- and progTypes- dropdowns
+            campusSel.length = 1;
+            progTypeSel.length = 1;
+            progSel.length = 1;
+            campusSel2.length = 1;
+            progTypeSel2.length = 1;
+            progSel2.length = 1;
+            campusSel3.length = 1;
+            progTypeSel3.length = 1;
+            progSel3.length = 1;
+
+            // Display correct values in the second dropdown (program types)
+            var intakeName = this.value;
+            for (var campusName in campusData[intakeName]) {
+                campusSel.options[campusSel.options.length] = new Option(campusName, campusName);
+                campusSel2.options[campusSel2.options.length] = new Option(campusName, campusName);
+                campusSel3.options[campusSel3.options.length] = new Option(campusName, campusName);
+            }
+        }
+
+        campusSel.onchange = function () {
+            // Empty programmes dropdown
+            progTypeSel.length = 1;
+            progSel.length = 1;
+
+            // Display correct values in the third dropdown (program names)
+            var intakeName = intakeSel.value;
+            var campusName = this.value;
+
+            for (var progType in campusData[intakeName][campusName]) {
+                progTypeSel.options[progTypeSel.options.length] = new Option(progType, progType);
+            }
+        }
+
+        progTypeSel.onchange = function () {
+            progSel.length = 1;
+
+            var intakeName = intakeSel.value;
+            var campusName = campusSel.value;
+            var progType = this.value;
+            for (var programName in campusData[intakeName][campusName][progType]) {
+                progSel.options[progSel.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
+            }
+        }
+
+        campusSel2.onchange = function () {
+            // Empty programmes dropdown
+            progTypeSel2.length = 1;
+            progSel2.length = 1;
+
+            // Display correct values in the third dropdown (program names)
+            var intakeName = intakeSel.value;
+            var campusName = this.value;
+
+            for (var progType in campusData[intakeName][campusName]) {
+                progTypeSel2.options[progTypeSel2.options.length] = new Option(progType, progType);
+            }
+        }
+
+        progTypeSel2.onchange = function () {
+            progSel2.length = 1;
+
+            var intakeName = intakeSel.value;
+            var campusName = campusSel2.value;
+            var progType = this.value;
+            for (var programName in campusData[intakeName][campusName][progType]) {
+                progSel2.options[progSel2.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
+            }
+        }
+        campusSel3.onchange = function () {
+            // Empty programmes dropdown
+            progTypeSel3.length = 1;
+            progSel3.length = 1;
+
+            // Display correct values in the third dropdown (program names)
+            var intakeName = intakeSel.value;
+            var campusName = this.value;
+
+            for (var progType in campusData[intakeName][campusName]) {
+                progTypeSel3.options[progTypeSel3.options.length] = new Option(progType, progType);
+            }
+        }
+
+        progTypeSel3.onchange = function () {
+            progSel3.length = 1;
+
+            var intakeName = intakeSel.value;
+            var campusName = campusSel3.value;
+            var progType = this.value;
+            for (var programName in campusData[intakeName][campusName][progType]) {
+                progSel3.options[progSel3.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
+            }
+        }
+    }
+</script>
+
+<div class="container mb-2 d-flex flex-row col-sm-9">
+    {% include 'includes/appnav.html' %}
+    <div class="col-9">
+        <div class="fs-2 fw-bold text-center mb-2">Intake & Programme</div>
+        <form class="form-horizontal" action="/application/applyintake" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="col-sm-10" class="form-label"><strong><u>Intake</u></strong></label>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-3 mb-5">
+                    <select name="intake" id="intake" class="form-control form-select">
+                        <option value="" selected="selected">Select intake</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-10"><strong><u>Programme</u></strong></label>
+            </div>
+
+            <div class="form-group d-flex flex-row mb-3">
+                <div class="col-sm-1 me-3">
+                    <strong>1st choice</strong>
+                </div>
+                <div class="col-sm-10 d-flex flex-row flex-wrap">
+                    <select name="campus" id="campus" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select campus</option>
+                    </select>
+
+                    <select name="progType" id="progType" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme type</option>
+                    </select>
+
+                    <select name="programme" id="programme" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group d-flex flex-row  mb-3">
+                <div class="col-sm-1 me-3">
+                    <strong>2nd choice</strong>
+                </div>
+                <div class="col-sm-10 d-flex flex-row flex-wrap">
+                    <select name="campus2" id="campus2" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select campus</option>
+                    </select>
+
+                    <select name="progType2" id="progType2" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme type</option>
+                    </select>
+
+                    <select name="programme2" id="programme2" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group d-flex flex-row  mb-3">
+                <div class="col-sm-1 me-3">
+                    <strong>3rd choice</strong>
+                </div>
+                <div class="col-sm-10 d-flex flex-row flex-wrap">
+                    <select name="campus3" id="campus3" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select campus</option>
+                    </select>
+
+                    <select name="progType3" id="progType3" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme type</option>
+                    </select>
+
+                    <select name="programme3" id="programme3" class="form-select" style="width:45%">
+                        <option value="" selected="selected">Select programme</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save & Next</button>
+        </form>
+    </div>
+    {%endblock%}

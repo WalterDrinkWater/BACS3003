@@ -1,0 +1,247 @@
+ <div class="page-content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <!-- PAGE CONTENT BEGINS -->
+                    
+                    
+                
+                
+            <div class="tabbable">
+            <ul class="nav nav-tabs" id="myTab">
+                <li class="active">
+                    <a data-toggle="tab" href="#Intake">
+                        <i class="ace-icon fa fa-book bigger-120"></i>
+                       Intake & Programme
+                        <span class="badge badge-success">Completed</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <div id="Intake" class="tab-pane fade in active">
+                <script>new jsCampus('202309','fcampus','KL');</script><script>new jsCampus('202309','fcampus2','');</script><script>new jsCampus('202309','fcampus3','');</script>    
+
+                    <form class="form-horizontal" role="form" name="form1" method="post" action="intake-pro.jsp" onSubmit="return Validation()">
+                    
+                 <div class="form-group">
+                    <label class="col-sm-10" for="fintake"><strong><u>INTAKE*</u></strong></label>
+                </div>
+                
+                 <div class="form-group" >
+                     <div class="col-sm-10">
+                      <select name="fintake" id="fintake" onChange="getCampus1('KL');getCampus2('');getCampus3('');check_Note(this.value);">
+                            <option value="">Select Intake</option>
+                            
+                            <option value="202309YYOct/Nov 2023"  selected >Oct/Nov 2023</option>
+                            
+                            <option value="202401YYFeb 2024" >Feb 2024</option>
+                            	
+                      </select> 
+                     </div> 
+                </div>
+         
+        
+                    </div>
+               
+            </div>  
+                
+                
+                <div class="form-group">
+                    	<label class="col-sm-10" for="fintake"><strong><u>PROGRAMME</u></strong></label>
+                </div>
+
+            
+              <div class="form-group">
+                  <div class="col-sm-1">
+                    <strong>1st choice</strong></div>
+                    <div class="col-sm-11">
+                        <select name="fcampus" id="fcampus" onChange="getLevel1('R')">
+                            <option value="" >Select Campus</option>	
+                        </select> 
+                        
+                         <select name="flevel" id="flevel" onChange="getProgram1('WRMK')">
+                            <option value="">Select Level</option>	
+                        </select>
+                        
+                          <span id="divEntryDiploma" style="display:none;">
+                         <select name="fentrydip" id="fentrydip" onChange="getProgramDiploma1('WRMK')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >SPM/O Level/UEC/equivalent</option>	
+                            <option value="2" Selected>TAR UMT Certificate</option>	
+                             <option value="3" >Other Institution of Higher Learning Certificate/equivalent</option>	
+                        </select>
+                        </span> 
+                        
+                        
+                        <span id="divEntry" style="display:none;">
+                         <select name="fentry" id="fentry" onChange="getProgramBachelor1('WRMK')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >STPM/A Level/UEC/equivalent</option>	
+                            <option value="2" Selected>TAR UMT Diploma</option>	
+                            <option value="4" >TAR UMT Foundation</option>	
+                             <option value="5" >Other Institution of Higher Learning Diploma</option>	
+                             <option value="6" >Other Institution of Higher Learning Foundation/equivalent</option>	
+                        </select>
+                        </span>
+                                                
+                        
+                        <select name="fcourse" id="fcourse" onChange="getLeading1('11')">
+                            <option value="">Select Programme </option>	
+                        </select>
+                        
+                        
+                        <span id="divLeading" style="display:none;">
+                        <select name="fleading" id="fleading" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                         <span id="divYearSem" style="display:none;">
+                        <select name="fyearsem" id="fyearsem" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                    </div>
+            </div> 
+            
+            <hr>
+             <div class="form-group">
+                  <div class="col-sm-1">
+                    <strong>2nd choice </strong></div>
+                    <div class="col-sm-11">
+                        <select name="fcampus2" id="fcampus2" onChange="getLevel2('')">
+                            <option value="">Select Campus</option>	
+                        </select>
+                        
+                         <select name="flevel2" id="flevel2" onChange="getProgram2('')">
+                            <option value="">Select Level</option>	
+                        </select>
+                        
+                       <span id="divEntryDiploma2" style="display:none;">
+                         <select name="fentrydip2" id="fentrydip2" onChange="getProgramDiploma2('')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >SPM/O Level/UEC/equivalent</option>	
+                            <option value="2" >TAR UC Certificate</option>	
+                             <option value="3" >Other Institution of Higher Learning Certificate/equivalent</option>	
+                        </select>
+                        </span> 
+                        
+                        
+                        <span id="divEntry2" style="display:none;">
+                         <select name="fentry2" id="fentry2" onChange="getProgramBachelor2('')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >STPM/A Level/UEC/equivalent</option>	
+                            <option value="2" >TAR UMT Diploma</option>	
+                            <option value="4" >TAR UMT Foundation</option>	
+                            <option value="5" >Other Institution of Higher Learning Diploma</option>	
+                             <option value="6" >Other Institution of Higher Learning Foundation/equivalent</option>
+                        </select></span>
+                        
+                        
+                         <select name="fcourse2" id="fcourse2" onChange="getLeading2('')">
+                           <option value="">Select Programme</option>
+                        </select>
+                        
+                        
+                        <span id="divLeading2" style="display:none;">
+                        <select name="fleading2" id="fleading2" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                        <span id="divYearSem2" style="display:none;">
+                        <select name="fyearsem2" id="fyearsem2" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                        
+                    </div>               
+            </div>     
+            
+            
+            <hr>
+            
+             <div class="form-group">
+                  <div class="col-sm-1">
+                    <strong>3rd choice </strong></div>
+                    <div class="col-sm-11">
+                        <select name="fcampus3" id="fcampus3" onChange="getLevel3('')">
+                            <option value="">Select Campus</option>	
+                        </select>
+                        
+                         <select name="flevel3" id="flevel3" onChange="getProgram3('')">
+                            <option value="">Select Level</option>	
+                        </select>
+                        
+                        
+                        <span id="divEntryDiploma3" style="display:none;">
+                         <select name="fentrydip3" id="fentrydip3" onChange="getProgramDiploma3('')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >SPM/O Level/UEC/equivalent</option>	
+                            <option value="2" >TAR UMT Certificate</option>	
+                             <option value="3" >Other Institution of Higher Learning Certificate/equivalent</option>	
+                        </select>
+                        </span> 
+                        
+                        
+                         <span id="divEntry3" style="display:none;">
+                         <select name="fentry3" id="fentry3" onChange="getProgramBachelor3('')">
+                            <option value="0">Select Entry Qualification</option>	
+                            <option value="1" >STPM/A Level/UEC/equivalent </option>	
+                            <option value="2" >TAR UMT Diploma</option>	
+                            <option value="4" >TAR UMT Foundation</option>	
+                            <option value="5" >Other Institution of Higher Learning Diploma</option>	
+                             <option value="6" >Other Institution of Higher Learning Foundation/equivalent</option>
+                        </select></span>
+                        
+                           <select name="fcourse3" id="fcourse3" onChange="getLeading3('')">
+                            <option value="">Select Programme</option>	
+                            
+                        </select>
+                        
+                        <span id="divLeading3" style="display:none;">
+                         <select name="fleading3" id="fleading3" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                        <span id="divYearSem3" style="display:none;">
+                        <select name="fyearsem3" id="fyearsem3" onChange="">
+                            <option value=""></option>	
+                        </select>
+                        </span>
+                        
+                    </div>
+            </div>                                            
+                               
+           
+            <div class="form-group">
+                
+                <div class="col-sm-10">
+                    <BR><button class="btn btn-sm btn-info" name="fsubmit" type="submit">
+                            <i class="ace-icon fa fa-floppy-o bigger-110"></i>
+                            Save &amp; Next
+                        </button>&nbsp; 
+                        <!-- <button class="btn btn-sm btn-info" name="fnext" type="button" onclick="window.location.href='personalInfo.jsp'" >Next
+                            <i class="fa fa-angle-double-right bigger-110" ></i>
+                        </button>--><BR>
+                </div> 
+                                      
+            </div> 
+                                                                                   
+            </form>
+             <BR><BR><BR>
+                 
+              </div><!--Close <div id="Intake" class="tab-pane fade in active">-->
+          
+          
+            </div><!-- Close <div class="tab-content"> -->
+        </div><!-- Close <div class="tabbable"> -->
+                        
+                 
+                    <!-- PAGE CONTENT ENDS -->
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div>

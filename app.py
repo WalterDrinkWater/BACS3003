@@ -317,13 +317,16 @@ def AJAXResetPassword():
     
     return render_template('StudHome.html', application=application)
 
-@app.route("/application")
+@app.route("/application/personalinfo")
 def application():
-    id = request.args.get("id")
-    if(id != None):
+    if session["appid"] != None:
+        appid = request.args.get("id")
+        session["appid"] = appid
+        
+    if(appid != None):
         try:
             cursor = db_conn.cursor(cursors.DictCursor)
-            cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (id))
+            cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (appid))
             application = cursor.fetchone()
 
         except Exception as e:
@@ -334,7 +337,7 @@ def application():
     else:
         application = ""
     
-    return render_template('Application.html', application=application)
+    return render_template('PersonalInfo.html', application=application)
 
 @app.route("/application/apply/<status>", methods=['POST'])
 def apply(status):
@@ -433,8 +436,78 @@ def uploadic():
 
     return redirect(url_for('application'))
 
-@app.route('/application/qualification')
-def qualification():
+@app.route("/application/intake", methods=['GET', 'POST'])
+def intake():
+    if request.method == 'GET':
+        if request.args.get("id") != None:
+            appid = request.args.get("id")
+            session["appid"] = appid
+        
+            try:
+                cursor = db_conn.cursor(cursors.DictCursor)
+                cursor.execute("SELECT * FROM Applications a, Intake i, ApplicationProgramme ap, ProgrammeCampus pc" +
+                "Programme p WHERE a.applicationID = ap.applicationID AND pc.intakeID = i.intakeID AND" +
+                "p.programmeID = ap.programmeID a.applicationID = ap.applicationID AND a.intakeID = i.intakeID AND applicationID=%s", (appid))
+                application = cursor.fetchone()
+
+            except Exception as e:
+                return str(e)
+
+            finally:
+                cursor.close()
+        else:
+            try:
+                cursor = db_conn.cursor(cursors.DictCursor)
+                accid = session["userid"]
+                cursor.execute("SELECT * FROM Account WHERE accountID = %s", (accid))
+                accinfo = cursor.fetchone()
+                datetimeApplied = datetime.datetime.now()
+
+                cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, accountID)"
+                               + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (accinfo["fullName"], accinfo["identification"],
+                            accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
+                db_conn.commit()
+                application = " "
+            except Exception as e:
+                return str(e)
+
+            finally:
+                cursor.close()
+    campus_data = dynamic_selection()
+
+    return render_template("Intake.html", campusdata=campus_data, application=application)
+
+@app.route("/application/applyintake", methods=['GET', 'POST'])
+def apply_intake():
+    try:
+        cursor = db_conn.cursor()
+        intake = request.form["intake"]
+        campus = request.form["campus"]
+        progType = request.form["progType"]
+        prog = request.form["programme"]
+        campus2 = request.form["campus2"]
+        progType2 = request.form["progType2"]
+        prog2 = request.form["programme2"]
+        campus3 = request.form["campus3"]
+        progType3 = request.form["progType3"]
+        prog3 = request.form["programme3"]
+
+        cursor.execute("INSERT INTO ApplicationProgramme VALUES (%s, %s, %s, %s)",
+                        ("a1", "test", prog, "Pending"))
+
+
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    campus_data = dynamic_selection()
+
+    return render_template("Intake.html", campusdata=campus_data, application=application)
+
+def dynamic_selection():
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute("SELECT DISTINCT i.intakeID, intakeName, campusID, pc.intakeID FROM Intake i, ProgrammeCampus pc WHERE i.intakeID = pc.intakeID")
@@ -474,19 +547,16 @@ def qualification():
                                         campus_data[intakeName][campus_name]["Diploma"][prog["programmeID"]] = prog["programmeName"]
                                     elif(prog["campusID"] == campus_id and prog['programmeName'].startswith("Foundation")):
                                         campus_data[intakeName][campus_name]["Foundation"][prog["programmeID"]] = prog["programmeName"]
-
-
-
-        # cursor.execute("SELECT * FROM ProgrammeCampus WHERE campusID = %s", ))
-        # for x in campus:
-        #     program = cursor.fetchall()
-            
-        print(campus_data)
     except Exception as e:
-        return(str(e))
+        return str(e)
+
     finally:
-            cursor.close()
-    return render_template("Qualification.html", campusdata=campus_data)
+        cursor.close()
+    return campus_data
+
+@app.route('/application/qualification')
+def qualification():
+    return render_template("Qualification.html")
 
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
