@@ -50,7 +50,27 @@ def home():
 
 @app.route("/studhome")
 def studhome():
-    return render_template("StudHome.html")
+    accid = session["userid"]
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT a.applicationID, intakeName, ap.programmeCampusID, p.programmeName, apStatus FROM Applications a " +
+                        "LEFT JOIN ApplicationProgramme ap ON a.applicationID = ap.applicationID " +
+                        "LEFT JOIN ProgrammeCampus pc ON  ap.programmeCampusID = pc.programmeCampusID " +
+                        "LEFT JOIN Programme p ON p.programmeID = pc.programmeID " +
+                        "LEFT JOIN Intake i ON i.intakeID = pc.intakeID " +
+                        " WHERE accountID = %s", (str(accid)))
+        application = cursor.fetchall()
+        # cursor.execute("SELECT * FROM Applications a, ApplicationProgramme ap, Programme p WHERE " +
+        #                "a.applicationID = ap.applicationID AND ap.programmeID = p.programmeID AND accountID = %s", 
+        #                (str(accid)))
+        # choices = cursor.fetchall()
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    return render_template("StudHome.html", application=application)
 
 
 @app.route("/index", methods=["GET", "POST"])
@@ -171,7 +191,7 @@ def AJAXLogin():
                             ):
                                 nexturl = "/admission/firstlogin"
                             else:
-                                nexturl = "/stud/home"
+                                nexturl = "/studhome"
                         elif user["accType"] == "admin":
                             nexturl = "/programme"
 
@@ -333,8 +353,7 @@ def AJAXResetPassword():
 @app.route("/application/personalinfo")
 def application():
     if session["appid"] != None:
-        appid = request.args.get("id")
-        session["appid"] = appid
+        appid = session["appid"]
         
     if(appid != None):
         try:
@@ -352,73 +371,40 @@ def application():
     
     return render_template('PersonalInfo.html', application=application)
 
-@app.route("/application/apply/<status>", methods=['POST'])
-def apply(status):
-    if(status == 'insertinfo'):
-        cursor = db_conn.cursor()
+@app.route("/application/updateinfo", methods=['POST'])
+def updateinfo():
+    studName = request.form["name"]
+    studIc = request.form["ic"]
+    studGender = request.form["gender"]
+    studAddress = request.form["address"]
+    studPhone = request.form["phone"]
+    guardianName = request.form["guardName"]
+    guardianNo = request.form["guardNo"]
+    studEmail = request.form["email"]
+    studHealth = request.form["selectHealth"]
+    datetimeApplied = datetime.datetime.now()
+    appid = session["appid"]
 
-        studName = request.form["name"]
-        studIc = request.form["ic"]
-        studGender = request.form["gender"]
-        studAddress = request.form["address"]
-        studPhone = request.form["phone"]
-        guardianName = request.form["guardName"]
-        guardianNo = request.form["guardNo"]
-        studEmail = request.form["email"]
-        studHealth = request.form["selectHealth"]
-        datetimeApplied = datetime.now()
-        # accId = session["userid"]
+    if(studHealth == 'Other'):
+        studHealth = request.form["others"]
 
-        if(studHealth == 'Other'):
-            studHealth = request.form["others"]
+    cursor = db_conn.cursor()
 
-        cursor = db_conn.cursor()
+    try:
+        cursor.execute("UPDATE Applications SET studentName = %s, identification = %s, gender = %s, fullAddress = %s,"
+                        + "email = %s, datetimeApplied = %s, handphoneNumber = %s, guardianName = %s," +
+                        "guardianNumber = %s, healthIssue = %s WHERE applicationID = %s",
+                    (studName, studIc, studGender, studAddress, studEmail, datetimeApplied, studPhone, guardianName, 
+                        guardianNo,studHealth, appid))
+        db_conn.commit()
 
-        try:
-            cursor.execute("INSERT INTO Applications VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        ("APP3", studName, studIc,
-                            studGender, studAddress, studEmail, datetimeApplied, "Pending", studPhone, guardianName, guardianNo,
-                            studHealth, "", "", "ProgC00001", "1"))
-            db_conn.commit()
+    except Exception as e:
+        return str(e)
 
-        except Exception as e:
-            return str(e)
+    finally:
+        cursor.close()
 
-        finally:
-            cursor.close()
-    else: 
-        studName = request.form["name"]
-        studIc = request.form["ic"]
-        studGender = request.form["gender"]
-        studAddress = request.form["address"]
-        studPhone = request.form["phone"]
-        guardianName = request.form["guardName"]
-        guardianNo = request.form["guardNo"]
-        studEmail = request.form["email"]
-        studHealth = request.form["selectHealth"]
-        datetimeApplied = datetime.now()
-
-        if(studHealth == 'Other'):
-            studHealth = request.form["others"]
-
-        cursor = db_conn.cursor()
-
-        try:
-            cursor.execute("UPDATE applications SET studentName = %s, identification = %s, gender = %s, fullAddress = %s,"
-                           + "email = %s, datetimeApplied = %s, handphoneNumber = %s, guardianName = %s," +
-                            "guardianNumber = %s, healthIssue = %s, programmeCampusID = %s)",
-                        (studName, studIc, studGender, studAddress, studEmail, datetimeApplied, studPhone, guardianName, 
-                         guardianNo,studHealth, "ProgC00001"))
-            db_conn.commit()
-
-        except Exception as e:
-            return str(e)
-
-        finally:
-            cursor.close()
-
-    print("INSERT COMPLETE...")
-    return redirect(url_for('application', id="APP3"))
+    return redirect(url_for('application', id=appid))
 
 @app.route('/application/uploadic', methods=['POST'])
 def uploadic():
@@ -458,9 +444,10 @@ def intake():
         
             try:
                 cursor = db_conn.cursor(cursors.DictCursor)
-                cursor.execute("SELECT * FROM Applications a, Intake i, ApplicationProgramme ap, ProgrammeCampus pc" +
-                "Programme p WHERE a.applicationID = ap.applicationID AND pc.intakeID = i.intakeID AND" +
-                "p.programmeID = ap.programmeID a.applicationID = ap.applicationID AND a.intakeID = i.intakeID AND applicationID=%s", (appid))
+                cursor.execute("SELECT * FROM Applications a, Intake i, ApplicationProgramme ap, ProgrammeCampus pc, " +
+                "Programme p WHERE a.applicationID = ap.applicationID AND pc.intakeID = i.intakeID AND " +
+                "pc.programmeCampusID = ap.programmeCampusID AND pc.programmeID = pc.programmeID AND " +
+                "a.applicationID=%s", (appid))
                 application = cursor.fetchone()
 
             except Exception as e:
@@ -481,7 +468,12 @@ def intake():
                         (accinfo["fullName"], accinfo["identification"],
                             accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
                 db_conn.commit()
-                application = " "
+                cursor.execute("SELECT * FROM Applications ORDER BY applicationID DESC LIMIT 1")
+                application = cursor.fetchone()
+                session["appid"] = application["applicationID"]
+                for _ in range (3):
+                    cursor.execute("INSERT INTO ApplicationProgramme (applicationID) VALUES (%s)", (application["applicationID"]))
+                    db_conn.commit()
             except Exception as e:
                 return str(e)
 
@@ -497,19 +489,27 @@ def apply_intake():
         cursor = db_conn.cursor()
         intake = request.form["intake"]
         campus = request.form["campus"]
-        progType = request.form["progType"]
         prog = request.form["programme"]
         campus2 = request.form["campus2"]
-        progType2 = request.form["progType2"]
         prog2 = request.form["programme2"]
         campus3 = request.form["campus3"]
-        progType3 = request.form["progType3"]
         prog3 = request.form["programme3"]
+        appid = session["appid"]
 
-        cursor.execute("INSERT INTO ApplicationProgramme VALUES (%s, %s, %s, %s)",
-                        ("a1", "test", prog, "Pending"))
-
-
+        cursor.execute("SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s", (intake, prog, campus, intake, prog2, campus2 ,intake, prog3, campus3))
+        progCampusIDs = cursor.fetchall()
+        for index, id in enumerate(progCampusIDs):
+            cursor.execute("UPDATE ApplicationProgramme SET applicationID = %s, programmeCampusID = %s WHERE apID = %s",
+                        (appid, id[0], index+1))
+            db_conn.commit()
 
     except Exception as e:
         return str(e)
@@ -573,11 +573,14 @@ def qualification():
 
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
-    id = request.args.get("id")
-    fileObj = request.files["qualification"].read()
-
-    cursor = db_conn.cursor(cursors.DictCursor)
-    data = scan_img(fileObj)
+    id = session["appid"]
+    spmObj = request.files["qualification"].read()
+    diploma = request.files["diploma"].read()
+    if spmObj:
+        data = scan_img(spmObj)
+    if diploma:
+        data2 = scan_img(diploma)
+    print(data2)
     spm_subjects = [
     "Bahasa Inggeris",
     "Mathematics",
@@ -593,10 +596,18 @@ def assess_qualification():
     "Bahasa Cina",
     # Add more subjects here as needed
 ]
-
+    cursor = db_conn.cursor(cursors.DictCursor)
     try:
         credits = 0
-        status = "Pending"
+        allow = False
+        status = "End"
+        cursor.execute("SELECT apID, pc.programmeID, programmeType, ap.programmeCampusID FROM ApplicationProgramme ap " + 
+                       "LEFT JOIN ProgrammeCampus pc ON ap.programmeCampusID = pc.programmeCampusID " +
+                       "LEFT JOIN Programme p ON pc.programmeID = p.programmeID " +
+                       "WHERE applicationID = %s", (id))
+        choices = cursor.fetchall()
+
+        # bm and sejarah must pass
         if("bahasa melayu" in data.lower() or "sejarah" in data.lower()):
             bm = data.lower().find("bahasa melayu")
             sj = data.lower().find("sejarah")
@@ -606,37 +617,57 @@ def assess_qualification():
                     credits += 1
                 if(data[sj:sj + len("sejarah") + 2][-2:] <= "C"):
                     credits += 1
+                allow = True
+            else:
+                allow = False
 
-            cursor.execute("SELECT * FROM QualificationSubject")
-            qualifications = cursor.fetchall()
-            for qualification in qualifications:
-                # result = difflib.get_close_matches(qualification['subjectName'].lower(), data.lower(), n=1)
-                found = data.lower().find(qualification["subjectName"].lower())
-                if(found > 0):
-                    if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
-                        credits += 1
+        for subject in spm_subjects:
+            found = data.lower().find(subject.lower())
+            if found > 0:
+                if(data[found:found + len(subject) + 2][-2:] <= "C"):
+                    credits += 1
+        
+        if(allow): 
+            for choice in choices:
+                tempCredits = credits
+                if choice['programmeType'] == 'xDegree':
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    for qualification in qualifications:
+                        found = data.lower().find(qualification["subjectName"].lower())
+                        if(found > 0):
+                            if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
+                                credits += 1
+                            else: 
+                                status = "Rejected"
 
-                        for subject in spm_subjects:
-                            if(credits < 5):
-                                found = data.lower().find(subject.lower())
-                                if found > 0:
-                                    if(data[found:found + len(subject) + 2][-2:] <= "C"):
-                                        credits += 1
-                            else:
-                                break
-                    else: 
-                        status = "Rejected"
-                        break
                 else:
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    acronyms = []
+                    for qualification in qualifications:
+                        words = qualification["subjectName"].split()
+                        acronyms.append("".join(word[0].upper() for word in words if word != "in"))
+
+                    for acronym in acronyms:
+                        if(acronym in data2):
+                            print(data2.find(acronym))
+                            if("CGPA" in data2):
+                                cgpa_positions = data2.rfind("CGPA")
+                                if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
+                                    status = "Rejected"
+                                else:
+                                    status = "Approved"
+                        else: 
+                            print("Different course")
+
+                if(tempCredits < 5):
                     status = "Rejected"
-                    break
-        else: 
-            status = "Rejected"
-
-        if(credits >= 5):
-            status = "Approved"
-
-        print(status, credits)
+                else: 
+                    status = "Approved"
+                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
+                db_conn.commit()
+            
 
     except Exception as e:
         return str(e)
@@ -697,7 +728,7 @@ def UpdateProfile():
     finally:
         cursor.close()
 
-    return redirect(url_for("TempPage"))
+    return redirect(url_for("studhome"))
 
 
 @app.route("/programme", methods=["GET", "POST"])

@@ -18,16 +18,17 @@
         {% for app in application if application | length != 0 %}
         <tr>
             <th scope="row">{{app.applicationID}}</th>
-            <td>Oct/Nov 2023</td>
-            <td>Programme</td>
+            <td>{{app["intakeName"]}}</td>
+            <td>{{app["programmeName"]}}</td>
             <td>Upload Documents</td>
-            <td>{{app.applicationStatus}}</td>
+            <td>{{app["apStatus"]}}</td>
             <td><a href="{{url_for('intake', id=app.applicationID)}}">Edit</a></td>
         </tr>
         {% else %}
-        <td colspan="8" class="text-center">Havent <a href="{{url_for('intake', id=None)}}">Apply</a> Yet</td>
+        <td colspan="8" class="text-center">No Application Yet</td>
         {% endfor %}
     </tbody>
 </table>
+<a class="btn btn-outline-primary" href="{{url_for('intake', id=None)}}">Apply</a>
 
 {%endblock%}

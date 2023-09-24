@@ -25,7 +25,7 @@ content %}
       <!-- nested tab content -->
       <div class="tab-pane fade show active" id="pi" role="tabpanel" aria-labelledby="pi-tab">
         {% if application|length != 0 %}
-        <form class="row g-3" action="/application/apply/updateinfo" method="POST" enctype="multipart/form-data">
+        <form class="row g-3" action="/application/updateinfo" method="POST" enctype="multipart/form-data">
           <div class="col-12">
             <label for="name" class="form-label">Name (as in MyKad)</label>
             <input type="text" class="form-control border-3" id="name" name="name"
@@ -39,16 +39,18 @@ content %}
 
           <div class="col-10">
             <label for="address" class="form-label">Address</label>
-            <textarea class="form-control border-3" id="address" name="address" row="3"
-              value="{{application.fullAddress if application.fullAddress != None else ' '}}"></textarea>
+            <textarea class="form-control border-3" id="address" name="address"
+              row="3">{{application.fullAddress if application.fullAddress != None else ' '}}</textarea>
           </div>
 
           <div class="col-2">
             <label for="gender" class="form-label col-2">testing</label>
             <div class="btn-group col-12" role="group">
-              <input type="radio" class="btn-check" name="gender" id="gender1" value="Male" autocomplete="off">
+              <input type="radio" class="btn-check" name="gender" id="gender1" value="Male" autocomplete="off" {% if
+                application.gender=='Male' %}checked{% endif %}>
               <label class="btn btn-outline-primary" for="gender1">Male</label>
-              <input type="radio" class="btn-check" name="gender" id="gender2" value="Female" autocomplete="off">
+              <input type="radio" class="btn-check" name="gender" id="gender2" value="Female" autocomplete="off" {% if
+                application.gender=='Female' %}checked{% endif %}>
               <label class="btn btn-outline-primary" for="gender2">Female</label>
             </div>
           </div>
@@ -79,100 +81,40 @@ content %}
               <option selected value="No Physical Disability / Illness">
                 NO PHYSICAL DISABILITY / ILLNESS
               </option>
-              <option value="Asthma">ASTHMA</option>
-              <option value="Blind">BLIND</option>
-              <option value="Colour Blind">COLOUR BLIND</option>
-              <option value="Deaf">DEAF</option>
-              <option value="Deaf (With Hearing Aid)">
+              <option value="Asthma" {% if application.healthIssue=='Asthma' %}selected{% endif %}>ASTHMA
+              </option>
+              <option value="Blind" {% if application.healthIssue=='Blind' %}selected{% endif %}>BLIND</option>
+              <option value="Colour Blind" {% if application.healthIssue=='Colour Blind' %}selected{% endif %}>COLOUR
+                BLIND</option>
+              <option value="Deaf" {% if application.healthIssue=='Deaf' %}selected{% endif %}>DEAF</option>
+              <option value="Deaf (With Hearing Aid)" {% if application.healthIssue=='Deaf (With Hearing Aid)'
+                %}selected{% endif %}>
                 DEAF (WITH HEARING-AID)
               </option>
-              <option value="Feet Deformity">FEET DEFORMITY</option>
-              <option value="G6PD">G6PD</option>
-              <option value="Hand Deformity">HAND DEFORMITY</option>
-              <option value="Mute">MUTE</option>
-              <option value="Paralysis">PARALYSIS</option>
-              <option value="Speech Impairment">SPEECH IMPAIRMENT</option>
-              <option value="Others">OTHERS</option>
+              <option value="Feet Deformity" {% if application.healthIssue=='Feet Deformity' %}selected{% endif %}>FEET
+                DEFORMITY</option>
+              <option value="G6PD" {% if application.healthIssue=='G6PD' %}selected{% endif %}>G6PD</option>
+              <option value="Hand Deformity" {% if application.healthIssue=='Hand Deformity' %}selected{% endif %}>HAND
+                DEFORMITY</option>
+              <option value="Mute" {% if application.healthIssue=='Mute' %}selected{% endif %}>MUTE</option>
+              <option value="Paralysis" {% if application.healthIssue=='Paralysis' %}selected{% endif %}>PARALYSIS
+              </option>
+              <option value="Speech Impairment" {% if application.healthIssue=='Speech Impairment' %}selected{% endif
+                %}>
+                SPEECH IMPAIRMENT</option>
+              <option value="Others" {% if application.healthIssue=='Others' %}selected{% endif %}>OTHERS
+              </option>
             </select>
           </div>
           <div class="col-6">
             <label for="others" class="form-label">If Others, Please Specify</label>
-            <input class="form-control border-3" type="text" id="others" name="others" disabled />
+            <input class="form-control border-3" type="text" id="others" name="others" disabled
+              value="{{application.healthIssue if application.healthIssue == 'Others' else ' '}}" />
           </div>
           <button type="submit" class="btn btn-primary">Save & Next</button>
         </form>
-
-        {% else %}
-        <form class="row g-3" action="/application/apply/insertinfo" method="POST" enctype="multipart/form-data">
-          <div class="col-12">
-            <label for="name" class="form-label">Name (as in MyKad)</label>
-            <input type="text" class="form-control border-3" id="name" name="name" />
-          </div>
-          <div class="col-12">
-            <label for="ic" class="form-label">MyKad No.</label>
-            <input type="text" class="form-control border-3" id="ic" name="ic" />
-          </div>
-
-          <div class="col-2">
-            <label for="gender" class="form-label col-2">Gender</label>
-            <div class="btn-group col-12" role="group">
-              <input type="radio" class="btn-check" name="gender" id="gender1" value="Male" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="gender1">Male</label>
-              <input type="radio" class="btn-check" name="gender" id="gender2" value="Female" autocomplete="off">
-              <label class="btn btn-outline-primary" for="gender2">Female</label>
-            </div>
-          </div>
-
-          <div class="col-10">
-            <label for="address" class="form-label">Address</label>
-            <textarea class="form-control border-3" id="address" name="address" row="3"></textarea>
-          </div>
-          <div class="col-6">
-            <label for="phone" class="form-label">Handphone Number</label>
-            <input class="form-control border-3" id="phone" name="phone" />
-          </div>
-          <div class="col-6">
-            <label for="email" class="form-label">Email Address</label>
-            <input class="form-control border-3" type="email" id="email" name="email" />
-          </div>
-          <div class="col-12">
-            <label for="guardName" class="form-label">Parent/Guardian Name</label>
-            <input type="text" class="form-control border-3" id="guardName" name="guardName" />
-          </div>
-          <div class="col-12">
-            <label for="guardNo" class="form-label">Parent/Guardian Contact Number</label>
-            <input class="form-control border-3" type="text" id="guardNo" name="guardNo" />
-          </div>
-          <div class="col-6">
-            <label for="selectHealth" class="form-label">Illness or Physical/Mental Disability</label>
-            <select class="form-select" id="selectHealth" name="selectHealth" onchange="EnableDisableTextBox(this)">
-              <option selected value="No Physical Disability / Illness">
-                NO PHYSICAL DISABILITY / ILLNESS
-              </option>
-              <option value="Asthma">ASTHMA</option>
-              <option value="Blind">BLIND</option>
-              <option value="Colour Blind">COLOUR BLIND</option>
-              <option value="Deaf">DEAF</option>
-              <option value="Deaf (With Hearing Aid)">
-                DEAF (WITH HEARING-AID)
-              </option>
-              <option value="Feet Deformity">FEET DEFORMITY</option>
-              <option value="G6PD">G6PD</option>
-              <option value="Hand Deformity">HAND DEFORMITY</option>
-              <option value="Mute">MUTE</option>
-              <option value="Paralysis">PARALYSIS</option>
-              <option value="Speech Impairment">SPEECH IMPAIRMENT</option>
-              <option value="Others">OTHERS</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <label for="others" class="form-label">If Others, Please Specify</label>
-            <input class="form-control border-3" type="text" id="others" name="others" disabled />
-          </div>
-          <button type="submit" class="btn btn-primary">Save & Next</button>
-        </form>
-        {% endif %}
       </div>
+      {% endif %}
 
       <!-- ic tab -->
       <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">

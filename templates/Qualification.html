@@ -13,48 +13,24 @@
             required to complete this section.
         </p>
 
-
-        <form class="row g-3" action="/application/assess" method="POST" enctype="multipart/form-data">
-            Intake: <select name="intake" id="intake" class="form-control form-select">
-                <option value="" selected="selected">Select intake</option>
-            </select>
-            Campus: <select name="campus" id="campus" class="form-control form-select">
-                <option value="" selected="selected">Select campus</option>
-            </select>
-            <br><br>
-            Programme Type: <select name="progType" id="progType" class="form-control form-select">
-                <option value="" selected="selected">Please select programme type first</option>
-            </select>
-            <br><br>
-            Programme: <select name="programme" id="programme" class="form-control form-select">
-                <option value="" selected="selected">Please select programme first</option>
-            </select>
-            <div class="col-6 mb-3">
-                <label for="qualification" class="form-label">Qualification</label>
-                <select id='mySelect' class="form-control form-select">
-                    <option value="SPM">SPM</option>
-                    <option value="IGCSE/GCSE/O Level">IGCSE/GCSE/O Level</option>
-                </select>
+        <form class="row g-3 d-flex flex-row justify-content-between flex-wrap" action="/application/assess" method="POST" enctype="multipart/form-data">
+            <div class="d-flex flex-column col-6">
+                <input class="form-control border-3" type="file" id="qualification" name="qualification"
+                    accept=".jpg, .png, .jpeg" onchange="loadFile(event, 'qualificationPreview')" />
+                <img id="qualificationPreview" class="mt-3" width="300" height="300" />
             </div>
 
-            <input class="form-control border-3" type="file" id="qualification" name="qualification"
-                accept=".jpg, .png, .jpeg" onchange="loadFile(event, 'qualificationPreview')" />
-            <img id="qualificationPreview" class="mt-3" width="300" height="300" />
+            <div class="d-flex flex-column col-6">
+                <input class="form-control border-3 col-6" type="file" id="diploma" name="diploma"
+                    accept=".jpg, .png, .jpeg" onchange="loadFile(event, 'diplomaPreview')" />
+                <img id="diplomaPreview" class="mt-3" width="300" height="300" />
+            </div>
             <button type="submit" class="btn btn-primary">Save & Next</button>
         </form>
     </div>
 </div>
 
 <script type="text/javascript">
-    function EnableDisableTextBox(healthIssue) {
-        var selectedValue = healthIssue.options[healthIssue.selectedIndex].value;
-        var txtOther = document.getElementById("others");
-        txtOther.disabled = selectedValue == "Others" ? false : true;
-        if (!txtOther.disabled) {
-            txtOther.focus();
-        }
-    }
-
     var loadFile = function (event, frame) {
         var output = document.getElementById(frame);
         output.src = URL.createObjectURL(event.target.files[0]);
@@ -62,10 +38,5 @@
             URL.revokeObjectURL(output.src); // free memory
         };
     };
-
-    $('.form-select').on('change', function (e) {
-        $(this).closest(".tab-area").find('.nav-tabs li a').eq($(this).val()).tab('show');
-    });
-
 </script>
 {%endblock%}
