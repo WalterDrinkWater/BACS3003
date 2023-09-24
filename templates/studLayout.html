@@ -28,17 +28,28 @@
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" href="#">Home</a>
+                <a class="nav-link" href="/">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Programme</a>
+                <a class="nav-link" href="/programme">Programme</a>
               </li>
+              {%if session["loggedin"] == True%}
               <li class="nav-item">
-                <a class="nav-link" href="#">Enquiries</a>
-              </li>              
-              <li class="nav-item">
-                <a class="nav-link" href="/account/login">Sign in</a>
+                <a class="nav-link" href="/admission/enquiry">Equiry</a>
               </li>
+              {%endif%}
+              <li class="nav-item">
+                <a class="nav-link" class="text-wrap" href="/about">About us</a>
+              </li>
+              {%if session["loggedin"] == True%}
+              <li class="nav-item">
+                <a class="nav-link" class="text-wrap" href="/logout">Sign out</a>
+              </li>
+              {%else%}
+              <li class="nav-item">
+                <a class="nav-link" class="text-wrap" href="/account/login">Sign in</a>
+              </li>
+              {%endif%}
             </ul>
           </div>
         </div>
