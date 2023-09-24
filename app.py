@@ -18,6 +18,10 @@ import re
 from flask_mail import Mail, Message
 import datetime
 import pytz
+import cv2
+import numpy as np
+import pytesseract
+import difflib
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "sem-sk"
@@ -35,17 +39,33 @@ db_conn = connections.Connection(
     port=3306,
     user=customuser,
     password=custompass,
-    db=customdb,
-    connect_timeout=86400,
+    db=customdb
 )
+output = {}
 
+@app.route("/studhome")
+def studhome():
+    accid = session["userid"]
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT a.applicationID, intakeName, ap.programmeCampusID, p.programmeName, apStatus, applicationStatus FROM Applications a " +
+                        "LEFT JOIN ApplicationProgramme ap ON a.applicationID = ap.applicationID " +
+                        "LEFT JOIN ProgrammeCampus pc ON  ap.programmeCampusID = pc.programmeCampusID " +
+                        "LEFT JOIN Programme p ON p.programmeID = pc.programmeID " +
+                        "LEFT JOIN Intake i ON i.intakeID = pc.intakeID " +
+                        " WHERE accountID = %s", (str(accid)))
+        application = cursor.fetchall()
+        # cursor.execute("SELECT * FROM Applications a, ApplicationProgramme ap, Programme p WHERE " +
+        #                "a.applicationID = ap.applicationID AND ap.programmeID = p.programmeID AND accountID = %s", 
+        #                (str(accid)))
+        # choices = cursor.fetchall()
 
-@app.route("/", methods=["GET", "POST"])
-def home():
-    print(session.get('loggedin'))
-    if session.get('loggedin') == False or session.get('loggedin') == None:
-        session['loggedin'] = False 
-    return render_template("Index.html")
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    return render_template("StudHome.html", application=application)
 
 
 @app.route("/index", methods=["GET", "POST"])
@@ -315,22 +335,380 @@ def AJAXResetPassword():
     msgdesc = ""
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute(
-            "UPDATE Account SET accPassword=%s WHERE accEmail=%s;",
-            (password, email),
-        )
-        db_conn.commit()
-        msg = "success"
-        msgdesc = "Password has been reset succesfully"
+        cursor.execute("SELECT * FROM Applications WHERE accountID=%s", ("1"))
+        application = cursor.fetchall()
+
     except Exception as e:
-        print(e)
-        msg = "failed"
-        msgdesc = str(e)
+        return str(e)
 
     cursor.close()
     response = {"msg": msg, "msgdesc": msgdesc}
     return jsonify(response)
 
+@app.route("/application/personalinfo")
+def application():
+    if session["appid"] != None:
+        appid = session["appid"]
+        
+    if(appid != None):
+        try:
+            cursor = db_conn.cursor(cursors.DictCursor)
+            cursor.execute("SELECT * FROM Applications WHERE applicationID=%s", (appid))
+            application = cursor.fetchone()
+
+        except Exception as e:
+            return str(e)
+
+        finally:
+            cursor.close()
+    else:
+        application = ""
+    
+    return render_template('PersonalInfo.html', application=application)
+
+@app.route("/application/updateinfo", methods=['POST'])
+def updateinfo():
+    studName = request.form["name"]
+    studIc = request.form["ic"]
+    studGender = request.form["gender"]
+    studAddress = request.form["address"]
+    studPhone = request.form["phone"]
+    guardianName = request.form["guardName"]
+    guardianNo = request.form["guardNo"]
+    studEmail = request.form["email"]
+    studHealth = request.form["selectHealth"]
+    datetimeApplied = datetime.datetime.now()
+    appid = session["appid"]
+
+    if(studHealth == 'Other'):
+        studHealth = request.form["others"]
+
+    cursor = db_conn.cursor()
+
+    try:
+        cursor.execute("UPDATE Applications SET studentName = %s, identification = %s, gender = %s, fullAddress = %s,"
+                        + "email = %s, datetimeApplied = %s, handphoneNumber = %s, guardianName = %s," +
+                        "guardianNumber = %s, healthIssue = %s WHERE applicationID = %s",
+                    (studName, studIc, studGender, studAddress, studEmail, datetimeApplied, studPhone, guardianName, 
+                        guardianNo,studHealth, appid))
+        db_conn.commit()
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+
+    return redirect(url_for('application', id=appid))
+
+@app.route('/application/uploadic', methods=['POST'])
+def uploadic():
+    id = request.args.get("id")
+    icf = request.files["frontIc"]
+    icb = request.files["backIc"]
+
+    cursor = db_conn.cursor()
+
+    try:
+        if(icf != None):
+            path = os.path.join("static/media/" + id + "_front_" + icf.filename)
+            icf.save(path)
+            cursor.execute("UPDATE Applications SET identificationFrontPath = %s WHERE applicationID=%s",(path, id))
+
+        if(icf != None):
+            path = os.path.join("static/media/" + id + "_back" + icb.filename)
+            icf.save(path)
+            cursor.execute("UPDATE Applications SET identificationBackPath = %s WHERE applicationID=%s",(path, id))
+
+        db_conn.commit()
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+
+    return redirect(url_for('application'))
+
+@app.route("/application/intake", methods=['GET', 'POST'])
+def intake():
+    if request.method == 'GET':
+        if request.args.get("id") != None:
+            appid = request.args.get("id")
+            session["appid"] = appid
+        
+            try:
+                cursor = db_conn.cursor(cursors.DictCursor)
+                cursor.execute("SELECT * FROM Applications a, Intake i, ApplicationProgramme ap, ProgrammeCampus pc, " +
+                "Programme p WHERE a.applicationID = ap.applicationID AND pc.intakeID = i.intakeID AND " +
+                "pc.programmeCampusID = ap.programmeCampusID AND pc.programmeID = pc.programmeID AND " +
+                "a.applicationID=%s", (appid))
+                application = cursor.fetchone()
+
+            except Exception as e:
+                return str(e)
+
+            finally:
+                cursor.close()
+        else:
+            try:
+                cursor = db_conn.cursor(cursors.DictCursor)
+                accid = session["userid"]
+                cursor.execute("SELECT * FROM Account WHERE accountID = %s", (accid))
+                accinfo = cursor.fetchone()
+                datetimeApplied = datetime.datetime.now()
+
+                cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, accountID)"
+                               + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (accinfo["fullName"], accinfo["identification"],
+                            accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
+                db_conn.commit()
+                cursor.execute("SELECT * FROM Applications ORDER BY applicationID DESC LIMIT 1")
+                application = cursor.fetchone()
+                session["appid"] = application["applicationID"]
+                for _ in range (3):
+                    cursor.execute("INSERT INTO ApplicationProgramme (applicationID) VALUES (%s)", (application["applicationID"]))
+                    db_conn.commit()
+            except Exception as e:
+                return str(e)
+
+            finally:
+                cursor.close()
+    campus_data = dynamic_selection()
+
+    return render_template("Intake.html", campusdata=campus_data, application=application)
+
+@app.route("/application/applyintake", methods=['GET', 'POST'])
+def apply_intake():
+    try:
+        cursor = db_conn.cursor()
+        intake = request.form["intake"]
+        campus = request.form["campus"]
+        prog = request.form["programme"]
+        campus2 = request.form["campus2"]
+        prog2 = request.form["programme2"]
+        campus3 = request.form["campus3"]
+        prog3 = request.form["programme3"]
+        appid = session["appid"]
+
+        cursor.execute("SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
+                        "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
+                        "AND programmeID = %s AND campusName = %s", (intake, prog, campus, intake, prog2, campus2 ,intake, prog3, campus3))
+        progCampusIDs = cursor.fetchall()
+        cursor.execute("SELECT apID FROM ApplicationProgramme WHERE applicationID = %s", (appid))
+        apIDs = cursor.fetchall()
+        for  pci, api in zip(progCampusIDs, apIDs):
+            cursor.execute("UPDATE ApplicationProgramme SET applicationID = %s, programmeCampusID = %s WHERE apID = %s",
+                        (appid, pci[0], api))
+            db_conn.commit()
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    campus_data = dynamic_selection()
+
+    return render_template("Intake.html", campusdata=campus_data, application=application)
+
+def dynamic_selection():
+    try:
+        cursor = db_conn.cursor(cursors.DictCursor)
+        cursor.execute("SELECT DISTINCT i.intakeID, intakeName, campusID, pc.intakeID FROM Intake i, ProgrammeCampus pc WHERE i.intakeID = pc.intakeID")
+        intakes = cursor.fetchall()
+        cursor.execute("SELECT campusID, campusName FROM Campus")
+        campuses = cursor.fetchall()
+        cursor.execute("SELECT DISTINCT programmeType FROM Programme")
+        progTypes = cursor.fetchall()
+        cursor.execute("SELECT pc.programmeID, campusID, programmeName, programmeType FROM ProgrammeCampus pc, Programme p WHERE pc.programmeID = p.programmeID")
+        progCampus = cursor.fetchall()
+        campus_data = {}
+        
+        for intake in intakes:
+            intakeName = intake["intakeName"]
+            if intakeName in campus_data:
+                pass
+            else:
+                campus_data[intakeName] = {}
+            for campus in campuses:
+                if campus["campusID"] == intake["campusID"]:
+                    campus_name = campus["campusName"]
+                    campus_id = campus["campusID"]
+                    campus_data[intakeName][campus_name] = {}
+                    for progType in progTypes:
+                        if(progType["programmeType"] == "xDegree"):
+                            campus_data[intakeName][campus_name]["Diploma"] = {}
+                            campus_data[intakeName][campus_name]["Foundation"] = {}
+                        else:
+                            campus_data[intakeName][campus_name][progType["programmeType"]] = {}
+
+                        for prog in progCampus:
+                            if prog["campusID"] == campus_id and prog["programmeType"] == "Degree" and progType["programmeType"] == "Degree":
+                                campus_data[intakeName][campus_name][progType["programmeType"]][prog["programmeID"]] = prog["programmeName"]
+                            else: 
+                                if("Diploma" in campus_data[intakeName][campus_name] and "Foundation" in campus_data[intakeName][campus_name]):
+                                    if prog["campusID"] == campus_id and prog['programmeName'].startswith("Diploma"):
+                                        campus_data[intakeName][campus_name]["Diploma"][prog["programmeID"]] = prog["programmeName"]
+                                    elif(prog["campusID"] == campus_id and prog['programmeName'].startswith("Foundation")):
+                                        campus_data[intakeName][campus_name]["Foundation"][prog["programmeID"]] = prog["programmeName"]
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+    return campus_data
+
+@app.route('/application/qualification')
+def qualification():
+    return render_template("Qualification.html")
+
+@app.route('/application/assess', methods=['POST'])
+def assess_qualification():
+    id = session["appid"]
+    spmObj = request.files["qualification"].read()
+    diploma = request.files["diploma"].read()
+    if spmObj:
+        data = scan_img(spmObj)
+    if diploma:
+        data2 = scan_img(diploma)
+    print(data2)
+    spm_subjects = [
+    "Bahasa Inggeris",
+    "Mathematics",
+    "Additional Mathematics",
+    "Sains",
+    "Chemistry",
+    "Kimia",
+    "Physics",
+    "Ekonomi",
+    "Prinsip Perakaunan",
+    "Pendidikan Moral",
+    "Sains Komputer",
+    "Bahasa Cina",
+    # Add more subjects here as needed
+]
+    cursor = db_conn.cursor(cursors.DictCursor)
+    try:
+        credits = 0
+        allow = False
+        status = "End"
+        cursor.execute("SELECT apID, pc.programmeID, programmeType, ap.programmeCampusID FROM ApplicationProgramme ap " + 
+                       "LEFT JOIN ProgrammeCampus pc ON ap.programmeCampusID = pc.programmeCampusID " +
+                       "LEFT JOIN Programme p ON pc.programmeID = p.programmeID " +
+                       "WHERE applicationID = %s", (id))
+        choices = cursor.fetchall()
+
+        # bm and sejarah must pass
+        if("bahasa melayu" in data.lower() or "sejarah" in data.lower()):
+            bm = data.lower().find("bahasa melayu")
+            sj = data.lower().find("sejarah")
+
+            if(data[bm:bm + len("bahasa melayu") + 2][-2:] < "G" and data[sj:sj + len("sejarah") + 2][-2:] < "G"):
+                if(data[bm:bm + len("bahasa melayu") + 2][-2:] <= "C"):
+                    credits += 1
+                if(data[sj:sj + len("sejarah") + 2][-2:] <= "C"):
+                    credits += 1
+                allow = True
+            else:
+                allow = False
+
+        for subject in spm_subjects:
+            found = data.lower().find(subject.lower())
+            if found > 0:
+                if(data[found:found + len(subject) + 2][-2:] <= "C"):
+                    credits += 1
+        
+        if(allow): 
+            for choice in choices:
+                tempCredits = credits
+
+                if(status == "Approved"):
+                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                    db_conn.commit()
+                    continue
+
+                if choice['programmeType'] == 'xDegree':
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    for qualification in qualifications:
+                        found = data.lower().find(qualification["subjectName"].lower())
+                        if(found > 0):
+                            if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
+                                credits += 1
+                            else: 
+                                status = "Rejected"
+
+                else:
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    acronyms = []
+                    for qualification in qualifications:
+                        words = qualification["subjectName"].split()
+                        acronyms.append("".join(word[0].upper() for word in words if word != "in"))
+
+                    for acronym in acronyms:
+                        if(acronym in data2):
+                            print(data2.find(acronym))
+                            if("CGPA" in data2):
+                                cgpa_positions = data2.rfind("CGPA")
+                                if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
+                                    status = "Rejected"
+                                else:
+                                    status = "Approved"
+                        else: 
+                            print("Different course")
+
+                if(tempCredits < 5):
+                    status = "Rejected"
+                else: 
+                    status = "Approved"
+                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
+                db_conn.commit()
+        appid = session['appid']
+        cursor.execute("UPDATE Applications SET applicationStatus = %s WHERE applicationID = %s", ("Done", appid))
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        cursor.close()
+
+    return redirect(url_for('studhome'))
+
+
+def scan_img(fileObj):
+    # Mention the installed location of Tesseract-OCR in your system
+    pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
+    #convert string data to numpy array
+    file_bytes = np.fromstring(fileObj, np.uint8)
+    # convert numpy array to image
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_UNCHANGED)
+    # Reduce noise
+    image = cv2.medianBlur(image, 3)
+
+    # Perform OCR
+    data = pytesseract.image_to_string(image, config='--psm 6')
+    weird_symbols_and_words = r"[^A-Z0-9\s]"
+    # Find all the matches for the regular expression
+    matches = re.findall(weird_symbols_and_words, data)
+    for match in matches:
+        data = data.replace(match, "")
+    data = data.split()
+    data = ' '.join(data)
+
+    print(data)
+
+    # cv2.namedWindow("source", cv2.WINDOW_NORMAL)
+    # cv2.imshow('source', image)
+    cv2.waitKey()     
+
+    return data
 
 @app.route("/UpdateProfile", methods=["GET", "POST"])
 def UpdateProfile():
@@ -354,11 +732,13 @@ def UpdateProfile():
     finally:
         cursor.close()
 
-    return redirect(url_for("TempPage"))
+    return redirect(url_for("studhome"))
 
 
-@app.route("/programme", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def Get_Programme():
+    if session.get('loggedin') == False or session.get('loggedin') == None:
+        session['loggedin'] = False 
     cursor = db_conn.cursor()
     if request.method == 'GET':
         query = "SELECT * FROM Programme ORDER BY programmeDuration"   
@@ -962,13 +1342,13 @@ def logout():
         session.pop("userid", None)
         session.pop("username", None)
 
-        return redirect(url_for("home"))
+        return redirect("/")
     except Exception as e:
         print(e)
     finally:
         cursor.close()
-    return redirect(url_for("home"))
+    return redirect("/")
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80, debug=True)
