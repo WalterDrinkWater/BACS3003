@@ -168,7 +168,7 @@ def AJAXLogin():
                             else:
                                 nexturl = "/studhome"
                         elif user["accType"] == "admin":
-                            nexturl = "/programme"
+                            nexturl = "/admin/enquiry"
 
                         session["loggedin"] = True
                         session["userid"] = user["accountID"]
