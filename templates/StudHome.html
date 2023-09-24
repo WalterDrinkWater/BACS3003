@@ -1,0 +1,41 @@
+{%extends "studLayout.html"%}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<table class="table table-hover table-bordered" style="margin: 10px; width: 98%">
+    <thead class="table-light">
+        <tr>
+            <th scope="col">Application No.</th>
+            <th scope="col">Intake Session</th>
+            <th scope="col">Programme Applied</th>
+            <th scope="col">Document Submission</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody class="stud-list">
+        {% for app in application if application | length != 0 %}
+        <tr>
+            {% set tempStatus = 'No' if app['applicationStatus'] == 'Pending' %}
+            <th scope="row">{{app.applicationID}}</th>
+            <td>{{app["intakeName"]}}</td>
+            <td>{{app["programmeName"]}}</td>
+            <td>Upload Documents</td>
+            <td>{{app["apStatus"]}}</td>
+            {% if app['applicationStatus'] == "Pending"%}
+            <td><a href="{{url_for('intake', id=app.applicationID)}}">Edit</a></td>
+            {% else %}
+            <td>{{app['applicationStatus']}}</td>
+            {% endif %}
+
+        </tr>
+        {% else %}
+        <td colspan="8" class="text-center">No Application Yet</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% if tempStatus != "No" %}
+<a class="btn btn-outline-primary" href="{{url_for('intake', id=None)}}">Apply</a>
+{% endif %}
+{%endblock%}
