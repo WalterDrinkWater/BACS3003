@@ -163,7 +163,7 @@ def AJAXLogin():
                             ):
                                 nexturl = "/admission/firstlogin"
                             else:
-                                nexturl = "/stud/home"
+                                nexturl = "/studhome"
                         elif user["accType"] == "admin":
                             nexturl = "/programme"
 

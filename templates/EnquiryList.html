@@ -17,6 +17,11 @@
 <script language="JavaScript" type="text/javascript"
     src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -61,7 +66,7 @@
                 'url': '/AJAXenquirylist'
             },
             'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            searching: false,
+            searching: true,
             sort: false,
             "serverSide": true,
             responsive: true,
