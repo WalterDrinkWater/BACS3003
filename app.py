@@ -42,6 +42,8 @@ db_conn = connections.Connection(
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    if session.get('loggedin') == False:
+        session['loggedin'] = False 
     return render_template("Index.html")
 
 
@@ -347,15 +349,28 @@ def UpdateProfile():
 
 @app.route("/programme", methods=["GET", "POST"])
 def Get_Programme():
+    cursor = db_conn.cursor()
+ 
     if request.method == 'GET':
-        cursor = db_conn.cursor()
-        query = "SELECT * FROM Programme ORDER BY programmeDuration"
+        query = "SELECT * FROM Programme ORDER BY programmeDuration"   
         cursor.execute(query)
-        prog = cursor.fetchall()
-        print(prog[0])
-        cursor.close()
-        return render_template('Programme.html', prog=prog)
-    
+    elif request.method == 'POST':
+        likeStr = '%' + request.form["search"] + '%'
+        query = "SELECT * FROM Programme WHERE programmeName LIKE %s ORDER BY programmeDuration"
+        cursor.execute(query,likeStr)
+    prog = cursor.fetchall()    
+    cursor.close()
+    return render_template('Programme.html', prog=prog)
+
+@app.route("/programme/search=<progName>", methods=["POST"])
+def Search_Programme(progName):
+    cursor = db_conn.cursor()
+    query = "SELECT * FROM Programme WHERE programmeName = %s% ORDER BY programmeDuration"
+    cursor.execute(query,request.form["search"])    
+    prog = cursor.fetchall()    
+    cursor.close()
+    return render_template('Programme.html', prog=prog)
+
 @app.route("/progDetails/<progID>", methods=['GET', 'POST'])
 def Get_Programme_Details(progID):
     if request.method == 'GET':        
@@ -588,19 +603,9 @@ def Admin_Get_User_Details(id):
     cursor.execute(userSql,(id))
     user= cursor.fetchone()
     return render_template('UserDetails.html', user=user)
-
-        # Convert to a list if it is not already.
-    #     if not isinstance(value, list):
-    #         value = [value]
-
-    #     data[key].extend(value)
-
-    # cursor.close()
-    # return render_template("Programme.html", courses=data)
     
 @app.route("/about", methods=['GET', 'POST'])
 def About_Us():
-
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
         cursor.execute("SELECT campusName, campusLocation, campusURL FROM Campus")
@@ -640,63 +645,6 @@ def FirstLogin():
 @app.route("/TempPage", methods=["GET", "POST"])
 def TempPage():
     return render_template("TempPage.html")
-
-
-# @app.route("/TempApp", methods=["GET", "POST"])
-# def TempApp():
-#     return render_template("TempApp.html")
-
-
-# @app.route("/AJAXprogramme", methods=["GET", "POST"])
-# def AJAXprogramme():
-#     campus = request.form.get('campus')
-#     programme = request.form.get('programme')
-#     intake = request.form.get('intake')
-
-#     select_sql = "SELECT c.campusID, c.campusName, p.programmeID, p.programmeName, i.intakeID, i.intakeName FROM ProgrammeCampus a, Programme p, Campus c, Intake i WHERE p.programmeID=a.programmeID AND c.campusID=a.campusID AND i.intakeID=a.intakeID"
-
-#     parameters=[]
-#     if campus is not None:
-#         select_sql += " AND a.campusID=%s"
-#         parameters.append(campus)
-
-#     if programme is not None:
-#         select_sql += " AND a.programmeID=%s"
-#         parameters.append(programme)
-
-#     if intake is not None:
-#         select_sql += " AND a.intakeID=%s"
-#         parameters.append(intake)
-
-#     cursor = db_conn.cursor(cursors.DictCursor)
-#     cursor.execute(select_sql, parameters)
-#     records = cursor.fetchall()
-
-#     campusID = set()
-#     campusName = set()
-#     programmeID = set()
-#     programmeName = set()
-#     intakeID = set()
-#     intakeName = set()
-
-#     for record in records:
-#         campusID.add(record['campusID'])
-#         campusName.add(record['campusName'])
-#         programmeID.add(record['programmeID'])
-#         programmeName.add(record['programmeName'])
-#         intakeID.add(record['intakeID'])
-#         intakeName.add(record['intakeName'])
-
-#     response = {
-#         "campusID":list(campusID),
-#         "campusName":list(campusName),
-#         "programmeID":list(programmeID),
-#         "programmeName":list(programmeName),
-#         "intakeID":list(intakeID),
-#         "intakeName":list(intakeName),
-#     }
-#     return jsonify(response)
-
 
 @app.route("/admission/addenquiry", methods=["GET", "POST"])
 def AddEnquiry():
