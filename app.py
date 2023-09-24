@@ -42,7 +42,8 @@ db_conn = connections.Connection(
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    if session.get('loggedin') == False:
+    print(session.get('loggedin'))
+    if session.get('loggedin') == False or session.get('loggedin') == None:
         session['loggedin'] = False 
     return render_template("Index.html")
 
@@ -165,7 +166,7 @@ def AJAXLogin():
                             ):
                                 nexturl = "/admission/firstlogin"
                             else:
-                                nexturl = "/stud/home"
+                                nexturl = "/studhome"
                         elif user["accType"] == "admin":
                             nexturl = "/programme"
 

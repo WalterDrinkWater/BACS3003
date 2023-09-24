@@ -41,13 +41,13 @@
               <li class="nav-item">
                 <a class="nav-link" class="text-wrap" href="/about">About us</a>
               </li>
-              {%if session["loggedin"] == False%}
+              {%if session["loggedin"] == True%}
               <li class="nav-item">
-                <a class="nav-link" class="text-wrap" href="/account/login">Sign in</a>
+                <a class="nav-link" class="text-wrap" href="/logout">Sign out</a>
               </li>
               {%else%}
               <li class="nav-item">
-                <a class="nav-link" class="text-wrap" href="/logout">Sign out</a>
+                <a class="nav-link" class="text-wrap" href="/account/login">Sign in</a>
               </li>
               {%endif%}
             </ul>
