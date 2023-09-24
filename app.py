@@ -53,7 +53,7 @@ def studhome():
     accid = session["userid"]
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute("SELECT a.applicationID, intakeName, ap.programmeCampusID, p.programmeName, apStatus FROM Applications a " +
+        cursor.execute("SELECT a.applicationID, intakeName, ap.programmeCampusID, p.programmeName, apStatus, applicationStatus FROM Applications a " +
                         "LEFT JOIN ApplicationProgramme ap ON a.applicationID = ap.applicationID " +
                         "LEFT JOIN ProgrammeCampus pc ON  ap.programmeCampusID = pc.programmeCampusID " +
                         "LEFT JOIN Programme p ON p.programmeID = pc.programmeID " +
@@ -506,9 +506,11 @@ def apply_intake():
                         "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
                         "AND programmeID = %s AND campusName = %s", (intake, prog, campus, intake, prog2, campus2 ,intake, prog3, campus3))
         progCampusIDs = cursor.fetchall()
-        for index, id in enumerate(progCampusIDs):
+        cursor.execute("SELECT apID FROM ApplicationProgramme WHERE applicationID = %s", (appid))
+        apIDs = cursor.fetchall()
+        for  pci, api in zip(progCampusIDs, apIDs):
             cursor.execute("UPDATE ApplicationProgramme SET applicationID = %s, programmeCampusID = %s WHERE apID = %s",
-                        (appid, id[0], index+1))
+                        (appid, pci[0], api))
             db_conn.commit()
 
     except Exception as e:
@@ -630,6 +632,12 @@ def assess_qualification():
         if(allow): 
             for choice in choices:
                 tempCredits = credits
+
+                if(status == "Approved"):
+                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                    db_conn.commit()
+                    continue
+
                 if choice['programmeType'] == 'xDegree':
                     cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
                     qualifications = cursor.fetchall()
@@ -667,7 +675,8 @@ def assess_qualification():
                     status = "Approved"
                 cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
                 db_conn.commit()
-            
+        appid = session['appid']
+        cursor.execute("UPDATE Applications SET applicationStatus = %s WHERE applicationID = %s", ("Done", appid))
 
     except Exception as e:
         return str(e)
@@ -675,7 +684,7 @@ def assess_qualification():
     finally:
         cursor.close()
 
-    return redirect(url_for('qualification'))
+    return redirect(url_for('studhome'))
 
 
 def scan_img(fileObj):
