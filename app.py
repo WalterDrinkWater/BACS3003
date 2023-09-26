@@ -433,7 +433,7 @@ def uploadic():
 @app.route("/application/intake", methods=['GET', 'POST'])
 def intake():
     if request.method == 'GET':
-        if request.args.get("id") != None:
+        if request.args.get("id") != None and  request.args.get("status") == 'edit':
             appid = request.args.get("id")
             session["appid"] = appid
         
@@ -451,29 +451,32 @@ def intake():
             finally:
                 cursor.close()
         else:
-            try:
-                cursor = db_conn.cursor(cursors.DictCursor)
-                accid = session["userid"]
-                cursor.execute("SELECT * FROM Account WHERE accountID = %s", (accid))
-                accinfo = cursor.fetchone()
-                datetimeApplied = datetime.datetime.now()
+            if request.args.get("status") == 'insert':
+                try:
+                    cursor = db_conn.cursor(cursors.DictCursor)
+                    accid = session["userid"]
+                    cursor.execute("SELECT * FROM Account WHERE accountID = %s", (accid))
+                    accinfo = cursor.fetchone()
+                    datetimeApplied = datetime.datetime.now()
 
-                cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, accountID)"
-                               + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        (accinfo["fullName"], accinfo["identification"],
-                            accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
-                db_conn.commit()
-                cursor.execute("SELECT * FROM Applications ORDER BY applicationID DESC LIMIT 1")
-                application = cursor.fetchone()
-                session["appid"] = application["applicationID"]
-                for _ in range (3):
-                    cursor.execute("INSERT INTO ApplicationProgramme (applicationID) VALUES (%s)", (application["applicationID"]))
+                    cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, accountID)"
+                                + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            (accinfo["fullName"], accinfo["identification"],
+                                accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
                     db_conn.commit()
-            except Exception as e:
-                return str(e)
+                    cursor.execute("SELECT * FROM Applications ORDER BY applicationID DESC LIMIT 1")
+                    application = cursor.fetchone()
+                    session["appid"] = application["applicationID"]
+                    for _ in range (3):
+                        cursor.execute("INSERT INTO ApplicationProgramme (applicationID) VALUES (%s)", (application["applicationID"]))
+                        db_conn.commit()
+                except Exception as e:
+                    return str(e)
 
-            finally:
-                cursor.close()
+                finally:
+                    cursor.close()
+            else:
+                application = ''
     campus_data = dynamic_selection()
 
     return render_template("Intake.html", campusdata=campus_data, application=application)
