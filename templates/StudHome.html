@@ -9,24 +9,30 @@
             <th scope="col">Application No.</th>
             <th scope="col">Intake Session</th>
             <th scope="col">Programme Applied</th>
-            <th scope="col">Document Submission</th>
             <th scope="col">Status</th>
             <th scope="col">Action</th>
         </tr>
     </thead>
     <tbody class="stud-list">
+        {% set ns = namespace(visible = true)%}
         {% for app in application if application | length != 0 %}
         <tr>
-            {% set tempStatus = 'No' if app['applicationStatus'] == 'Pending' %}
-            <th scope="row">{{app.applicationID}}</th>
+            {% if loop.index % 3 == 1 %}
+            <th scope="row" rowspan="3">{{app.applicationID}}</th>
+            {% endif %}
+
             <td>{{app["intakeName"]}}</td>
             <td>{{app["programmeName"]}}</td>
-            <td>Upload Documents</td>
             <td>{{app["apStatus"]}}</td>
-            {% if app['applicationStatus'] == "Pending"%}
-            <td><a href="{{url_for('intake', id=app.applicationID)}}">Edit</a></td>
-            {% else %}
-            <td>{{app['applicationStatus']}}</td>
+            {% if loop.index % 3 == 1 %}
+            <td rowspan="3">
+                {% if app['applicationStatus'] != "Done" %}
+                {% set ns.visible = false %}
+                <a href="{{url_for('intake', id=app.applicationID, status='edit')}}">Edit</a>
+                {% else %}
+                {{app['applicationStatus']}}
+                {% endif %}
+            </td>
             {% endif %}
 
         </tr>
@@ -35,7 +41,7 @@
         {% endfor %}
     </tbody>
 </table>
-{% if tempStatus != "No" %}
-<a class="btn btn-outline-primary" href="{{url_for('intake', id=None)}}">Apply</a>
+{% if ns.visible %}
+<a class="btn btn-outline-primary" href="{{url_for('intake', id=None, status='insert')}}">Apply</a>
 {% endif %}
 {%endblock%}
