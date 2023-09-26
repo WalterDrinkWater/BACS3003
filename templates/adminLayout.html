@@ -21,41 +21,26 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-light bg-light fs-custom">
         <div class="container-fluid" >
-          <a class="navbar-brand fs-4" href="/">FOCS (Student Information Center)</a>
+          <a class="navbar-brand fs-4" href="/admin/viewip">FOCS (Student Information Center)</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
-              </li>
-              {%if session["loggedin"] == True%}
-              <li class="nav-item">
-                <a class="nav-link" href="/studhome">Application</a>
+                <a class="nav-link" href="/admin/viewip">View IP</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/admission/enquiry">Equiry</a>
+                <a class="nav-link" href="/admin/enquiry">Enquiries</a>
               </li>
-              {%endif%}
-              <li class="nav-item">
-                <a class="nav-link" class="text-wrap" href="/about">About us</a>
-              </li>
-              {%if session["loggedin"] == True%}
               <li class="nav-item">
                 <a class="nav-link" class="text-wrap" href="/logout">Sign out</a>
-              </li>
-              {%else%}
-              <li class="nav-item">
-                <a class="nav-link" class="text-wrap" href="/account/login">Sign in</a>
-              </li>
-              {%endif%}
+              </li>              
             </ul>
           </div>
         </div>
       </nav>
     {% block content %}
     {% endblock %}
-    <script>!function (e, t, a) { var c = e.head || e.getElementsByTagName("head")[0], n = e.createElement("script"); n.async = !0, n.defer = !0, n.type = "text/javascript", n.src = t + "/static/js/widget.js?config=" + JSON.stringify(a), c.appendChild(n) }(document, "https://app.engati.com", { bot_key: "0afdf6af1b9a46e1", welcome_msg: true, branding_key: "default", server: "https://app.engati.com", e: "p" });</script>
 </body>
 </html>
