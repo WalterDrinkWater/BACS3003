@@ -4,9 +4,13 @@
 
 {% block content %}
 <script>
-    var campusData = JSON.parse('{{campusdata | tojson}}');;
-    console.log(campusData)
+
+    var campusData = JSON.parse('{{campusdata | tojson}}');
     window.onload = function () {
+        //var application = document.getElementById("application").value;
+        var application = JSON.parse('{{application | tojson}}')
+        //alert(campusData);
+
         var intakeSel = document.getElementById("intake");
         var campusSel = document.getElementById("campus");
         var progTypeSel = document.getElementById("progType");
@@ -18,6 +22,7 @@
         var progTypeSel3 = document.getElementById("progType3");
         var progSel3 = document.getElementById("programme3");
 
+
         // Populate the first dropdown with campus names
         for (var intakeName in campusData) {
             if (campusData.hasOwnProperty(intakeName)) {
@@ -25,8 +30,12 @@
             }
         }
 
+        var changeEvent = new Event('change');
+        intakeSel.querySelector('option[value="' + application[0]["intakeName"] + '"]').selected = true;
+
         intakeSel.onchange = function () {
             // Empty programmes- and progTypes- dropdowns
+            console.log("Hi")
             campusSel.length = 1;
             progTypeSel.length = 1;
             progSel.length = 1;
@@ -46,6 +55,18 @@
             }
         }
 
+        // Dispatch the 'change' event on the intakeSel element
+        intakeSel.dispatchEvent(changeEvent);
+        if (application[0]["campusName"] != null) {
+            campusSel.querySelector('option[value="' + application[0]["campusName"] + '"]').selected = true;
+        }
+        if (application[1]["campusName"] != null) {
+            campusSel2.querySelector('option[value="' + application[1]["campusName"] + '"]').selected = true;
+        }
+        if (application[2]["campusName"] != null) {
+            campusSel3.querySelector('option[value="' + application[2]["campusName"] + '"]').selected = true;
+        }
+
         campusSel.onchange = function () {
             // Empty programmes dropdown
             progTypeSel.length = 1;
@@ -60,6 +81,19 @@
             }
         }
 
+        campusSel.dispatchEvent(changeEvent);
+        if (application[0]["programmeType"] != null) {
+            var type = "";
+            if (application[0]["programmeName"].startsWith("Diploma")) {
+                type = "Diploma"
+            } else if (application[0]["programmeName"].startsWith("Foundation")) {
+                type = "Foundation"
+            } else {
+                type = "Degree"
+            }
+            progTypeSel.querySelector('option[value="' + type + '"]').selected = true;
+        }
+
         progTypeSel.onchange = function () {
             progSel.length = 1;
 
@@ -69,6 +103,11 @@
             for (var programName in campusData[intakeName][campusName][progType]) {
                 progSel.options[progSel.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
             }
+        }
+
+        progTypeSel.dispatchEvent(changeEvent);
+        if (application[0]["programmeID"] != null) {
+            progSel.querySelector('option[value="' + application[0]["programmeID"] + '"]').selected = true;
         }
 
         campusSel2.onchange = function () {
@@ -84,10 +123,21 @@
                 progTypeSel2.options[progTypeSel2.options.length] = new Option(progType, progType);
             }
         }
+        campusSel2.dispatchEvent(changeEvent);
+        if (application[1]["programmeType"] != null) {
+            var type = "";
+            if (application[1]["programmeName"].startsWith("Diploma")) {
+                type = "Diploma"
+            } else if (application[1]["programmeName"].startsWith("Foundation")) {
+                type = "Foundation"
+            } else {
+                type = "Degree"
+            }
+            progTypeSel2.querySelector('option[value="' + type + '"]').selected = true;
+        }
 
         progTypeSel2.onchange = function () {
             progSel2.length = 1;
-
             var intakeName = intakeSel.value;
             var campusName = campusSel2.value;
             var progType = this.value;
@@ -95,6 +145,12 @@
                 progSel2.options[progSel2.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
             }
         }
+
+        progTypeSel2.dispatchEvent(changeEvent);
+        if (application[1]["programmeID"] != null) {
+            progSel2.querySelector('option[value="' + application[1]["programmeID"] + '"]').selected = true;
+        }
+
         campusSel3.onchange = function () {
             // Empty programmes dropdown
             progTypeSel3.length = 1;
@@ -108,6 +164,18 @@
                 progTypeSel3.options[progTypeSel3.options.length] = new Option(progType, progType);
             }
         }
+        campusSel3.dispatchEvent(changeEvent);
+        if (application[2]["programmeType"] != null) {
+            var type = "";
+            if (application[2]["programmeName"].startsWith("Diploma")) {
+                type = "Diploma"
+            } else if (application[2]["programmeName"].startsWith("Foundation")) {
+                type = "Foundation"
+            } else {
+                type = "Degree"
+            }
+            progTypeSel3.querySelector('option[value="' + type + '"]').selected = true;
+        }
 
         progTypeSel3.onchange = function () {
             progSel3.length = 1;
@@ -118,6 +186,11 @@
             for (var programName in campusData[intakeName][campusName][progType]) {
                 progSel3.options[progSel3.options.length] = new Option(campusData[intakeName][campusName][progType][programName], programName);
             }
+        }
+
+        progTypeSel3.dispatchEvent(changeEvent);
+        if (application[2]["programmeID"] != null) {
+            progSel3.querySelector('option[value="' + application[2]["programmeID"] + '"]').selected = true;
         }
     }
 </script>
@@ -133,7 +206,7 @@
             <div class="form-group">
                 <div class="col-sm-3 mb-5">
                     <select name="intake" id="intake" class="form-control form-select" required>
-                        <option value="" selected="selected">Select intake</option>
+                        <option value="">Select intake</option>
                     </select>
                 </div>
             </div>
@@ -148,15 +221,15 @@
                 </div>
                 <div class="col-sm-10 d-flex flex-row flex-wrap">
                     <select name="campus" id="campus" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select campus</option>
+                        <option value="">Select campus</option>
                     </select>
 
                     <select name="progType" id="progType" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme type</option>
+                        <option value="">Select programme type</option>
                     </select>
 
                     <select name="programme" id="programme" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme</option>
+                        <option value="">Select programme</option>
                     </select>
                 </div>
             </div>
@@ -167,15 +240,15 @@
                 </div>
                 <div class="col-sm-10 d-flex flex-row flex-wrap">
                     <select name="campus2" id="campus2" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select campus</option>
+                        <option value="">Select campus</option>
                     </select>
 
                     <select name="progType2" id="progType2" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme type</option>
+                        <option value="">Select programme type</option>
                     </select>
 
                     <select name="programme2" id="programme2" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme</option>
+                        <option value="">Select programme</option>
                     </select>
                 </div>
             </div>
@@ -186,15 +259,15 @@
                 </div>
                 <div class="col-sm-10 d-flex flex-row flex-wrap">
                     <select name="campus3" id="campus3" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select campus</option>
+                        <option value="">Select campus</option>
                     </select>
 
                     <select name="progType3" id="progType3" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme type</option>
+                        <option value="">Select programme type</option>
                     </select>
 
                     <select name="programme3" id="programme3" class="form-select" style="width:45%" required>
-                        <option value="" selected="selected">Select programme</option>
+                        <option value="">Select programme</option>
                     </select>
                 </div>
             </div>

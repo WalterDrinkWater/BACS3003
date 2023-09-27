@@ -439,11 +439,8 @@ def intake():
         
             try:
                 cursor = db_conn.cursor(cursors.DictCursor)
-                cursor.execute("SELECT * FROM Applications a, Intake i, ApplicationProgramme ap, ProgrammeCampus pc, " +
-                "Programme p WHERE a.applicationID = ap.applicationID AND pc.intakeID = i.intakeID AND " +
-                "pc.programmeCampusID = ap.programmeCampusID AND pc.programmeID = pc.programmeID AND " +
-                "a.applicationID=%s", (appid))
-                application = cursor.fetchone()
+                cursor.execute("SELECT i.intakeID,intakeName,c.campusID,campusName,p.programmeID, programmeType, programmeName FROM Applications a LEFT JOIN ApplicationProgramme ap ON a.applicationID = ap.applicationID LEFT JOIN ProgrammeCampus pc ON pc.programmeCampusID = ap.programmeCampusID LEFT JOIN Intake i ON pc.intakeID = i.intakeID LEFT JOIN Programme p ON pc.programmeID = p.programmeID LEFT JOIN Campus c ON pc.campusID = c.campusID WHERE a.applicationID=%s", (appid))
+                application = cursor.fetchall()
 
             except Exception as e:
                 return str(e)
@@ -516,9 +513,8 @@ def apply_intake():
 
     finally:
         cursor.close()
-    campus_data = dynamic_selection()
 
-    return render_template("Intake.html", campusdata=campus_data, application=application)
+    return redirect(url_for("intake", id=appid , status="edit"))
 
 def dynamic_selection():
     try:
