@@ -591,11 +591,12 @@ def assess_qualification():
     if spmObj:
         data = scan_img(spmObj)
     else:
-        data = ""
+        data = "nodata!"
+
     if diploma:
         data2 = scan_img(diploma)
     else:
-        data2 = ""
+        data2 = "nodata2!"
     spm_subjects = [
     "Bahasa Inggeris",
     "Mathematics",
@@ -623,39 +624,45 @@ def assess_qualification():
         choices = cursor.fetchall()
 
         # bm and sejarah must pass
-        if("bahasa melayu" in data.lower() or "sejarah" in data.lower()):
-            bm = data.lower().find("bahasa melayu")
-            sj = data.lower().find("sejarah")
+        if data != "nodata!":
+            if("bahasa melayu" in data.lower() or "sejarah" in data.lower()):
+                bm = data.lower().find("bahasa melayu")
+                sj = data.lower().find("sejarah")
 
-            if(data[bm:bm + len("bahasa melayu") + 2][-2:] < "G" and data[sj:sj + len("sejarah") + 2][-2:] < "G"):
-                if(data[bm:bm + len("bahasa melayu") + 2][-2:] <= "C"):
-                    credits += 1
-                if(data[sj:sj + len("sejarah") + 2][-2:] <= "C"):
-                    credits += 1
-                allow = True
-            else:
-                allow = False
+                if(data[bm:bm + len("bahasa melayu") + 2][-2:] < "G" and data[sj:sj + len("sejarah") + 2][-2:] < "G"):
+                    if(data[bm:bm + len("bahasa melayu") + 2][-2:] <= "C"):
+                        credits += 1
+                    if(data[sj:sj + len("sejarah") + 2][-2:] <= "C"):
+                        credits += 1
+                    allow = True
+                else:
+                    allow = False
 
-        for subject in spm_subjects:
-            found = data.lower().find(subject.lower())
-            if found > 0:
-                if(data[found:found + len(subject) + 2][-2:] <= "C"):
-                    credits += 1
+            for subject in spm_subjects:
+                found = data.lower().find(subject.lower())
+                if found > 0:
+                    if(data[found:found + len(subject) + 2][-2:] <= "C"):
+                        credits += 1
         
         for choice in choices:
-            tempCredits = credits
+            if choice['programmeType'] == 'xDegree':
+                if data == "nodata!":
+                    flash("Please upload your SPM result.")
+                    return redirect(url_for('qualification'))
+            else:  
+                if data2 == "nodata2!":
+                    flash("Please upload your Diploma or Foundation Result.")
+                    return redirect(url_for('qualification'))
+                
 
+            tempCredits = credits
             if(status == "Approved"):
                 cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
                 db_conn.commit()
                 continue
-
             
             if choice['programmeType'] == 'xDegree':
                 if allow:
-                    if data == "":
-                        flash("Please upload your SPM result.")
-                        return redirect(url_for('qualification'))
                     cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
                     qualifications = cursor.fetchall()
                     for qualification in qualifications:
@@ -675,9 +682,6 @@ def assess_qualification():
                 db_conn.commit()
 
             else:
-                if data2 == "":
-                    flash("Please upload your Diploma or Foundation Result.")
-                    return redirect(url_for('qualification'))
                 cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
                 qualifications = cursor.fetchall()
                 acronyms = []
@@ -686,12 +690,18 @@ def assess_qualification():
                     acronyms.append("".join(word[0].upper() for word in words if word != "in"))
 
                 for acronym in acronyms:
+                    if(status == "Approved"):
+                        cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                        db_conn.commit()
+                        continue                    
                     if(acronym in data2):
                         print(data2.find(acronym))
                         if("CGPA" in data2):
                             cgpa_positions = data2.rfind("CGPA")
                             if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
                                 status = "Rejected"
+                                print(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000")
+                                print(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:])
                             else:
                                 status = "Approved"
                     else: 
