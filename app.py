@@ -583,8 +583,8 @@ def qualification():
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
     id = session["appid"]
-    spmObj = request.files["qualification"].read()
-    diploma = request.files["diploma"].read()
+    spmObj = request.files["diploma"].read()
+    diploma = request.files["degree"].read()
     if spmObj:
         data = scan_img(spmObj)
     if diploma:
