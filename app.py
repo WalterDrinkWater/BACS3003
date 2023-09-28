@@ -415,14 +415,16 @@ def uploadic():
             path = os.path.join("static/media/" + id + "_front_" + icf.filename)
             icf.save(path)
             cursor.execute("UPDATE Applications SET identificationFrontPath = %s WHERE applicationID=%s",(path, id))
+            session["icf"] = "pass"
 
         if(icf != None):
             path = os.path.join("static/media/" + id + "_back" + icb.filename)
             icf.save(path)
             cursor.execute("UPDATE Applications SET identificationBackPath = %s WHERE applicationID=%s",(path, id))
+            session["icb"] = "pass"
 
         db_conn.commit()
-
+        
     except Exception as e:
         return str(e)
 
@@ -434,9 +436,12 @@ def uploadic():
 @app.route("/application/intake", methods=['GET', 'POST'])
 def intake():
     if request.method == 'GET':
-        if request.args.get("id") != None and  request.args.get("status") == 'edit':
-            appid = request.args.get("id")
-            session["appid"] = appid
+        if request.args.get("status") == 'edit':
+            if request.args.get("id") != None:
+                appid = request.args.get("id")
+                session["appid"] = appid
+            else:
+                appid = session["appid"]
         
             try:
                 cursor = db_conn.cursor(cursors.DictCursor)
@@ -468,6 +473,9 @@ def intake():
                     for _ in range (3):
                         cursor.execute("INSERT INTO ApplicationProgramme (applicationID) VALUES (%s)", (application["applicationID"]))
                         db_conn.commit()
+                    session["intake"] = "fail"
+                    session["icf"] = "fail"
+                    session["icb"] = "fail"
                 except Exception as e:
                     return str(e)
 
@@ -508,6 +516,7 @@ def apply_intake():
             cursor.execute("UPDATE ApplicationProgramme SET applicationID = %s, programmeCampusID = %s WHERE apID = %s",
                         (appid, pci[0], api))
             db_conn.commit()
+        session["intake"] = "pass"
 
     except Exception as e:
         return str(e)
@@ -566,6 +575,9 @@ def dynamic_selection():
 
 @app.route('/application/qualification')
 def qualification():
+    # intakePart = session["intake"]
+    # icfPart = session["icf"]
+    # icbPart = session["icb"]
     return render_template("Qualification.html")
 
 @app.route('/application/assess', methods=['POST'])
