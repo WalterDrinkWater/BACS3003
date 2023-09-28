@@ -397,7 +397,7 @@ def updateinfo():
                         + "email = %s, datetimeApplied = %s, handphoneNumber = %s, guardianName = %s," +
                         "guardianNumber = %s, healthIssue = %s WHERE applicationID = %s",
                     (studName, studIc, studGender, studAddress, studEmail, datetimeApplied, studPhone, guardianName, 
-                        guardianNo,studHealth, appid))
+                        guardianNo,"Others" + studHealth, appid))
         db_conn.commit()
 
     except Exception as e:
