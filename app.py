@@ -958,10 +958,10 @@ def Admin_Get_IP():
 
             ## Fetch records
             if searchValue == "":
-                cursor.execute("SELECT * FROM LoginSession ORDER BY loginTime limit %s, %s;",(row, rowperpage))
+                cursor.execute("SELECT * FROM LoginSession ORDER BY loginTime DESC limit %s, %s;",(row, rowperpage))
             else:
                 cursor.execute(
-                    "SELECT * FROM LoginSession WHERE ipAddress LIKE %s ORDER BY loginTime limit %s, %s;",(searchValue,row,rowperpage))
+                    "SELECT * FROM LoginSession WHERE ipAddress LIKE %s ORDER BY loginTime DESC limit %s, %s;",(searchValue,row,rowperpage))
             offerlist = cursor.fetchall()
             data = []
             for row in offerlist:

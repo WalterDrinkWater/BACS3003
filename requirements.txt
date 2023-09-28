@@ -4,3 +4,4 @@ PyMySQL>=1.0
 pytz>=2023.0
 opencv-python>=4.8
 Werkzeug>=2.3
+pytesseract>=0.3.10
