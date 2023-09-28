@@ -695,7 +695,9 @@ def assess_qualification():
                             else:
                                 status = "Approved"
                     else: 
-                        print("Different course")
+                        status = "Rejected"
+                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
+                    db_conn.commit()
 
             cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
             db_conn.commit()
