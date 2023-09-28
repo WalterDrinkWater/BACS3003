@@ -21,6 +21,7 @@
         var campusSel3 = document.getElementById("campus3");
         var progTypeSel3 = document.getElementById("progType3");
         var progSel3 = document.getElementById("programme3");
+        var changeEvent = new Event('change');
 
 
         // Populate the first dropdown with campus names
@@ -30,8 +31,12 @@
             }
         }
 
-        var changeEvent = new Event('change');
-        intakeSel.querySelector('option[value="' + application[0]["intakeName"] + '"]').selected = true;
+        if (Object.keys(application).length > 0) {
+            if (application[0]["intakeName"] != null) {
+                console.log("test")
+                intakeSel.querySelector('option[value="' + application[0]["intakeName"] + '"]').selected = true;
+            }
+        }
 
         intakeSel.onchange = function () {
             // Empty programmes- and progTypes- dropdowns
@@ -57,14 +62,16 @@
 
         // Dispatch the 'change' event on the intakeSel element
         intakeSel.dispatchEvent(changeEvent);
-        if (application[0]["campusName"] != null) {
-            campusSel.querySelector('option[value="' + application[0]["campusName"] + '"]').selected = true;
-        }
-        if (application[1]["campusName"] != null) {
-            campusSel2.querySelector('option[value="' + application[1]["campusName"] + '"]').selected = true;
-        }
-        if (application[2]["campusName"] != null) {
-            campusSel3.querySelector('option[value="' + application[2]["campusName"] + '"]').selected = true;
+        if (Object.keys(application).length > 0) {
+            if (application[0]["campusName"] != null) {
+                campusSel.querySelector('option[value="' + application[0]["campusName"] + '"]').selected = true;
+            }
+            if (application[1]["campusName"] != null) {
+                campusSel2.querySelector('option[value="' + application[1]["campusName"] + '"]').selected = true;
+            }
+            if (application[2]["campusName"] != null) {
+                campusSel3.querySelector('option[value="' + application[2]["campusName"] + '"]').selected = true;
+            }
         }
 
         campusSel.onchange = function () {
@@ -82,16 +89,18 @@
         }
 
         campusSel.dispatchEvent(changeEvent);
-        if (application[0]["programmeType"] != null) {
-            var type = "";
-            if (application[0]["programmeName"].startsWith("Diploma")) {
-                type = "Diploma"
-            } else if (application[0]["programmeName"].startsWith("Foundation")) {
-                type = "Foundation"
-            } else {
-                type = "Degree"
+        if (Object.keys(application).length > 0) {
+            if (application[0]["programmeType"] != null) {
+                var type = "";
+                if (application[0]["programmeName"].startsWith("Diploma")) {
+                    type = "Diploma"
+                } else if (application[0]["programmeName"].startsWith("Foundation")) {
+                    type = "Foundation"
+                } else {
+                    type = "Degree"
+                }
+                progTypeSel.querySelector('option[value="' + type + '"]').selected = true;
             }
-            progTypeSel.querySelector('option[value="' + type + '"]').selected = true;
         }
 
         progTypeSel.onchange = function () {
@@ -106,8 +115,10 @@
         }
 
         progTypeSel.dispatchEvent(changeEvent);
-        if (application[0]["programmeID"] != null) {
-            progSel.querySelector('option[value="' + application[0]["programmeID"] + '"]').selected = true;
+        if (Object.keys(application).length > 0) {
+            if (application[0]["programmeID"] != null) {
+                progSel.querySelector('option[value="' + application[0]["programmeID"] + '"]').selected = true;
+            }
         }
 
         campusSel2.onchange = function () {
@@ -124,16 +135,18 @@
             }
         }
         campusSel2.dispatchEvent(changeEvent);
-        if (application[1]["programmeType"] != null) {
-            var type = "";
-            if (application[1]["programmeName"].startsWith("Diploma")) {
-                type = "Diploma"
-            } else if (application[1]["programmeName"].startsWith("Foundation")) {
-                type = "Foundation"
-            } else {
-                type = "Degree"
+        if (Object.keys(application).length > 0) {
+            if (application[1]["programmeType"] != null) {
+                var type = "";
+                if (application[1]["programmeName"].startsWith("Diploma")) {
+                    type = "Diploma"
+                } else if (application[1]["programmeName"].startsWith("Foundation")) {
+                    type = "Foundation"
+                } else {
+                    type = "Degree"
+                }
+                progTypeSel2.querySelector('option[value="' + type + '"]').selected = true;
             }
-            progTypeSel2.querySelector('option[value="' + type + '"]').selected = true;
         }
 
         progTypeSel2.onchange = function () {
@@ -147,8 +160,10 @@
         }
 
         progTypeSel2.dispatchEvent(changeEvent);
-        if (application[1]["programmeID"] != null) {
-            progSel2.querySelector('option[value="' + application[1]["programmeID"] + '"]').selected = true;
+        if (Object.keys(application).length > 0) {
+            if (application[1]["programmeID"] != null) {
+                progSel2.querySelector('option[value="' + application[1]["programmeID"] + '"]').selected = true;
+            }
         }
 
         campusSel3.onchange = function () {
@@ -165,16 +180,18 @@
             }
         }
         campusSel3.dispatchEvent(changeEvent);
-        if (application[2]["programmeType"] != null) {
-            var type = "";
-            if (application[2]["programmeName"].startsWith("Diploma")) {
-                type = "Diploma"
-            } else if (application[2]["programmeName"].startsWith("Foundation")) {
-                type = "Foundation"
-            } else {
-                type = "Degree"
+        if (Object.keys(application).length > 0) {
+            if (application[2]["programmeType"] != null) {
+                var type = "";
+                if (application[2]["programmeName"].startsWith("Diploma")) {
+                    type = "Diploma"
+                } else if (application[2]["programmeName"].startsWith("Foundation")) {
+                    type = "Foundation"
+                } else {
+                    type = "Degree"
+                }
+                progTypeSel3.querySelector('option[value="' + type + '"]').selected = true;
             }
-            progTypeSel3.querySelector('option[value="' + type + '"]').selected = true;
         }
 
         progTypeSel3.onchange = function () {
@@ -189,8 +206,10 @@
         }
 
         progTypeSel3.dispatchEvent(changeEvent);
-        if (application[2]["programmeID"] != null) {
-            progSel3.querySelector('option[value="' + application[2]["programmeID"] + '"]').selected = true;
+        if (Object.keys(application).length > 0) {
+            if (application[2]["programmeID"] != null) {
+                progSel3.querySelector('option[value="' + application[2]["programmeID"] + '"]').selected = true;
+            }
         }
     }
 </script>
