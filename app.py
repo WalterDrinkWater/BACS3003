@@ -381,7 +381,7 @@ def updateinfo():
     datetimeApplied = datetime.datetime.now()
     appid = session["appid"]
 
-    if(studHealth == 'Other'):
+    if(studHealth == 'Others'):
         studHealth = request.form["others"]
 
     cursor = db_conn.cursor()
@@ -418,7 +418,7 @@ def uploadic():
             session["icf"] = "pass"
 
         if(icf != None):
-            path = os.path.join("static/media/" + id + "_back" + icb.filename)
+            path = os.path.join("static/media/" + id + "_back_" + icb.filename)
             icf.save(path)
             cursor.execute("UPDATE Applications SET identificationBackPath = %s WHERE applicationID=%s",(path, id))
             session["icb"] = "pass"
@@ -575,9 +575,6 @@ def dynamic_selection():
 
 @app.route('/application/qualification')
 def qualification():
-    # intakePart = session["intake"]
-    # icfPart = session["icf"]
-    # icbPart = session["icb"]
     return render_template("Qualification.html")
 
 @app.route('/application/assess', methods=['POST'])
@@ -587,9 +584,12 @@ def assess_qualification():
     diploma = request.files["degree"].read()
     if spmObj:
         data = scan_img(spmObj)
+    else:
+        data = ""
     if diploma:
         data2 = scan_img(diploma)
-    print(data2)
+    else:
+        data2 = ""
     spm_subjects = [
     "Bahasa Inggeris",
     "Mathematics",
@@ -636,47 +636,51 @@ def assess_qualification():
                 if(data[found:found + len(subject) + 2][-2:] <= "C"):
                     credits += 1
         
-        if(allow): 
-            if data:
-                for choice in choices:
-                    tempCredits = credits
+        if allow: 
+            for choice in choices:
+                tempCredits = credits
 
-                    if(status == "Approved"):
-                        cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
-                        db_conn.commit()
-                        continue
+                if(status == "Approved"):
+                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                    db_conn.commit()
+                    continue
 
-                    if choice['programmeType'] == 'xDegree':
-                        cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
-                        qualifications = cursor.fetchall()
-                        for qualification in qualifications:
-                            found = data.lower().find(qualification["subjectName"].lower())
-                            if(found > 0):
-                                if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
-                                    credits += 1
-                                else: 
-                                    status = "Rejected"
+                if choice['programmeType'] == 'xDegree':
+                    if data == "":
+                        flash("Please upload your SPM result.")
+                        return redirect(url_for('qualification'))
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    for qualification in qualifications:
+                        found = data.lower().find(qualification["subjectName"].lower())
+                        if(found > 0):
+                            if(data[found:found + len(qualification["subjectName"]) + 2][-2:] <= qualification["grade"]):
+                                credits += 1
+                            else: 
+                                status = "Rejected"
 
                 else:
-                    if data2:
-                        cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
-                        qualifications = cursor.fetchall()
-                        acronyms = []
-                        for qualification in qualifications:
-                            words = qualification["subjectName"].split()
-                            acronyms.append("".join(word[0].upper() for word in words if word != "in"))
+                    if data == "":
+                        flash("Please upload your Diploma or Foundation Result.")
+                        return redirect(url_for('qualification'))
+                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                    qualifications = cursor.fetchall()
+                    acronyms = []
+                    for qualification in qualifications:
+                        words = qualification["subjectName"].split()
+                        acronyms.append("".join(word[0].upper() for word in words if word != "in"))
 
-                        for acronym in acronyms:
-                            if(acronym in data2):
-                                print(data2.find(acronym))
-                                if("CGPA" in data2):
-                                    cgpa_positions = data2.rfind("CGPA")
-                                    if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
-                                        status = "Rejected"
-                                    else:
-                                        status = "Approved"
-                            else: 
-                                print("Different course")
+                    for acronym in acronyms:
+                        if(acronym in data2):
+                            print(data2.find(acronym))
+                            if("CGPA" in data2):
+                                cgpa_positions = data2.rfind("CGPA")
+                                if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
+                                    status = "Rejected"
+                                else:
+                                    status = "Approved"
+                        else: 
+                            print("Different course")
 
                 if(tempCredits < 5):
                     status = "Rejected"
