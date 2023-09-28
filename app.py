@@ -39,6 +39,7 @@ db_conn = connections.Connection(
     port=3306,
     user=customuser,
     password=custompass,
+    connect_timeout=600,
     db=customdb
 )
 output = {}
@@ -1072,14 +1073,15 @@ def addEnquiry():
             (topic, title, question, malaysia_time, "Pending Reply", id),
         )
         db_conn.commit()
-        enquiryID = cursor.lastrowid
-        path = "static/media/" + str(enquiryID) + "_" + file.filename
-        file.save(os.path.join(path))
-        cursor.execute(
-            "UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",
-            (path, enquiryID),
-        )
-        db_conn.commit()
+        if file.filename != "":
+            enquiryID = cursor.lastrowid
+            path = "static/media/" + str(enquiryID) + "_" + malaysia_time.strftime("%Y%m%d_%H%M%S") + "_"+ file.filename
+            file.save(os.path.join(path))
+            cursor.execute(
+                "UPDATE Enquiry SET enquiryImagePath=%s WHERE enquiryID=%s",
+                (path, enquiryID),
+            )
+            db_conn.commit()
         flash(
             "Enquiry form has been submitted. Takes up to 3 working days to receive reply.",
             category="success",
@@ -1218,7 +1220,7 @@ def addResponse():
         )
         db_conn.commit()
         if file.filename != "":
-            path = "static/media/" + str(enquiryid) + "_" + file.filename
+            path = "static/media/" + str(enquiryid) + "_" + malaysia_time.strftime("%Y%m%d_%H%M%S") + "_" + file.filename
             file.save(os.path.join(path))
             cursor.execute(
                 "UPDATE Enquiry SET responseImagePath=%s WHERE enquiryID=%s",

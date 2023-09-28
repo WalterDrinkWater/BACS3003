@@ -3,6 +3,8 @@
 {% block title %}Enquiry{% endblock %}
 {% block head %}
 {{super()}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
 <style>
     .row {
         display: flex;
@@ -16,12 +18,6 @@
     @media (max-width: 768px) {
         .col-6 {
             flex-basis: 100%;
-        }
-    }
-
-    @media(min-width:768px) {
-        .prog-container {
-            justify-content: start !important;
         }
     }
 </style>
@@ -42,6 +38,11 @@
     {% endif %} {% endfor %} {% endif %} {% endwith %}
 <div class="d-flex flex-row justify-content-center align-items-center">
     <div class="col-8 mb-4">
+        <div class="">
+            <a class="bi bi-chevron-left"
+                style="font-size: 50px; position: absolute; text-decoration: none; color:black"
+                href="/admission/enquiry"></a>
+        </div>
         <div class="fs-2 fw-bold text-center mb-2">Enquiry Form</div>
         <div class="text-center mb-4">Fill up the form to enquire</div>
         <form class="row g-3" method="POST" action="/AddEnquiry" enctype="multipart/form-data">

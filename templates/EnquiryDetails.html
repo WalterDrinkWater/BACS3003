@@ -105,7 +105,7 @@ messages %} {% for category, message in messages %} {% if category ==
                             target="_blank">{{enquiry['enquiryImagePath'].split("/")[2]}}</a>
                     </div>
                     {% endif %}
-
+                    
                 </div>
             </div>
             {% if enquiry['responseAccountID'] != None %}
@@ -129,17 +129,6 @@ messages %} {% for category, message in messages %} {% if category ==
                         <label for="inputName" class="form-label">Name</label>
                         <input type="text" class="form-control border-3" id="inputName" name="inputName"
                             value="{{enquiry['responseAccountFullName']}}" disabled>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="inputHandphoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control border-3" id="inputHandphoneNumber"
-                            name="inputHandphoneNumber" placeholder="e.g. 601110944598"
-                            value="{{enquiry['responseAccountHandphoneNumber']}}" disabled>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="inputEmail" class="form-label">Email Address</label>
-                        <input type="text" class="form-control border-3" value="{{enquiry['responseAccountEmail']}}"
-                            disabled>
                     </div>
                     <div class="col-12 mb-3">
                         <label for="inputQuestion" class="form-label">Response</label>
