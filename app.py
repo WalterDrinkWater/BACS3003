@@ -645,13 +645,14 @@ def assess_qualification():
         for choice in choices:
             tempCredits = credits
 
-            if(status == "Approved"):
-                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
-                db_conn.commit()
-                continue
+
 
             
             if choice['programmeType'] == 'xDegree':
+                if(status == "Approved"):
+                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                    db_conn.commit()
+                    continue
                 if allow:
                     if data == "":
                         flash("Please upload your SPM result.")
@@ -686,12 +687,18 @@ def assess_qualification():
                     acronyms.append("".join(word[0].upper() for word in words if word != "in"))
 
                 for acronym in acronyms:
+                    if(status == "Approved"):
+                        cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                        db_conn.commit()
+                        continue                    
                     if(acronym in data2):
                         print(data2.find(acronym))
                         if("CGPA" in data2):
                             cgpa_positions = data2.rfind("CGPA")
                             if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
                                 status = "Rejected"
+                                print(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000")
+                                print(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:])
                             else:
                                 status = "Approved"
                     else: 
