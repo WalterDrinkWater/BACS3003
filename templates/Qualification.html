@@ -16,13 +16,13 @@
         <form class="row g-3 d-flex flex-row justify-content-between flex-wrap" action="/application/assess"
             method="POST" enctype="multipart/form-data">
             <div class="d-flex flex-column col-6">
-                <label for="diploma">Degree</label>
+                <label for="diploma">Diploma</label>
                 <input class="form-control border-3 col-6" type="file" id="diploma" name="diploma"
                     accept=".jpg, .png, .jpeg" onchange="loadFile(event, 'diplomaPreview')" />
                 <img id="diplomaPreview" class="mt-3" width="300" height="300" />
             </div>
             <div class="d-flex flex-column col-6">
-                <label for="degree">Diploma</label>
+                <label for="degree">Degree</label>
                 <input class="form-control border-3" type="file" id="degree" name="degree" accept=".jpg, .png, .jpeg"
                     onchange="loadFile(event, 'qualificationPreview')" />
                 <img id="qualificationPreview" class="mt-3" width="300" height="300" />
