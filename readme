@@ -2,13 +2,18 @@
 # Amazon Linux 2023
 
 #!/bin/bash
-dnf install git -y
-git clone --single-branch --branch kw https://github.com/WalterDrinkWater/BACS3003.git
+sudo su
+yum update -y
+yum install httpd -y
+yum install git -y
+yum install python-pip -y
+pip3 install flask pymysql boto3
+sudo yum install -y libffi-devel cairo-devel libxml2 libxslt
+sudo pip3 install WeasyPrint
+sudo yum install -y pango pango-devel
+yum update
+yum install libglvnd-glx -y
+git clone https://github.com/WalterDrinkWater/BACS3003.git
 cd BACS3003
-dnf install python-pip -y
 pip3 install -r requirements.txt
 python3 app.py
-
-
-
-

@@ -30,7 +30,7 @@
             }
         }
 
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[0]["intakeName"] != null) {
                 console.log("test")
                 intakeSel.querySelector('option[value="' + application[0]["intakeName"] + '"]').selected = true;
@@ -61,7 +61,7 @@
 
         // Dispatch the 'change' event on the intakeSel element
         intakeSel.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[0]["campusName"] != null) {
                 campusSel.querySelector('option[value="' + application[0]["campusName"] + '"]').selected = true;
             }
@@ -88,7 +88,7 @@
         }
 
         campusSel.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[0]["programmeType"] != null) {
                 var type = "";
                 if (application[0]["programmeName"].startsWith("Diploma")) {
@@ -114,7 +114,7 @@
         }
 
         progTypeSel.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[0]["programmeID"] != null) {
                 progSel.querySelector('option[value="' + application[0]["programmeID"] + '"]').selected = true;
             }
@@ -134,7 +134,7 @@
             }
         }
         campusSel2.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[1]["programmeType"] != null) {
                 var type = "";
                 if (application[1]["programmeName"].startsWith("Diploma")) {
@@ -159,7 +159,7 @@
         }
 
         progTypeSel2.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[1]["programmeID"] != null) {
                 progSel2.querySelector('option[value="' + application[1]["programmeID"] + '"]').selected = true;
             }
@@ -179,7 +179,7 @@
             }
         }
         campusSel3.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[2]["programmeType"] != null) {
                 var type = "";
                 if (application[2]["programmeName"].startsWith("Diploma")) {
@@ -205,7 +205,7 @@
         }
 
         progTypeSel3.dispatchEvent(changeEvent);
-        if (Object.keys(application).length > 0) {
+        if (application.length > 0) {
             if (application[2]["programmeID"] != null) {
                 progSel3.querySelector('option[value="' + application[2]["programmeID"] + '"]').selected = true;
             }

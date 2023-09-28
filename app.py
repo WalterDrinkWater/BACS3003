@@ -583,8 +583,8 @@ def qualification():
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
     id = session["appid"]
-    spmObj = request.files["qualification"].read()
-    diploma = request.files["diploma"].read()
+    spmObj = request.files["diploma"].read()
+    diploma = request.files["degree"].read()
     if spmObj:
         data = scan_img(spmObj)
     if diploma:
@@ -684,6 +684,11 @@ def assess_qualification():
                     status = "Approved"
                 cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
                 db_conn.commit()
+        else:
+            for choice in choices:
+                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("Rejected", choice["programmeCampusID"], choice["apID"]))
+                db_conn.commit()
+            
         appid = session['appid']
         cursor.execute("UPDATE Applications SET applicationStatus = %s WHERE applicationID = %s", ("Done", appid))
 
@@ -784,7 +789,7 @@ def Get_Programme_Details(progID):
         courseSql = "SELECT Course.* FROM Course,ProgrammeCourse,Programme WHERE Programme.programmeID = ProgrammeCourse.programmeID AND ProgrammeCourse.courseCode = Course.courseCode AND Programme.programmeID=%s ORDER BY CourseName"
         cursor.execute(courseSql, (progID))
         course = cursor.fetchall()
-        reqSql = "SELECT * FROM QualificationSubject WHERE programmeID=%s ORDER BY qualificationName"
+        reqSql = "SELECT * FROM QualificationSubject WHERE programmeID=%s"
         cursor.execute(reqSql, (progID))
         tempReq = cursor.fetchall()
         grouped_data = defaultdict(list)
@@ -842,7 +847,7 @@ def Compare_Programme(progID):
         sortedDict = sorted(combinedDict.items(), key=lambda x: x[0])
 
         # compare requirement
-        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY qualificationName"
+        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY ProgrammeName"
         cursor.execute(reqSql, (progID, progList[0][1]))
         allReq = cursor.fetchall()
         prog_data = []
@@ -910,7 +915,7 @@ def Compare_Programme(progID):
         sortedDict = sorted(combinedDict.items(), key=lambda x: x[0])
 
         #compare requirement
-        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY qualificationName"
+        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY ProgrammeName"
         cursor.execute(reqSql,(progID,cProgID))
         allReq = cursor.fetchall()
         prog_data = []
@@ -972,10 +977,10 @@ def Admin_Get_IP():
 
             ## Fetch records
             if searchValue == "":
-                cursor.execute("SELECT * FROM LoginSession ORDER BY loginTime limit %s, %s;",(row, rowperpage))
+                cursor.execute("SELECT * FROM LoginSession ORDER BY loginTime DESC limit %s, %s;",(row, rowperpage))
             else:
                 cursor.execute(
-                    "SELECT * FROM LoginSession WHERE ipAddress LIKE %s ORDER BY loginTime limit %s, %s;",(searchValue,row,rowperpage))
+                    "SELECT * FROM LoginSession WHERE ipAddress LIKE %s ORDER BY loginTime DESC limit %s, %s;",(searchValue,row,rowperpage))
             offerlist = cursor.fetchall()
             data = []
             for row in offerlist:
