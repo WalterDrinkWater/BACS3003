@@ -508,10 +508,10 @@ def apply_intake():
 
         cursor.execute("SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
                         "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
-                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "AND programmeID = %s AND campusName = %s UNION ALL " +
                         "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
                         "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
-                        "AND programmeID = %s AND campusName = %s UNION " +
+                        "AND programmeID = %s AND campusName = %s UNION ALL " +
                         "SELECT programmeCampusID, campusName, programmeID FROM ProgrammeCampus pc, Intake i, Campus c " +
                         "WHERE pc.intakeID = i.intakeID AND pc.campusID = c.campusID AND i.intakeName = %s " +
                         "AND programmeID = %s AND campusName = %s", (intake, prog, campus, intake, prog2, campus2 ,intake, prog3, campus3))
@@ -642,16 +642,17 @@ def assess_qualification():
                 if(data[found:found + len(subject) + 2][-2:] <= "C"):
                     credits += 1
         
-        if allow: 
-            for choice in choices:
-                tempCredits = credits
+        for choice in choices:
+            tempCredits = credits
 
-                if(status == "Approved"):
-                    cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
-                    db_conn.commit()
-                    continue
+            if(status == "Approved"):
+                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("End", choice["programmeCampusID"], choice["apID"]))
+                db_conn.commit()
+                continue
 
-                if choice['programmeType'] == 'xDegree':
+            
+            if choice['programmeType'] == 'xDegree':
+                if allow:
                     if data == "":
                         flash("Please upload your SPM result.")
                         return redirect(url_for('qualification'))
@@ -664,43 +665,44 @@ def assess_qualification():
                                 credits += 1
                             else: 
                                 status = "Rejected"
-
+                    if(tempCredits < 5):
+                        status = "Rejected"
+                    else: 
+                        status = "Approved"
                 else:
-                    if data == "":
-                        flash("Please upload your Diploma or Foundation Result.")
-                        return redirect(url_for('qualification'))
-                    cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
-                    qualifications = cursor.fetchall()
-                    acronyms = []
-                    for qualification in qualifications:
-                        words = qualification["subjectName"].split()
-                        acronyms.append("".join(word[0].upper() for word in words if word != "in"))
-
-                    for acronym in acronyms:
-                        if(acronym in data2):
-                            print(data2.find(acronym))
-                            if("CGPA" in data2):
-                                cgpa_positions = data2.rfind("CGPA")
-                                if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
-                                    status = "Rejected"
-                                else:
-                                    status = "Approved"
-                        else: 
-                            print("Different course")
-
-                if(tempCredits < 5):
                     status = "Rejected"
-                else: 
-                    status = "Approved"
                 cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
                 db_conn.commit()
-        else:
-            for choice in choices:
-                cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", ("Rejected", choice["programmeCampusID"], choice["apID"]))
-                db_conn.commit()
+
+            else:
+                if data2 == "":
+                    flash("Please upload your Diploma or Foundation Result.")
+                    return redirect(url_for('qualification'))
+                cursor.execute("SELECT * FROM QualificationSubject WHERE programmeID = %s", choice['programmeID'])
+                qualifications = cursor.fetchall()
+                acronyms = []
+                for qualification in qualifications:
+                    words = qualification["subjectName"].split()
+                    acronyms.append("".join(word[0].upper() for word in words if word != "in"))
+
+                for acronym in acronyms:
+                    if(acronym in data2):
+                        print(data2.find(acronym))
+                        if("CGPA" in data2):
+                            cgpa_positions = data2.rfind("CGPA")
+                            if(data2[cgpa_positions:cgpa_positions + len("CGPA") + 7][-7:] >= "25000"):
+                                status = "Rejected"
+                            else:
+                                status = "Approved"
+                    else: 
+                        print("Different course")
+
+            cursor.execute("UPDATE ApplicationProgramme SET apStatus = %s WHERE programmeCampusID = %s AND apID = %s", (status, choice["programmeCampusID"], choice["apID"]))
+            db_conn.commit()
             
         appid = session['appid']
         cursor.execute("UPDATE Applications SET applicationStatus = %s WHERE applicationID = %s", ("Done", appid))
+        db_conn.commit()
 
     except Exception as e:
         return str(e)
