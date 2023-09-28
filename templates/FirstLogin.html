@@ -1,83 +1,126 @@
-{%extends "studLayout.html"%}
+<!DOCTYPE html>
+<html>
 
-{% block title %}Setup Profile{% endblock %}
-{% block head %}
-{{super()}}
-<style>
-    .prog {
-    width: 100%;
-  max-width: 300px;
-  height: 330px;
-  margin: 0 10px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-}
+<head>
+    <link rel="stylesheet" href="/static/css/bootstrapcss.css">
+    <script src="/static/js/bootstrap.bundle.js"></script>
+    <script src="/static/js/popper.js"></script>
+    <title>Setup Profile</title>
+    <style>
+        .prog {
+            width: 100%;
+            max-width: 300px;
+            height: 330px;
+            margin: 0 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+    
+        .details {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    
+        .duration {
+            position: absolute;
+            bottom: 50px;
+        }
+    
+        @media(min-width:768px) {
+            .prog-container {
+                justify-content: start !important;
+            }
+        }
+    </style>
+    <style>
+        .nav-link {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
 
-.details{
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-}
+        .fs-custom {
+            font-size: 1.1rem !important;
+        }
+    </style>
+</head>
 
-.duration{
-  position: absolute;
-  bottom: 50px;
-}
-
-@media(min-width:768px) {
-    .prog-container{
-      justify-content: start!important;
-    }
-}
-</style>
-{% endblock %}
-{% block content %}
-<div class="d-flex flex-row justify-content-center align-items-center">
-    <div class="col-8 mb-4">
-        <div class="fs-2 fw-bold text-center mb-2">First Login Setup Profile</div>
-        <div class="text-center mb-4">Fill up the form to setup the profile before programme application</div>
-        <form class="row g-3" method="POST" action="/UpdateProfile" enctype="multipart/form-data">
-            <div class="col-12">
-                <label for="inputName" class="form-label">Name (as in MyKad)</label>
-                <input type="text" class="form-control border-3" id="inputName" name="inputName" required>
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light fs-custom">
+        <div class="container-fluid">
+            <div class="navbar-brand fs-4">FOCS (Student Information Center)</div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav ms-auto">
+                    {%if session["loggedin"] == True%}
+                    <li class="nav-item">
+                        <a class="nav-link" class="text-wrap" href="/logout">Sign out</a>
+                    </li>
+                    {%else%}
+                    <li class="nav-item">
+                        <a class="nav-link" class="text-wrap" href="/account/login">Sign in</a>
+                    </li>
+                    {%endif%}
+                </ul>
             </div>
-            <div class="col-6">
-                <label for="inputIC" class="form-label">MyKad No.</label>
-                <input type="text" class="form-control border-3" id="inputIC" name="inputIC" placeholder="e.g. 999999-99-9999" >
-            </div>
-            <div class="col-6">
-                <label for="inputGender" class="form-label col-6">Gender</label>
-                <div class="btn-group col-6" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off" value="Male">
-                    <label class="btn btn-outline-primary" for="btnradio1" >Male</label>
-
-                    <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off" value="Female">
-                    <label class="btn btn-outline-primary" for="btnradio2">Female</label>
+        </div>
+    </nav>
+    <div class="d-flex flex-row justify-content-center align-items-center">
+        <div class="col-8 mb-4">
+            <div class="fs-2 fw-bold text-center mb-2">First Login Setup Profile</div>
+            <div class="text-center mb-4">Fill up the form to setup the profile before programme application</div>
+            <form class="row g-3" method="POST" action="/UpdateProfile" enctype="multipart/form-data">
+                <div class="col-12">
+                    <label for="inputName" class="form-label">Name (as in MyKad)</label>
+                    <input type="text" class="form-control border-3" id="inputName" name="inputName" required>
                 </div>
-            </div>
-            <div class="col-12">
-                <label for="inputAddress" class="form-label">Address</label>
-                <textarea class="form-control border-3" id="inputAddress" name="inputAddress" rows="3"></textarea>
-            </div>
-            <div class="col-12">
-                <label for="inputHandphoneNumber" class="form-label">Handphone Number</label>
-                <input type="text" class="form-control border-3" id="inputHandphoneNumber" name="inputHandphoneNumber"  placeholder="e.g. 601110944598">
-            </div>
-            <div class="col-12">
-                <label for="inputEmail" class="form-label">Email Address</label>
-                <input type="text" class="form-control border-3" value="{{session['useremail']}}" disabled>
-                <input type="hidden" id="inputEmail" name="inputEmail" value="{{session['useremail']}}">
-            </div>
-            <div class="col-12 d-flex flex-row justify-content-end mt-4">
-                <button type="submit" class="btn btn-primary btn-lg" data-bs-toggle="modal"
-                    data-bs-target="#staticBackdrop">Save</button>
-            </div>
-        </form>
+                <div class="col-6">
+                    <label for="inputIC" class="form-label">MyKad No.</label>
+                    <input type="text" class="form-control border-3" id="inputIC" name="inputIC"
+                        placeholder="e.g. 999999-99-9999">
+                </div>
+                <div class="col-6">
+                    <label for="inputGender" class="form-label col-6">Gender</label>
+                    <div class="btn-group col-6" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="inputGender" id="btnradio1" autocomplete="off"
+                            value="Male">
+                        <label class="btn btn-outline-primary" for="btnradio1">Male</label>
+
+                        <input type="radio" class="btn-check" name="inputGender" id="btnradio2" autocomplete="off"
+                            value="Female">
+                        <label class="btn btn-outline-primary" for="btnradio2">Female</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label for="inputAddress" class="form-label">Address</label>
+                    <textarea class="form-control border-3" id="inputAddress" name="inputAddress" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <label for="inputHandphoneNumber" class="form-label">Handphone Number</label>
+                    <input type="text" class="form-control border-3" id="inputHandphoneNumber"
+                        name="inputHandphoneNumber" placeholder="e.g. 601110944598">
+                </div>
+                <div class="col-12">
+                    <label for="inputEmail" class="form-label">Email Address</label>
+                    <input type="text" class="form-control border-3" value="{{session['useremail']}}" disabled>
+                    <input type="hidden" id="inputEmail" name="inputEmail" value="{{session['useremail']}}">
+                </div>
+                <div class="col-12 d-flex flex-row justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-{%endblock%}
+    <script>!function (e, t, a) { var c = e.head || e.getElementsByTagName("head")[0], n = e.createElement("script"); n.async = !0, n.defer = !0, n.type = "text/javascript", n.src = t + "/static/js/widget.js?config=" + JSON.stringify(a), c.appendChild(n) }(document, "https://app.engati.com", { bot_key: "0afdf6af1b9a46e1", welcome_msg: true, branding_key: "default", server: "https://app.engati.com", e: "p" });</script>
+</body>
+
+</html>

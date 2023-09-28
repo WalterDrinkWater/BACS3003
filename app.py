@@ -336,11 +336,17 @@ def AJAXResetPassword():
     msgdesc = ""
     try:
         cursor = db_conn.cursor(cursors.DictCursor)
-        cursor.execute("SELECT * FROM Applications WHERE accountID=%s", ("1"))
-        application = cursor.fetchall()
-
+        cursor.execute(
+            "UPDATE Account SET accPassword=%s WHERE accEmail=%s;",
+            (password, email),
+        )
+        db_conn.commit()
+        msg = "success"
+        msgdesc = "Password has been reset succesfully"
     except Exception as e:
-        return str(e)
+        print(e)
+        msg = "failed"
+        msgdesc = str(e)
 
     cursor.close()
     response = {"msg": msg, "msgdesc": msgdesc}
