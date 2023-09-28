@@ -81,20 +81,27 @@
     </div>
     <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
       {%for group_key, rows in req.items():%}
-      <h5><b>{{group_key}}</b></h5>
-
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th style="background-color: rgb(194, 194, 194); ">Required Subject</th>
-            <th style="background-color: rgb(194, 194, 194); ">Grade</th>
+            {%if prog[0][4] == "xDegree"%}
+            <th style="background-color: #0d6efd; color: white; text-align: center; ">SPM Minimum 5 Credits & Credits In All Relevant Subject</th>
+            {%else%}
+            <th style="background-color: #0d6efd; color: white; text-align: center; ">CGPA 2.5 in Relevant 1 Diploma/Foundation</th>
+            {%endif%}
+          </tr>
+          <tr>
+            {%if prog[0][4] == "xDegree"%}
+            <th style="background-color: rgb(194, 194, 194); ">Relevant Subject</th>            
+            {%else%}
+            <th style="background-color: rgb(194, 194, 194); ">Relevant Diploma/Foundation</th>
+            {%endif%}
           </tr>
         </thead>
         <tbody>
           {%for row in rows:%}
           <tr>
             <td>{{row[1]}} </td>
-            <td>{{row[2]}}</td>
           </tr>
           {% endfor %}
         </tbody>

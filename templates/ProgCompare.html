@@ -118,19 +118,22 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
+                        {%if cName[0][0].startswith("Bachelor")%}
+                        <th colspan="2" style="background-color: #0d6efd; color: white; text-align: center; ">CGPA 2.5 in Relevant 1 Diploma/Foundation</th>
+                        {%else%}
+                        <th colspan="2" style="background-color: #0d6efd; color: white; text-align: center; ">SPM Minimum 5 Credits & Credits In All Relevant Subject</th>
+                        {%endif%}
+                    </tr>
+                    <tr>
                         <th style="background-color: rgb(194, 194, 194)">Program</th>
-                        <th style="background-color: rgb(194, 194, 194)">Level</th>
-                        <th style="background-color: rgb(194, 194, 194)">Subject</th>
-                        <th style="background-color: rgb(194, 194, 194)">Grade</th>
+                        <th style="background-color: rgb(194, 194, 194)">Required Subject</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in prog_data %}
                     <tr>
                         <td>{{ row.Program }}</td>
-                        <td>{{ row.Level }}</td>
                         <td>{{ row.Subject }}</td>
-                        <td>{{ row.Grade }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
