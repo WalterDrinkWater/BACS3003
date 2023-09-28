@@ -575,16 +575,14 @@ def dynamic_selection():
 
 @app.route('/application/qualification')
 def qualification():
-    intakePart = session["intake"]
-    icfPart = session["icf"]
-    icbPart = session["icb"]
+    # intakePart = session["intake"]
+    # icfPart = session["icf"]
+    # icbPart = session["icb"]
     return render_template("Qualification.html")
 
 @app.route('/application/assess', methods=['POST'])
 def assess_qualification():
     id = session["appid"]
-    intakePart = session["intake"]
-    icPart = session["ic"]
     spmObj = request.files["qualification"].read()
     diploma = request.files["diploma"].read()
     if spmObj:
