@@ -770,7 +770,7 @@ def Get_Programme_Details(progID):
         courseSql = "SELECT Course.* FROM Course,ProgrammeCourse,Programme WHERE Programme.programmeID = ProgrammeCourse.programmeID AND ProgrammeCourse.courseCode = Course.courseCode AND Programme.programmeID=%s ORDER BY CourseName"
         cursor.execute(courseSql, (progID))
         course = cursor.fetchall()
-        reqSql = "SELECT * FROM QualificationSubject WHERE programmeID=%s ORDER BY qualificationName"
+        reqSql = "SELECT * FROM QualificationSubject WHERE programmeID=%s"
         cursor.execute(reqSql, (progID))
         tempReq = cursor.fetchall()
         grouped_data = defaultdict(list)
@@ -828,7 +828,7 @@ def Compare_Programme(progID):
         sortedDict = sorted(combinedDict.items(), key=lambda x: x[0])
 
         # compare requirement
-        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY qualificationName"
+        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY ProgrammeName"
         cursor.execute(reqSql, (progID, progList[0][1]))
         allReq = cursor.fetchall()
         prog_data = []
@@ -896,7 +896,7 @@ def Compare_Programme(progID):
         sortedDict = sorted(combinedDict.items(), key=lambda x: x[0])
 
         #compare requirement
-        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY qualificationName"
+        reqSql = "(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)UNION(SELECT DISTINCT programmeName,qualificationName,subjectName,grade FROM QualificationSubject, Programme WHERE QualificationSubject.programmeID = Programme.programmeID AND Programme.programmeID=%s)ORDER BY ProgrammeName"
         cursor.execute(reqSql,(progID,cProgID))
         allReq = cursor.fetchall()
         prog_data = []
