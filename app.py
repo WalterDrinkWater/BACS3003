@@ -735,8 +735,6 @@ def scan_img(fileObj):
     data = data.split()
     data = ' '.join(data)
 
-    print(data)
-
     # cv2.namedWindow("source", cv2.WINDOW_NORMAL)
     # cv2.imshow('source', image)
     cv2.waitKey()     
