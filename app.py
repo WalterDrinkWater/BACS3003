@@ -1326,13 +1326,13 @@ def AJAXadminenquirylist():
         ## Fetch records
         if searchValue == "":
             cursor.execute(
-                "SELECT * FROM Enquiry ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                "SELECT * FROM Enquiry ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire ASC limit %s, %s;",
                 (row, rowperpage),
             )
             records = cursor.fetchall()
         else:
             cursor.execute(
-                "SELECT * FROM Enquiry WHERE enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire DESC limit %s, %s;",
+                "SELECT * FROM Enquiry WHERE enquiryTopic LIKE %s OR enquiryTitle LIKE %s OR question LIKE %s OR enquiryStatus LIKE %s ORDER BY CASE enquiryStatus WHEN 'Pending Reply' THEN 0 WHEN 'Completed' THEN 1 END ASC, datetimeEnquire ASC limit %s, %s;",
                 (
                     likeString,
                     likeString,
