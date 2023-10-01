@@ -102,7 +102,7 @@ content %}
               <option value="Speech Impairment" {% if application.healthIssue=='Speech Impairment' %}selected{% endif
                 %}>
                 SPEECH IMPAIRMENT</option>
-              <option value="Others" {% if application.healthIssue.startswith('Others') %}selected{% endif %}>OTHERS
+              <option value="Others" {% if application.healthIssue.startswith('Others') %}selected{% endif %} else ' '>OTHERS
               </option>
             </select>
           </div>

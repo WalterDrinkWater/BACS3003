@@ -468,8 +468,8 @@ def intake():
                     accinfo = cursor.fetchone()
                     datetimeApplied = datetime.datetime.now()
 
-                    cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, accountID)"
-                                + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    cursor.execute("INSERT INTO Applications (studentName, identification, gender, fullAddress, email, datetimeApplied, applicationStatus, handphoneNumber, healthIssue, accountID)"
+                                + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'No Physical Disability / Illness', %s)",
                             (accinfo["fullName"], accinfo["identification"],
                                 accinfo["gender"], accinfo["fullAddress"], accinfo["accEmail"], datetimeApplied, "Pending", accinfo["handphoneNumber"], str(accid)))
                     db_conn.commit()
