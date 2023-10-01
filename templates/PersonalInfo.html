@@ -102,14 +102,14 @@ content %}
               <option value="Speech Impairment" {% if application.healthIssue=='Speech Impairment' %}selected{% endif
                 %}>
                 SPEECH IMPAIRMENT</option>
-              <option value="Others" {% if application.healthIssue=='Others' %}selected{% endif %}>OTHERS
+              <option value="Others" {% if application.healthIssue.startswith('Others') %}selected{% endif %} else ' '>OTHERS
               </option>
             </select>
           </div>
           <div class="col-6">
             <label for="others" class="form-label">If Others, Please Specify</label>
             <input class="form-control border-3" type="text" id="others" name="others" disabled
-              value="{{application.healthIssue if application.healthIssue == 'Others' else ' '}}" />
+              value="{{application.healthIssue[6:] if application.healthIssue.startswith('Others') else ' '}}" />
           </div>
           <button type="submit" class="btn btn-primary">Save & Next</button>
         </form>
@@ -124,13 +124,13 @@ content %}
           <div class="col-6 mb-3">
             <label for="frontIc" class="form-label">MyKad (Front)</label>
             <input class="form-control border-3" type="file" id="frontIc" name="frontIc" accept=".jpg, .png, .jpeg"
-              onchange="loadFile(event, 'frontIcPreview')"/>
+              onchange="loadFile(event, 'frontIcPreview')" />
             <img id="frontIcPreview" class="mt-3" width="300" height="300" />
           </div>
           <div class="col-6 mb-3">
             <label for="backIc" class="form-label">MyKad (Back)</label>
             <input class="form-control border-3" type="file" id="backIc" name="backIc" accept=".jpg, .png, .jpeg"
-              onchange="loadFile(event, 'backIcPreview')"/>
+              onchange="loadFile(event, 'backIcPreview')" />
             <img id="backIcPreview" class="mt-3" width="300" height="300" />
           </div>
           <button type="submit" class="btn btn-primary">Save & Next</button>
@@ -144,7 +144,7 @@ content %}
   function EnableDisableTextBox(healthIssue) {
     var selectedValue = healthIssue.options[healthIssue.selectedIndex].value;
     var txtOther = document.getElementById("others");
-    txtOther.disabled = selectedValue == "Others" ? false : true;
+    txtOther.disabled = selectedValue.startsWith("Others") ? false : true;
     if (!txtOther.disabled) {
       txtOther.focus();
     }
