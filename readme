@@ -1,6 +1,5 @@
-# Either add "sudo" before all commands or use "sudo su" first
-# Amazon Linux 2023
 
+#linux
 #!/bin/bash
 sudo su
 yum update -y
@@ -16,4 +15,9 @@ yum install libglvnd-glx -y
 git clone https://github.com/WalterDrinkWater/BACS3003.git
 cd BACS3003
 pip3 install -r requirements.txt
+python3 app.py
+
+#windows
+python -m venv venv
+pip install -r requirements.txt
 python3 app.py
